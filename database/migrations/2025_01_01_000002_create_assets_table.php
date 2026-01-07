@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('filename');
             $table->string('mime_type');
             $table->unsignedBigInteger('size'); // in bytes
+            $table->string('etag')->nullable()->index(); // S3 ETag for duplicate detection
             $table->unsignedInteger('width')->nullable();
             $table->unsignedInteger('height')->nullable();
             $table->string('thumbnail_s3_key')->nullable();
@@ -25,7 +26,7 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->timestamps();
             $table->softDeletes();
-            
+
             $table->index(['created_at', 'user_id']);
             $table->index('mime_type');
         });
