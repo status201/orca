@@ -18,11 +18,12 @@ A Digital Asset Management system for AWS S3 with AI-powered tagging.
 ## Installation
 
 ### Prerequisites
-- PHP 8.1+
+- PHP 8.2+ with minimum 256MB memory limit
 - Composer
 - MySQL/PostgreSQL
 - Node.js & NPM
 - AWS Account with S3 bucket
+- GD or Imagick extension for image processing
 
 ### Setup Steps
 
@@ -66,14 +67,40 @@ php artisan migrate
 php artisan db:seed --class=AdminUserSeeder
 ```
 
-7. Compile assets
+7. Configure PHP memory limit (for large file uploads)
+
+**For Laravel Herd users:**
+Edit Herd's `php.ini` file and set:
+- **macOS/Linux**: `~/.config/herd/bin/php84/php.ini`
+- **Windows**: `C:\Users\<username>\.config\herd\bin\php84\php.ini`
+- **To find yours**: Run `php --ini` and check "Loaded Configuration File"
+```ini
+memory_limit = 256M
+upload_max_filesize = 100M
+post_max_size = 100M
+max_execution_time = 300
+max_input_time = 300
+```
+Then restart Herd from the system tray.
+
+**For Apache/Nginx users:**
+Create `public/.user.ini`:
+```ini
+memory_limit = 256M
+upload_max_filesize = 100M
+post_max_size = 100M
+max_execution_time = 300
+```
+Then restart your web server.
+
+8. Compile assets
 ```bash
 npm run dev
 ```
 
-8. Start development server
+9. Start development server
 ```bash
-php artisan serve
+php artisan serve  # Or use Herd
 ```
 
 ## Usage
@@ -119,12 +146,12 @@ Authentication: Laravel Sanctum (SPA token)
 
 ## Architecture
 
-- **Backend:** Laravel 10+ with AWS SDK
+- **Backend:** Laravel 12 with AWS SDK v3
 - **Frontend:** Blade templates + Alpine.js
-- **Styling:** Tailwind CSS
-- **Image Processing:** Intervention Image
+- **Styling:** Tailwind CSS with custom ORCA theme
+- **Image Processing:** Intervention Image 3.x
 - **AI Tagging:** AWS Rekognition
-- **Storage:** AWS S3 (public-read bucket)
+- **Storage:** AWS S3 (public-read bucket via bucket policy)
 
 ## File Structure
 

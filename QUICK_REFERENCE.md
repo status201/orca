@@ -12,8 +12,21 @@ php artisan key:generate
 php artisan migrate
 php artisan db:seed --class=AdminUserSeeder
 
+# Configure PHP for large file uploads
+# For Herd: Edit ~/.config/herd/bin/php84/php.ini (see docs)
+# For Apache/Nginx: Create public/.user.ini:
+echo "memory_limit = 256M
+upload_max_filesize = 100M
+post_max_size = 100M
+max_execution_time = 300" > public/.user.ini
+
+# Restart web server
+# For Herd: Restart from system tray
+# For Apache: sudo service apache2 restart
+# For Nginx: sudo service nginx restart
+
 # Start development
-php artisan serve
+php artisan serve  # Or use Herd
 npm run dev
 ```
 
@@ -166,15 +179,22 @@ APP_DEBUG=true|false
 
 ## Troubleshooting Quick Fixes
 
-### Can't upload files
-1. Check `.env` AWS credentials
-2. Verify S3 bucket is public-read
-3. Check PHP upload limits
+### Can't upload files / 413 or Memory errors
+1. **Configure PHP limits:**
+   - **Herd:** Edit `~/.config/herd/bin/php84/php.ini` (Windows: `C:\Users\<user>\.config\herd\bin\php84\php.ini`)
+   - **Apache/Nginx:** Create `public/.user.ini`
+   - Set: `memory_limit=256M`, `upload_max_filesize=100M`, `post_max_size=100M`
+2. **Restart web server** (Herd from system tray, or service restart)
+3. **Verify:** Run `php -i | grep "upload_max_filesize\|post_max_size\|memory_limit"`
+4. Check `.env` AWS credentials
+5. Verify S3 bucket is public-read
+6. Check `storage/logs/laravel.log` for errors
 
 ### No thumbnails
-1. Install GD: `apt-get install php-gd`
-2. Check S3 write permissions
-3. Review logs
+1. Install GD: `apt-get install php-gd` or `php -m | grep -i gd`
+2. GIF thumbnails are skipped (uses original)
+3. Check S3 write permissions
+4. Review logs
 
 ### AI tags not working
 1. Set `AWS_REKOGNITION_ENABLED=true`
@@ -233,6 +253,8 @@ php artisan policy:make AssetPolicy
 - [ ] Set `APP_ENV=production`
 - [ ] Set `APP_DEBUG=false`
 - [ ] Configure strong `APP_KEY`
+- [ ] Verify PHP limits are configured (256MB memory, 100MB upload)
+- [ ] Run `php -i | grep upload_max_filesize` to verify settings
 - [ ] Enable HTTPS
 - [ ] Set up queue workers
 - [ ] Configure cron for scheduler
