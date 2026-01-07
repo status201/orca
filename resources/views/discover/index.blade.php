@@ -103,13 +103,14 @@
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <template x-if="object.mime_type.startsWith('image/')">
-                                        <img :src="object.url" 
+                                        <img :src="object.url"
                                              :alt="object.filename"
                                              class="w-16 h-16 object-cover rounded">
                                     </template>
                                     <template x-if="!object.mime_type.startsWith('image/')">
                                         <div class="w-16 h-16 bg-gray-100 rounded flex items-center justify-center">
-                                            <i class="fas fa-file text-2xl text-gray-400"></i>
+                                            <i class="fas text-5xl opacity-60"
+                                               :class="[getFileIcon(object.mime_type, object.filename), getFileIconColor(getFileIcon(object.mime_type, object.filename))]"></i>
                                         </div>
                                     </template>
                                 </td>
@@ -247,6 +248,85 @@ function discoverObjects() {
         formatDate(dateString) {
             const date = new Date(dateString);
             return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+        },
+
+        getFileIcon(mimeType, filename) {
+            const icons = {
+                'application/pdf': 'fa-file-pdf',
+                'application/msword': 'fa-file-word',
+                'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'fa-file-word',
+                'application/vnd.ms-excel': 'fa-file-excel',
+                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': 'fa-file-excel',
+                'application/vnd.ms-powerpoint': 'fa-file-powerpoint',
+                'application/vnd.openxmlformats-officedocument.presentationml.presentation': 'fa-file-powerpoint',
+                'application/zip': 'fa-file-zipper',
+                'application/x-zip-compressed': 'fa-file-zipper',
+                'application/x-rar-compressed': 'fa-file-zipper',
+                'application/x-7z-compressed': 'fa-file-zipper',
+                'text/plain': 'fa-file-lines',
+                'text/csv': 'fa-file-csv',
+                'application/json': 'fa-file-code',
+                'text/html': 'fa-file-code',
+                'text/css': 'fa-file-code',
+                'text/javascript': 'fa-file-code',
+                'application/javascript': 'fa-file-code',
+                'video/mp4': 'fa-file-video',
+                'video/mpeg': 'fa-file-video',
+                'video/quicktime': 'fa-file-video',
+                'video/x-msvideo': 'fa-file-video',
+                'audio/mpeg': 'fa-file-audio',
+                'audio/wav': 'fa-file-audio',
+                'audio/ogg': 'fa-file-audio'
+            };
+
+            if (icons[mimeType]) {
+                return icons[mimeType];
+            }
+
+            // Check by file extension as fallback
+            const ext = filename.toLowerCase().split('.').pop();
+            const extIcons = {
+                'pdf': 'fa-file-pdf',
+                'doc': 'fa-file-word',
+                'docx': 'fa-file-word',
+                'xls': 'fa-file-excel',
+                'xlsx': 'fa-file-excel',
+                'ppt': 'fa-file-powerpoint',
+                'pptx': 'fa-file-powerpoint',
+                'zip': 'fa-file-zipper',
+                'rar': 'fa-file-zipper',
+                '7z': 'fa-file-zipper',
+                'txt': 'fa-file-lines',
+                'csv': 'fa-file-csv',
+                'json': 'fa-file-code',
+                'html': 'fa-file-code',
+                'css': 'fa-file-code',
+                'js': 'fa-file-code',
+                'mp4': 'fa-file-video',
+                'mov': 'fa-file-video',
+                'avi': 'fa-file-video',
+                'mp3': 'fa-file-audio',
+                'wav': 'fa-file-audio'
+            };
+
+            return extIcons[ext] || 'fa-file';
+        },
+
+        getFileIconColor(icon) {
+            const colors = {
+                'fa-file-pdf': 'text-red-500',
+                'fa-file-word': 'text-blue-600',
+                'fa-file-excel': 'text-green-600',
+                'fa-file-powerpoint': 'text-orange-500',
+                'fa-file-zipper': 'text-yellow-600',
+                'fa-file-code': 'text-purple-600',
+                'fa-file-video': 'text-pink-600',
+                'fa-file-audio': 'text-indigo-600',
+                'fa-file-csv': 'text-teal-600',
+                'fa-file-lines': 'text-gray-500'
+            };
+
+            return colors[icon] || 'text-gray-400';
         }
     };
 }

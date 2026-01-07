@@ -4,12 +4,44 @@
 
 ### Prerequisites
 ```bash
-- PHP 8.1 or higher
+- PHP 8.2 or higher with minimum 256MB memory limit
 - Composer
 - Node.js & NPM
 - MySQL or PostgreSQL
 - AWS Account with S3 bucket (public-read)
+- GD or Imagick extension for image processing
 ```
+
+**Important PHP Configuration:**
+
+For handling large file uploads (PDFs, GIFs, videos), you need to increase PHP limits:
+
+**For Laravel Herd users:**
+1. Locate your Herd PHP configuration file:
+   - **macOS/Linux**: `~/.config/herd/bin/php84/php.ini`
+   - **Windows**: `C:\Users\<username>\.config\herd\bin\php84\php.ini`
+   - **To find yours**: Run `php --ini` and check "Loaded Configuration File"
+2. Edit the following values:
+   ```ini
+   memory_limit = 256M
+   upload_max_filesize = 100M
+   post_max_size = 100M
+   max_execution_time = 300
+   max_input_time = 300
+   ```
+3. **Restart Herd** from the system tray (Stop/Start or Restart all services)
+
+**For Apache/Nginx/php-fpm users:**
+Create a `.user.ini` file in the `public/` directory:
+```ini
+memory_limit = 256M
+upload_max_filesize = 100M
+post_max_size = 100M
+max_execution_time = 300
+```
+Then restart your web server.
+
+**Note:** `.user.ini` files do NOT work with Laravel Herd - you must edit Herd's `php.ini` directly.
 
 ### Step-by-Step Installation
 
@@ -48,9 +80,37 @@ AWS_REKOGNITION_ENABLED=true
 ```
 
 **Important S3 Bucket Settings:**
-- Set bucket to **public-read** ACL
-- Enable CORS if accessing from different domains
-- Example CORS configuration:
+
+The application uses **bucket policies** instead of ACLs for better security. Configure your S3 bucket as follows:
+
+1. **Disable ACLs** (recommended by AWS):
+   - Go to S3 → Your Bucket → Permissions → Object Ownership
+   - Select "ACLs disabled (recommended)"
+
+2. **Add Bucket Policy** to make objects publicly readable:
+   - Go to S3 → Your Bucket → Permissions → Bucket Policy
+   - Add the following policy (replace `your-bucket-name` with your actual bucket name):
+
+```json
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "PublicReadGetObject",
+            "Effect": "Allow",
+            "Principal": "*",
+            "Action": "s3:GetObject",
+            "Resource": "arn:aws:s3:::your-bucket-name/*"
+        }
+    ]
+}
+```
+
+**Note:** This policy only makes objects publicly readable. Your IAM user's write/delete permissions come from the IAM policy (see AWS IAM Permissions section below).
+
+3. **Enable CORS** if accessing from different domains:
+   - Go to S3 → Your Bucket → Permissions → CORS
+
 ```json
 [
     {
@@ -105,17 +165,19 @@ Visit: `http://localhost:8000`
 
 ## AWS IAM Permissions
 
-Create an IAM user with the following minimum permissions:
+Create an IAM user (e.g., `orca-dam-user`) with the following minimum permissions:
+
+**Note:** `s3:PutObjectAcl` is NOT required since we use bucket policies instead of ACLs.
 
 ```json
 {
     "Version": "2012-10-17",
     "Statement": [
         {
+            "Sid": "S3BucketAccess",
             "Effect": "Allow",
             "Action": [
                 "s3:PutObject",
-                "s3:PutObjectAcl",
                 "s3:GetObject",
                 "s3:DeleteObject",
                 "s3:ListBucket",
@@ -127,6 +189,7 @@ Create an IAM user with the following minimum permissions:
             ]
         },
         {
+            "Sid": "RekognitionAccess",
             "Effect": "Allow",
             "Action": [
                 "rekognition:DetectLabels",
@@ -137,6 +200,8 @@ Create an IAM user with the following minimum permissions:
     ]
 }
 ```
+
+**Important:** Attach this policy to your IAM user to grant S3 access. The bucket policy (above) only handles public read access.
 
 ---
 
@@ -270,7 +335,7 @@ AWS_REKOGNITION_ENABLED=true
 AI tags are generated automatically on upload and marked with a robot icon.
 
 ### 3. Copying URLs
-Click the copy icon on any asset thumbnail or use the copy button on the asset detail page. URLs are public and permanent (public-read bucket).
+Click the copy icon on any asset thumbnail or use the copy button on the asset detail page. URLs are public and permanent (configured via bucket policy for public read access).
 
 ### 4. Batch Operations
 Select multiple unmapped objects in Discover to import in bulk.
@@ -282,8 +347,20 @@ Select multiple unmapped objects in Discover to import in bulk.
 ### Changing Upload Limits
 In `AssetController.php`:
 ```php
-'files.*' => 'required|file|max:102400', // 100MB default
+'files.*' => 'required|file|max:102400', // 100MB default (in KB)
 ```
+
+Also update your PHP configuration:
+- **For Herd:** Edit `~/.config/herd/bin/php84/php.ini`
+- **For Apache/Nginx:** Edit `public/.user.ini`
+
+```ini
+upload_max_filesize = 100M  # Match your max file size
+post_max_size = 100M        # Match or exceed upload_max_filesize
+memory_limit = 256M         # Should be at least 2.5x your max file size
+```
+
+Then restart your web server.
 
 ### Changing Thumbnail Size
 In `S3Service.php`:
@@ -300,14 +377,28 @@ Update validation rules and add appropriate icons/handling.
 
 ## Troubleshooting
 
+### Large files (PDFs, GIFs, videos) failing to upload
+- **Symptom:** 413 error, 500 error, upload stuck at 100%, or memory exhaustion errors
+- **Solution:** Ensure PHP memory limit is at least 256MB
+- **For Herd users:** Edit `~/.config/herd/bin/php84/php.ini` directly (see Prerequisites section)
+- **For Apache/Nginx users:** Create `public/.user.ini` with the settings shown in Prerequisites
+- Restart your web server (Herd from system tray, or `sudo service apache2 restart`)
+- Verify changes: Run `php -i | grep "upload_max_filesize\|post_max_size\|memory_limit"`
+- Check Laravel logs for errors: `storage/logs/laravel.log`
+- For very large files (>100MB), increase memory limit further or reduce max file size
+
 ### Images not uploading
-- Check S3 bucket permissions (public-read)
+- Check S3 bucket policy is configured correctly (see AWS S3 Bucket Settings above)
+- Verify IAM user has required S3 permissions
 - Verify AWS credentials in `.env`
-- Check PHP `upload_max_filesize` and `post_max_size`
+- Check PHP `upload_max_filesize` and `post_max_size` settings
+- Review Laravel logs for specific error: `storage/logs/laravel.log`
+- Ensure toast notifications are working (check browser console for errors)
 
 ### Thumbnails not generating
-- Ensure GD or Imagick PHP extension is installed
-- Check S3 write permissions
+- Ensure GD or Imagick PHP extension is installed (`php -m | grep -i gd`)
+- Check S3 write permissions for thumbnail uploads
+- GIF thumbnails are skipped to avoid memory issues (original GIF is used)
 - Review Laravel logs: `storage/logs/laravel.log`
 
 ### AI tagging not working
@@ -351,6 +442,7 @@ For scheduled tasks:
 - [ ] Set `APP_ENV=production` and `APP_DEBUG=false`
 - [ ] Use strong `APP_KEY`
 - [ ] Enable HTTPS
+- [ ] Verify PHP memory/upload limits are properly configured (256MB minimum)
 - [ ] Restrict IAM permissions to minimum required
 - [ ] Set up regular backups
 - [ ] Configure rate limiting

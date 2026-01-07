@@ -3,7 +3,7 @@
 @section('title', $asset->filename)
 
 @section('content')
-<div class="max-w-6xl mx-auto">
+<div class="max-w-6xl mx-auto" x-data="assetDetail()">
     <!-- Back button -->
     <div class="mb-6">
         <a href="{{ route('assets.index') }}" class="inline-flex items-center text-blue-600 hover:text-blue-700">
@@ -16,14 +16,31 @@
         <div class="lg:col-span-2">
             <div class="bg-white rounded-lg shadow-lg overflow-hidden">
                 @if($asset->isImage())
-                    <img src="{{ $asset->url }}" 
+                    <img src="{{ $asset->url }}"
                          alt="{{ $asset->filename }}"
                          class="w-full h-auto">
                 @else
                     <div class="aspect-video bg-gray-100 flex items-center justify-center">
                         <div class="text-center">
-                            <i class="fas fa-file text-6xl text-gray-400 mb-4"></i>
-                            <p class="text-gray-600">{{ $asset->mime_type }}</p>
+                            @php
+                                $icon = $asset->getFileIcon();
+                                $colorClass = match($icon) {
+                                    'fa-file-pdf' => 'text-red-500',
+                                    'fa-file-word' => 'text-blue-600',
+                                    'fa-file-excel' => 'text-green-600',
+                                    'fa-file-powerpoint' => 'text-orange-500',
+                                    'fa-file-zipper' => 'text-yellow-600',
+                                    'fa-file-code' => 'text-purple-600',
+                                    'fa-file-video' => 'text-pink-600',
+                                    'fa-file-audio' => 'text-indigo-600',
+                                    'fa-file-csv' => 'text-teal-600',
+                                    'fa-file-lines' => 'text-gray-500',
+                                    default => 'text-gray-400'
+                                };
+                            @endphp
+                            <i class="fas {{ $icon }} {{ $colorClass }} opacity-60 mb-4" style="font-size: 12rem;"></i>
+                            <p class="text-gray-600 font-medium">{{ $asset->mime_type }}</p>
+                            <p class="text-gray-500 text-sm mt-1">{{ strtoupper(pathinfo($asset->filename, PATHINFO_EXTENSION)) }} File</p>
                         </div>
                     </div>
                 @endif
@@ -33,27 +50,31 @@
             <div class="mt-6 bg-white rounded-lg shadow-lg p-6">
                 <h3 class="text-lg font-semibold mb-3">Asset URL</h3>
                 <div class="flex items-center space-x-2">
-                    <input type="text" 
+                    <input type="text"
                            value="{{ $asset->url }}"
                            readonly
                            class="flex-1 px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg text-sm font-mono">
-                    <button onclick="copyToClipboard('{{ $asset->url }}')"
-                            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 whitespace-nowrap">
-                        <i class="fas fa-copy mr-2"></i> Copy
+                    <button @click="copyUrl('{{ $asset->url }}', 'main')"
+                            :class="copiedStates.main ? 'bg-green-600 hover:bg-green-700' : 'bg-blue-600 hover:bg-blue-700'"
+                            class="px-4 py-2 text-white rounded-lg whitespace-nowrap transition-all duration-300">
+                        <i :class="copiedStates.main ? 'fas fa-check' : 'fas fa-copy'" class="mr-2"></i>
+                        <span x-text="copiedStates.main ? 'Copied!' : 'Copy'"></span>
                     </button>
                 </div>
-                
+
                 @if($asset->thumbnail_url)
                 <div class="mt-4">
                     <h4 class="text-sm font-semibold mb-2 text-gray-700">Thumbnail URL</h4>
                     <div class="flex items-center space-x-2">
-                        <input type="text" 
+                        <input type="text"
                                value="{{ $asset->thumbnail_url }}"
                                readonly
                                class="flex-1 px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg text-sm font-mono">
-                        <button onclick="copyToClipboard('{{ $asset->thumbnail_url }}')"
-                                class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 whitespace-nowrap">
-                            <i class="fas fa-copy mr-2"></i> Copy
+                        <button @click="copyUrl('{{ $asset->thumbnail_url }}', 'thumb')"
+                                :class="copiedStates.thumb ? 'bg-green-600 hover:bg-green-700' : 'bg-gray-600 hover:bg-gray-700'"
+                                class="px-4 py-2 text-white rounded-lg whitespace-nowrap transition-all duration-300">
+                            <i :class="copiedStates.thumb ? 'fas fa-check' : 'fas fa-copy'" class="mr-2"></i>
+                            <span x-text="copiedStates.thumb ? 'Copied!' : 'Copy'"></span>
                         </button>
                     </div>
                 </div>
@@ -157,9 +178,7 @@
                     </a>
                     @endcan
                     
-                    <a href="{{ $asset->url }}" 
-                       target="_blank"
-                       download
+                    <a href="{{ route('assets.download', $asset) }}"
                        class="block w-full px-4 py-2 bg-gray-600 text-white text-center rounded-lg hover:bg-gray-700">
                         <i class="fas fa-download mr-2"></i> Download
                     </a>
@@ -181,4 +200,64 @@
         </div>
     </div>
 </div>
+
+@push('scripts')
+<script>
+function assetDetail() {
+    return {
+        copiedStates: {
+            main: false,
+            thumb: false
+        },
+
+        copyUrl(url, type) {
+            // Try modern clipboard API first
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(url).then(() => {
+                    this.copiedStates[type] = true;
+                    window.showToast('URL copied to clipboard!');
+                    setTimeout(() => {
+                        this.copiedStates[type] = false;
+                    }, 2000);
+                }).catch(err => {
+                    console.error('Failed to copy:', err);
+                    window.showToast('Failed to copy URL', 'error');
+                });
+            } else {
+                // Fallback for HTTP/older browsers
+                const textArea = document.createElement('textarea');
+                textArea.value = url;
+                textArea.style.position = 'fixed';
+                textArea.style.left = '-999999px';
+                document.body.appendChild(textArea);
+                textArea.select();
+                try {
+                    document.execCommand('copy');
+                    this.copiedStates[type] = true;
+                    window.showToast('URL copied to clipboard!');
+                    setTimeout(() => {
+                        this.copiedStates[type] = false;
+                    }, 2000);
+                } catch (err) {
+                    console.error('Failed to copy:', err);
+                    window.showToast('Failed to copy URL', 'error');
+                }
+                textArea.remove();
+            }
+        }
+    };
+}
+</script>
+
+<style>
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+}
+</style>
+@endpush
 @endsection
