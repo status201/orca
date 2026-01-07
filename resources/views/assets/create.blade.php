@@ -17,8 +17,8 @@
              :class="dragActive ? 'border-blue-500 bg-blue-50' : 'border-gray-300'"
              class="border-2 border-dashed rounded-lg p-12 text-center transition-colors">
             
-            <input type="file" 
-                   ref="fileInput"
+            <input type="file"
+                   x-ref="fileInput"
                    @change="handleFiles"
                    multiple
                    accept="image/*,video/*,application/pdf"
