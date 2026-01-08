@@ -220,12 +220,14 @@ class AssetController extends Controller
         $request->validate([
             'alt_text' => 'nullable|string|max:500',
             'caption' => 'nullable|string|max:1000',
+            'license_type' => 'nullable|string|max:255',
+            'copyright' => 'nullable|string|max:500',
             'tags' => 'nullable|array',
             'tags.*' => 'string|max:50',
         ]);
 
         // Update metadata
-        $asset->update($request->only(['alt_text', 'caption']));
+        $asset->update($request->only(['alt_text', 'caption', 'license_type', 'copyright']));
 
         // Handle tags
         if ($request->has('tags')) {

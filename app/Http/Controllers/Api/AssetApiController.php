@@ -193,4 +193,45 @@ class AssetApiController extends Controller
 
         return response()->json($assets);
     }
+
+    /**
+     * Get asset metadata by URL (public endpoint)
+     */
+    public function getMeta(Request $request)
+    {
+        $request->validate([
+            'url' => 'required|string|url',
+        ]);
+
+        $url = $request->input('url');
+        $baseUrl = config('filesystems.disks.s3.url') . '/';
+
+        // Extract S3 key by removing the base URL
+        if (!str_starts_with($url, $baseUrl)) {
+            return response()->json([
+                'message' => 'URL does not match configured S3 bucket',
+            ], 400);
+        }
+
+        $s3Key = str_replace($baseUrl, '', $url);
+
+        // Find asset by s3_key
+        $asset = Asset::where('s3_key', $s3Key)->first();
+
+        if (!$asset) {
+            return response()->json([
+                'message' => 'Asset not found',
+            ], 404);
+        }
+
+        // Return only metadata fields
+        return response()->json([
+            'alt_text' => $asset->alt_text,
+            'caption' => $asset->caption,
+            'license_type' => $asset->license_type,
+            'copyright' => $asset->copyright,
+            'filename' => $asset->filename,
+            'url' => $asset->url,
+        ]);
+    }
 }

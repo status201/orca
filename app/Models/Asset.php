@@ -23,6 +23,8 @@ class Asset extends Model
         'thumbnail_s3_key',
         'alt_text',
         'caption',
+        'license_type',
+        'copyright',
         'user_id',
     ];
 

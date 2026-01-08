@@ -130,8 +130,60 @@
                     <p class="text-sm text-gray-600">{{ $asset->caption }}</p>
                 </div>
                 @endif
+
+                @if($asset->license_type)
+                <div class="mt-4 pt-4 border-t">
+                    <h4 class="text-sm font-semibold text-gray-700 mb-1">License Type</h4>
+                    <p class="text-sm text-gray-600">
+                        @switch($asset->license_type)
+                            @case('public_domain')
+                                Public Domain
+                                @break
+                            @case('cc0')
+                                CC0 (No Rights Reserved)
+                                @break
+                            @case('cc_by')
+                                CC BY (Attribution)
+                                @break
+                            @case('cc_by_sa')
+                                CC BY-SA (Attribution-ShareAlike)
+                                @break
+                            @case('cc_by_nd')
+                                CC BY-ND (Attribution-NoDerivs)
+                                @break
+                            @case('cc_by_nc')
+                                CC BY-NC (Attribution-NonCommercial)
+                                @break
+                            @case('cc_by_nc_sa')
+                                CC BY-NC-SA (Attribution-NonCommercial-ShareAlike)
+                                @break
+                            @case('cc_by_nc_nd')
+                                CC BY-NC-ND (Attribution-NonCommercial-NoDerivs)
+                                @break
+                            @case('fair_use')
+                                Fair Use
+                                @break
+                            @case('all_rights_reserved')
+                                All Rights Reserved
+                                @break
+                            @case('other')
+                                Other
+                                @break
+                            @default
+                                {{ $asset->license_type }}
+                        @endswitch
+                    </p>
+                </div>
+                @endif
+
+                @if($asset->copyright)
+                <div class="mt-4 pt-4 border-t">
+                    <h4 class="text-sm font-semibold text-gray-700 mb-1">Copyright Information</h4>
+                    <p class="text-sm text-gray-600">{{ $asset->copyright }}</p>
+                </div>
+                @endif
             </div>
-            
+
             <!-- Tags card -->
             <div class="bg-white rounded-lg shadow-lg p-6">
                 <h3 class="text-lg font-semibold mb-4">Tags</h3>

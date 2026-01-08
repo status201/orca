@@ -3,6 +3,11 @@
 @tailwind utilities;
 
 @layer utilities {
+    /* Select dropdown arrow spacing */
+    .pr-dropdown {
+        padding-right: 2rem !important;
+    }
+
     /* Orca theme button overrides - replace blue with black */
     .bg-blue-600 {
         background-color: #1a1a1a !important;
@@ -57,42 +62,6 @@
     }
     100% {
         transform: translateX(-600px);
-    }
-}
-
-/* View Transition API animations */
-@supports (view-transition-name: none) {
-    /* Smooth fade transition for page changes */
-    ::view-transition-old(root),
-    ::view-transition-new(root) {
-        animation-duration: 0.3s;
-        animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    ::view-transition-old(root) {
-        animation-name: fade-out;
-    }
-
-    ::view-transition-new(root) {
-        animation-name: fade-in;
-    }
-}
-
-@keyframes fade-out {
-    from {
-        opacity: 1;
-    }
-    to {
-        opacity: 0;
-    }
-}
-
-@keyframes fade-in {
-    from {
-        opacity: 0;
-    }
-    to {
-        opacity: 1;
     }
 }
 

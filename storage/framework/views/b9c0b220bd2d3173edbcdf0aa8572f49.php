@@ -1,3 +1,5 @@
+
+
 <?php $__env->startSection('title', $asset->filename); ?>
 
 <?php $__env->startSection('content'); ?>
@@ -128,8 +130,61 @@
                     <p class="text-sm text-gray-600"><?php echo e($asset->caption); ?></p>
                 </div>
                 <?php endif; ?>
+
+                <?php if($asset->license_type): ?>
+                <div class="mt-4 pt-4 border-t">
+                    <h4 class="text-sm font-semibold text-gray-700 mb-1">License Type</h4>
+                    <p class="text-sm text-gray-600">
+                        <?php switch($asset->license_type):
+                            case ('public_domain'): ?>
+                                Public Domain
+                                <?php break; ?>
+                            <?php case ('cc0'): ?>
+                                CC0 (No Rights Reserved)
+                                <?php break; ?>
+                            <?php case ('cc_by'): ?>
+                                CC BY (Attribution)
+                                <?php break; ?>
+                            <?php case ('cc_by_sa'): ?>
+                                CC BY-SA (Attribution-ShareAlike)
+                                <?php break; ?>
+                            <?php case ('cc_by_nd'): ?>
+                                CC BY-ND (Attribution-NoDerivs)
+                                <?php break; ?>
+                            <?php case ('cc_by_nc'): ?>
+                                CC BY-NC (Attribution-NonCommercial)
+                                <?php break; ?>
+                            <?php case ('cc_by_nc_sa'): ?>
+                                CC BY-NC-SA (Attribution-NonCommercial-ShareAlike)
+                                <?php break; ?>
+                            <?php case ('cc_by_nc_nd'): ?>
+                                CC BY-NC-ND (Attribution-NonCommercial-NoDerivs)
+                                <?php break; ?>
+                            <?php case ('fair_use'): ?>
+                                Fair Use
+                                <?php break; ?>
+                            <?php case ('all_rights_reserved'): ?>
+                                All Rights Reserved
+                                <?php break; ?>
+                            <?php case ('other'): ?>
+                                Other
+                                <?php break; ?>
+                            <?php default: ?>
+                                <?php echo e($asset->license_type); ?>
+
+                        <?php endswitch; ?>
+                    </p>
+                </div>
+                <?php endif; ?>
+
+                <?php if($asset->copyright): ?>
+                <div class="mt-4 pt-4 border-t">
+                    <h4 class="text-sm font-semibold text-gray-700 mb-1">Copyright Information</h4>
+                    <p class="text-sm text-gray-600"><?php echo e($asset->copyright); ?></p>
+                </div>
+                <?php endif; ?>
             </div>
-            
+
             <!-- Tags card -->
             <div class="bg-white rounded-lg shadow-lg p-6">
                 <h3 class="text-lg font-semibold mb-4">Tags</h3>

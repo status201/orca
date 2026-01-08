@@ -82,7 +82,7 @@
                     Caption
                 </label>
                 <textarea id="caption"
-                          name="caption" 
+                          name="caption"
                           rows="3"
                           maxlength="1000"
                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -91,7 +91,50 @@
                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                 @enderror
             </div>
-            
+
+            <!-- License Type -->
+            <div class="mb-6">
+                <label for="license_type" class="block text-sm font-medium text-gray-700 mb-2">
+                    License Type
+                </label>
+                <select id="license_type"
+                        name="license_type"
+                        class="w-full px-4 py-2 pr-dropdown border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    <option value="">Select a license...</option>
+                    <option value="public_domain" {{ old('license_type', $asset->license_type) == 'public_domain' ? 'selected' : '' }}>Public Domain</option>
+                    <option value="cc0" {{ old('license_type', $asset->license_type) == 'cc0' ? 'selected' : '' }}>CC0 (No Rights Reserved)</option>
+                    <option value="cc_by" {{ old('license_type', $asset->license_type) == 'cc_by' ? 'selected' : '' }}>CC BY (Attribution)</option>
+                    <option value="cc_by_sa" {{ old('license_type', $asset->license_type) == 'cc_by_sa' ? 'selected' : '' }}>CC BY-SA (Attribution-ShareAlike)</option>
+                    <option value="cc_by_nd" {{ old('license_type', $asset->license_type) == 'cc_by_nd' ? 'selected' : '' }}>CC BY-ND (Attribution-NoDerivs)</option>
+                    <option value="cc_by_nc" {{ old('license_type', $asset->license_type) == 'cc_by_nc' ? 'selected' : '' }}>CC BY-NC (Attribution-NonCommercial)</option>
+                    <option value="cc_by_nc_sa" {{ old('license_type', $asset->license_type) == 'cc_by_nc_sa' ? 'selected' : '' }}>CC BY-NC-SA (Attribution-NonCommercial-ShareAlike)</option>
+                    <option value="cc_by_nc_nd" {{ old('license_type', $asset->license_type) == 'cc_by_nc_nd' ? 'selected' : '' }}>CC BY-NC-ND (Attribution-NonCommercial-NoDerivs)</option>
+                    <option value="fair_use" {{ old('license_type', $asset->license_type) == 'fair_use' ? 'selected' : '' }}>Fair Use</option>
+                    <option value="all_rights_reserved" {{ old('license_type', $asset->license_type) == 'all_rights_reserved' ? 'selected' : '' }}>All Rights Reserved</option>
+                    <option value="other" {{ old('license_type', $asset->license_type) == 'other' ? 'selected' : '' }}>Other</option>
+                </select>
+                @error('license_type')
+                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                @enderror
+            </div>
+
+            <!-- Copyright -->
+            <div class="mb-6">
+                <label for="copyright" class="block text-sm font-medium text-gray-700 mb-2">
+                    Copyright Information
+                </label>
+                <input type="text"
+                       id="copyright"
+                       name="copyright"
+                       value="{{ old('copyright', $asset->copyright) }}"
+                       maxlength="500"
+                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                       placeholder="e.g., © 2024 Company Name, or copyright holder information">
+                @error('copyright')
+                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                @enderror
+            </div>
+
             <!-- Tags -->
             <div class="mb-6">
                 <label class="block text-sm font-medium text-gray-700 mb-2">
