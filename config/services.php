@@ -35,4 +35,9 @@ return [
         ],
     ],
 
+    'aws' => [
+        'rekognition_enabled' => env('AWS_REKOGNITION_ENABLED', false),
+        'rekognition_max_labels' => env('AWS_REKOGNITION_MAX_LABELS', 5),
+    ],
+
 ];

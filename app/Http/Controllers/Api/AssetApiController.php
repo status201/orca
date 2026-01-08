@@ -7,6 +7,7 @@ use App\Models\Asset;
 use App\Models\Tag;
 use App\Services\S3Service;
 use App\Services\RekognitionService;
+use App\Jobs\GenerateAiTags;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -83,9 +84,7 @@ class AssetApiController extends Controller
                 }
 
                 if ($this->rekognitionService->isEnabled()) {
-                    dispatch(function () use ($asset) {
-                        $this->rekognitionService->autoTagAsset($asset);
-                    })->afterResponse();
+                    GenerateAiTags::dispatch($asset)->afterResponse();
                 }
             }
 

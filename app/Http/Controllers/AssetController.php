@@ -6,6 +6,7 @@ use App\Models\Asset;
 use App\Models\Tag;
 use App\Services\S3Service;
 use App\Services\RekognitionService;
+use App\Jobs\GenerateAiTags;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
@@ -137,9 +138,7 @@ class AssetController extends Controller
                     // Auto-tag with AI if enabled
                     if ($asset->isImage() && $this->rekognitionService->isEnabled()) {
                         try {
-                            dispatch(function () use ($asset) {
-                                $this->rekognitionService->autoTagAsset($asset);
-                            })->afterResponse();
+                            GenerateAiTags::dispatch($asset)->afterResponse();
                         } catch (\Exception $e) {
                             \Log::error("AI tagging failed for {$asset->filename}: " . $e->getMessage());
                             // Continue without AI tags
@@ -295,6 +294,47 @@ class AssetController extends Controller
         return response($fileContent)
             ->header('Content-Type', $asset->mime_type)
             ->header('Content-Disposition', 'attachment; filename="' . $asset->filename . '"');
+    }
+
+    /**
+     * Generate AI tags for an asset using AWS Rekognition
+     */
+    public function generateAiTags(Asset $asset)
+    {
+        \Log::info("generateAiTags called for asset ID: {$asset->id}");
+
+        $this->authorize('update', $asset);
+
+        if (!$asset->isImage()) {
+            \Log::info("Asset is not an image, redirecting to edit");
+            return redirect()->route('assets.edit', $asset)
+                ->with('error', 'AI tagging is only available for images');
+        }
+
+        if (!$this->rekognitionService->isEnabled()) {
+            \Log::info("Rekognition is not enabled, redirecting to edit");
+            return redirect()->route('assets.edit', $asset)
+                ->with('error', 'AWS Rekognition is not enabled');
+        }
+
+        try {
+            \Log::info("Starting AI tag generation for asset {$asset->id}");
+            $labels = $this->rekognitionService->autoTagAsset($asset);
+
+            if (empty($labels)) {
+                \Log::info("No labels detected, redirecting to edit");
+                return redirect()->route('assets.edit', $asset)
+                    ->with('warning', 'No labels detected for this image');
+            }
+
+            \Log::info("Generated " . count($labels) . " AI tags, redirecting to edit");
+            return redirect()->route('assets.edit', $asset)
+                ->with('success', 'Generated ' . count($labels) . ' AI tag(s) successfully');
+        } catch (\Exception $e) {
+            \Log::error("Manual AI tagging failed for {$asset->filename}: " . $e->getMessage());
+            return redirect()->route('assets.edit', $asset)
+                ->with('error', 'Failed to generate AI tags: ' . $e->getMessage());
+        }
     }
 
     /**

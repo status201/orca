@@ -27,6 +27,9 @@ Route::middleware(['auth'])->group(function () {
     // Asset download
     Route::get('assets/{asset}/download', [AssetController::class, 'download'])->name('assets.download');
 
+    // AI tagging
+    Route::post('assets/{asset}/ai-tag', [AssetController::class, 'generateAiTags'])->name('assets.ai-tag');
+
     // Asset tag management
     Route::post('assets/{asset}/tags', [AssetController::class, 'addTags'])->name('assets.tags.add');
     Route::delete('assets/{asset}/tags/{tag}', [AssetController::class, 'removeTag'])->name('assets.tags.remove');

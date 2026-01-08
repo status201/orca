@@ -38,6 +38,8 @@ class RekognitionService
         }
 
         try {
+            $maxLabels = config('services.aws.rekognition_max_labels', 5);
+
             $result = $this->rekognitionClient->detectLabels([
                 'Image' => [
                     'S3Object' => [
@@ -45,7 +47,7 @@ class RekognitionService
                         'Name' => $s3Key,
                     ],
                 ],
-                'MaxLabels' => 20,
+                'MaxLabels' => $maxLabels,
                 'MinConfidence' => $minConfidence,
             ]);
 

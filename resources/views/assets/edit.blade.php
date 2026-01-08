@@ -12,7 +12,25 @@
     
     <div class="bg-white rounded-lg shadow-lg p-6">
         <h1 class="text-3xl font-bold mb-6">Edit Asset</h1>
-        
+
+        @if(session('success'))
+        <div class="mb-6 p-4 bg-green-50 border border-green-200 text-green-800 rounded-lg">
+            <i class="fas fa-check-circle mr-2"></i>{{ session('success') }}
+        </div>
+        @endif
+
+        @if(session('error'))
+        <div class="mb-6 p-4 bg-red-50 border border-red-200 text-red-800 rounded-lg">
+            <i class="fas fa-exclamation-circle mr-2"></i>{{ session('error') }}
+        </div>
+        @endif
+
+        @if(session('warning'))
+        <div class="mb-6 p-4 bg-yellow-50 border border-yellow-200 text-yellow-800 rounded-lg">
+            <i class="fas fa-exclamation-triangle mr-2"></i>{{ session('warning') }}
+        </div>
+        @endif
+
         <form action="{{ route('assets.update', $asset) }}" method="POST">
             @csrf
             @method('PATCH')
@@ -194,11 +212,23 @@
                 </div>
                 
                 <!-- AI tags (read-only) -->
-                @if($asset->aiTags->count() > 0)
                 <div class="mt-4 pt-4 border-t">
-                    <p class="text-sm text-gray-600 mb-2">
-                        <i class="fas fa-robot mr-1"></i> AI-Generated Tags (cannot be edited)
-                    </p>
+                    <div class="flex items-center justify-between mb-2">
+                        <p class="text-sm text-gray-600">
+                            <i class="fas fa-robot mr-1"></i> AI-Generated Tags
+                        </p>
+                        @if($asset->isImage())
+                        <form action="{{ route('assets.ai-tag', $asset) }}" method="POST" class="inline">
+                            @csrf
+                            <button type="submit"
+                                    class="text-sm px-3 py-1 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition">
+                                <i class="fas fa-wand-magic-sparkles mr-1"></i> Generate AI Tags
+                            </button>
+                        </form>
+                        @endif
+                    </div>
+
+                    @if($asset->aiTags->count() > 0)
                     <div class="flex flex-wrap gap-2">
                         @foreach($asset->aiTags as $tag)
                         <span class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-purple-100 text-purple-700">
@@ -207,8 +237,10 @@
                         </span>
                         @endforeach
                     </div>
+                    @else
+                    <p class="text-sm text-gray-500 italic">No AI tags yet. Click "Generate AI Tags" to analyze this image.</p>
+                    @endif
                 </div>
-                @endif
                 
                 @error('tags')
                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
