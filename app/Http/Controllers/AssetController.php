@@ -229,21 +229,21 @@ class AssetController extends Controller
         // Update metadata
         $asset->update($request->only(['alt_text', 'caption', 'license_type', 'copyright']));
 
-        // Handle tags
-        if ($request->has('tags')) {
-            $tagIds = [];
-            foreach ($request->tags as $tagName) {
-                $tag = Tag::firstOrCreate(
-                    ['name' => strtolower(trim($tagName))],
-                    ['type' => 'user']
-                );
-                $tagIds[] = $tag->id;
-            }
-            
-            // Keep AI tags, replace user tags
-            $aiTagIds = $asset->aiTags()->pluck('tags.id')->toArray();
-            $asset->tags()->sync(array_merge($aiTagIds, $tagIds));
+        // Handle tags - always sync, even if empty (to allow removing all tags)
+        $tagIds = [];
+        $tags = $request->input('tags', []);
+
+        foreach ($tags as $tagName) {
+            $tag = Tag::firstOrCreate(
+                ['name' => strtolower(trim($tagName))],
+                ['type' => 'user']
+            );
+            $tagIds[] = $tag->id;
         }
+
+        // Keep AI tags, replace user tags
+        $aiTagIds = $asset->aiTags()->pluck('tags.id')->toArray();
+        $asset->tags()->sync(array_merge($aiTagIds, $tagIds));
 
         if ($request->expectsJson()) {
             return response()->json([

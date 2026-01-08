@@ -119,25 +119,28 @@ class AssetApiController extends Controller
         $request->validate([
             'alt_text' => 'nullable|string|max:500',
             'caption' => 'nullable|string|max:1000',
+            'license_type' => 'nullable|string|max:255',
+            'copyright' => 'nullable|string|max:500',
             'tags' => 'nullable|array',
             'tags.*' => 'string|max:50',
         ]);
 
-        $asset->update($request->only(['alt_text', 'caption']));
+        $asset->update($request->only(['alt_text', 'caption', 'license_type', 'copyright']));
 
-        if ($request->has('tags')) {
-            $tagIds = [];
-            foreach ($request->tags as $tagName) {
-                $tag = Tag::firstOrCreate(
-                    ['name' => strtolower(trim($tagName))],
-                    ['type' => 'user']
-                );
-                $tagIds[] = $tag->id;
-            }
-            
-            $aiTagIds = $asset->aiTags()->pluck('tags.id')->toArray();
-            $asset->tags()->sync(array_merge($aiTagIds, $tagIds));
+        // Handle tags - always sync, even if empty (to allow removing all tags)
+        $tagIds = [];
+        $tags = $request->input('tags', []);
+
+        foreach ($tags as $tagName) {
+            $tag = Tag::firstOrCreate(
+                ['name' => strtolower(trim($tagName))],
+                ['type' => 'user']
+            );
+            $tagIds[] = $tag->id;
         }
+
+        $aiTagIds = $asset->aiTags()->pluck('tags.id')->toArray();
+        $asset->tags()->sync(array_merge($aiTagIds, $tagIds));
 
         return response()->json([
             'message' => 'Asset updated successfully',
