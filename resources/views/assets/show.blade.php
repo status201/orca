@@ -230,10 +230,13 @@
                     </a>
                     @endcan
                     
-                    <a href="{{ route('assets.download', $asset) }}"
-                       class="block w-full px-4 py-2 bg-gray-600 text-white text-center rounded-lg hover:bg-gray-700">
-                        <i class="fas fa-download mr-2"></i> Download
-                    </a>
+                    <button @click="downloadAsset('{{ route('assets.download', $asset) }}')"
+                            :disabled="downloading"
+                            :class="downloading ? 'bg-green-600 hover:bg-green-700' : 'bg-gray-600 hover:bg-gray-700'"
+                            class="w-full px-4 py-2 text-white rounded-lg transition-all duration-300">
+                        <i :class="downloading ? 'fas fa-spinner fa-spin' : 'fas fa-download'" class="mr-2"></i>
+                        <span x-text="downloading ? 'Downloading...' : 'Download'"></span>
+                    </button>
                     
                     @can('delete', $asset)
                     <form action="{{ route('assets.destroy', $asset) }}" 
@@ -260,6 +263,24 @@ function assetDetail() {
         copiedStates: {
             main: false,
             thumb: false
+        },
+        downloading: false,
+
+        async downloadAsset(url) {
+            this.downloading = true;
+            try {
+                // Trigger the download
+                window.location.href = url;
+
+                // Show success state briefly
+                setTimeout(() => {
+                    this.downloading = false;
+                }, 2000);
+            } catch (error) {
+                console.error('Download failed:', error);
+                this.downloading = false;
+                window.showToast('Download failed', 'error');
+            }
         },
 
         copyUrl(url, type) {
