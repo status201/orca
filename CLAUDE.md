@@ -154,7 +154,14 @@ Uses Laravel Policies for fine-grained access control:
 - `POST /api/chunked-upload/complete` - Complete upload and create Asset
 - `POST /api/chunked-upload/abort` - Cancel upload and cleanup
 
-All API endpoints require `auth:sanctum` middleware except `/api/assets/meta` which is public. Chunked upload endpoints have additional rate limiting (100 requests/minute).
+**Web-based Asset Management Endpoints** (`routes/web.php`, used by inline editing):
+- `POST /assets/{asset}/tags` - Add tags to asset (accepts `tags` array, creates if needed)
+- `DELETE /assets/{asset}/tags/{tag}` - Remove specific tag from asset
+- `PATCH /assets/{asset}` - Update asset metadata (license_type, alt_text, caption, copyright)
+- `DELETE /assets/{asset}` - Soft delete asset
+- `POST /assets/{asset}/ai-tag` - Manually trigger AI tag generation
+
+All API endpoints require `auth:sanctum` middleware except `/api/assets/meta` which is public. Chunked upload endpoints have additional rate limiting (100 requests/minute). Web-based endpoints use session authentication via `auth` middleware.
 
 ### Frontend Stack
 
@@ -163,6 +170,65 @@ All API endpoints require `auth:sanctum` middleware except `/api/assets/meta` wh
 - **Icons**: Font Awesome 6.4.0
 - **Build Tool**: Vite
 - **Image Processing**: Intervention Image 3.x (uses GD driver)
+
+### User Interface Features
+
+**Dashboard** (`resources/views/dashboard.blade.php`):
+- Two-column layout: Statistics (left) and Feature Tour (right)
+- Statistics cards in 2-column inner grid showing:
+  - Total Assets, My Assets, Total Storage
+  - Tags (User + AI counts), Total Users (admin only), Trashed Assets (admin only)
+- Role-based feature tour slideshow (admin sees additional slides)
+- Auto-playing carousel with manual controls and play/pause
+- All statistics update in real-time based on database state
+
+**Assets Index - Grid/List Toggle** (`resources/views/assets/index.blade.php`):
+- **View Toggle**: Switch between Grid and List views
+  - Toggle buttons positioned after filters, aligned right
+  - Selection persists via localStorage (key: `orcaAssetViewMode`)
+  - Default view: Grid
+
+- **Grid View** (default):
+  - Responsive grid: 2-12 columns based on screen size
+  - Card-based layout with thumbnail, filename, size, upload time, user
+  - Hover overlay with download, copy URL, and edit actions
+  - Shows up to 2 tags per card with overflow count
+  - Click card to view asset details
+
+- **List/Table View**:
+  - 7 columns: Thumbnail, Filename, Actions, S3 Key, Size, Tags, License
+  - Horizontal scroll on all screen sizes (all columns always visible)
+  - **Inline Tag Editing**:
+    - Display all tags with color coding (blue=user, purple=AI)
+    - Remove any tag (user or AI) with × button
+    - Add new user tags with + button → inline input → Enter or Add button
+    - Changes save immediately via AJAX (POST `/assets/{id}/tags`)
+  - **Inline License Editing**:
+    - Dropdown select with all license types
+    - Changes save immediately on selection via AJAX (PATCH `/assets/{id}`)
+    - Reverts to previous value if save fails
+  - **Actions Column** (after Filename):
+    - View (eye icon) - Links to asset detail page
+    - Copy URL (copy icon) - Copies public S3 URL, shows checkmark confirmation
+    - Edit (edit icon) - Links to asset edit page
+    - Delete (trash icon) - Confirmation dialog → soft delete via AJAX
+  - **Loading States**: Disabled buttons and opacity changes during AJAX operations
+  - **Error Handling**: Toast notifications for success/failure
+
+- **Common Features** (both views):
+  - Search by filename
+  - Filter by file type (images, videos, documents)
+  - Filter by tags (multi-select with checkboxes)
+  - Sort options (date, size, name - ascending/descending)
+  - Pagination (24 items per page)
+
+**Alpine.js Components**:
+- `assetGrid()`: Manages filters, search, sort, tag selection, and view mode
+- `assetCard()`: Handles download and copy URL actions in grid view
+- `assetRow()`: Manages inline editing (tags, license), delete, and copy URL in list view
+  - CSRF token handling for all AJAX requests
+  - Optimistic UI updates with rollback on error
+  - Toast notifications via `window.showToast()`
 
 ### Key Workflows
 
