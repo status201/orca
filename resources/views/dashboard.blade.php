@@ -16,93 +16,18 @@
             <!-- Two Column Grid -->
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
 
-                <!-- Left Column: Feature Tour -->
+                <!-- Left Column: Statistics -->
                 <div>
-                    <!-- <h2 class="text-2xl font-bold text-gray-900 mb-4">Feature Tour</h2>-->
-
-                    <div x-data="featureTour(@js($isAdmin))" class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                        <div class="p-6">
-                            <!-- Slideshow -->
-                            <div class="relative min-h-[320px] flex items-center bg-white">
-                                <template x-for="(feature, index) in features" :key="index">
-                                    <div x-show="currentSlide === index"
-                                         x-cloak
-                                         x-transition:enter="transition-opacity ease-in-out duration-600"
-                                         x-transition:enter-start="opacity-0"
-                                         x-transition:enter-end="opacity-100"
-                                         x-transition:leave="transition-opacity ease-in-out duration-600"
-                                         x-transition:leave-start="opacity-100"
-                                         x-transition:leave-end="opacity-0"
-                                         class="absolute inset-0 bg-white space-y-4 flex flex-col justify-center px-4"
-                                         :style="'z-index: ' + (currentSlide === index ? 2 : 1)">
-
-                                        <!-- Icon -->
-                                        <div class="flex justify-center">
-                                            <div class="rounded-full p-4" :class="feature.bgColor">
-                                                <i :class="feature.icon + ' text-white text-4xl'"></i>
-                                            </div>
-                                        </div>
-
-                                        <!-- Title -->
-                                        <h3 class="text-xl font-semibold text-gray-900 text-center" x-text="feature.title"></h3>
-
-                                        <!-- Description -->
-                                        <p class="text-gray-600 text-center" x-text="feature.description"></p>
-
-                                        <!-- Action Button -->
-                                        <div class="flex justify-center pt-4">
-                                            <a :href="feature.link"
-                                               class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white transition-colors shadow-sm hover:shadow-md"
-                                               :class="feature.btnColor">
-                                                <span x-text="feature.btnText"></span>
-                                                <i class="fas fa-arrow-right ml-2"></i>
-                                            </a>
-                                        </div>
-                                    </div>
-                                </template>
-                            </div>
-
-                            <!-- Navigation -->
-                            <div class="mt-8 flex items-center justify-between">
-                                <button @click="previousSlide(); pauseAutoPlay()"
-                                        class="p-3 rounded-full bg-white hover:bg-gray-100 transition-all shadow-sm hover:shadow-md">
-                                    <i class="fas fa-chevron-left text-gray-700 w-4"></i>
-                                </button>
-
-                                <!-- Dots -->
-                                <div class="flex space-x-2">
-                                    <template x-for="(feature, index) in features" :key="index">
-                                        <button @click="currentSlide = index; pauseAutoPlay()"
-                                                class="w-2.5 h-2.5 rounded-full transition-all hover:scale-125"
-                                                :class="currentSlide === index ? 'bg-blue-600 scale-110' : 'bg-gray-300 hover:bg-gray-400'">
-                                        </button>
-                                    </template>
-                                </div>
-
-                                <button @click="nextSlide(); pauseAutoPlay()"
-                                        class="p-3 rounded-full bg-white hover:bg-gray-100 transition-all shadow-sm hover:shadow-md">
-                                    <i class="fas fa-chevron-right text-gray-700 w-4"></i>
-                                </button>
-                            </div>
-
-                            <!-- Slide Counter & Auto-play indicator -->
-                            <div class="mt-4 flex items-center justify-center gap-4 text-sm text-gray-500">
-                                <span>
-                                    <span x-text="currentSlide + 1"></span> / <span x-text="features.length"></span>
-                                </span>
-                                <button @click="toggleAutoPlay()"
-                                        class="text-gray-400 hover:text-gray-600 transition-colors"
-                                        :title="isPlaying ? 'Pause auto-play' : 'Resume auto-play'">
-                                    <i :class="isPlaying ? 'fas fa-pause' : 'fas fa-play'"></i>
-                                </button>
+                    <!--<h2 class="text-2xl font-bold text-gray-900 mb-4">Statistics</h2>-->
+                    <div class="grid grid-cols-1 gap-4 mb-6">
+                        <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                            <div class="p-6 h-full">
+                                Hi <strong>{{ Auth::user()->name }}</strong>!<br />
+                                You're logged in with <strong>{{ Auth::user()->email }}</strong>
+                                as an <strong>{{ Auth::user()->role }}</strong>
                             </div>
                         </div>
                     </div>
-                </div>
-
-                <!-- Right Column: Statistics -->
-                <div>
-                    <!--<h2 class="text-2xl font-bold text-gray-900 mb-4">Statistics</h2>-->
 
                     <!-- Stats in 2-column grid -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -224,6 +149,90 @@
                                 </div>
                             </div>
                         @endif
+                    </div>
+                </div>
+
+                <!-- Right Column: Feature Tour -->
+                <div>
+                    <!-- <h2 class="text-2xl font-bold text-gray-900 mb-4">Feature Tour</h2>-->
+
+                    <div x-data="featureTour(@js($isAdmin))" class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                        <div class="p-6">
+                            <!-- Slideshow -->
+                            <div class="relative min-h-[320px] flex items-center bg-white">
+                                <template x-for="(feature, index) in features" :key="index">
+                                    <div x-show="currentSlide === index"
+                                         x-cloak
+                                         x-transition:enter="transition-opacity ease-in-out duration-600"
+                                         x-transition:enter-start="opacity-0"
+                                         x-transition:enter-end="opacity-100"
+                                         x-transition:leave="transition-opacity ease-in-out duration-600"
+                                         x-transition:leave-start="opacity-100"
+                                         x-transition:leave-end="opacity-0"
+                                         class="absolute inset-0 bg-white space-y-4 flex flex-col justify-center px-4"
+                                         :style="'z-index: ' + (currentSlide === index ? 2 : 1)">
+
+                                        <!-- Icon -->
+                                        <div class="flex justify-center">
+                                            <div class="rounded-full p-4" :class="feature.bgColor">
+                                                <i :class="feature.icon + ' text-white text-4xl'"></i>
+                                            </div>
+                                        </div>
+
+                                        <!-- Title -->
+                                        <h3 class="text-xl font-semibold text-gray-900 text-center" x-text="feature.title"></h3>
+
+                                        <!-- Description -->
+                                        <p class="text-gray-600 text-center" x-text="feature.description"></p>
+
+                                        <!-- Action Button -->
+                                        <div class="flex justify-center pt-4">
+                                            <a :href="feature.link"
+                                               class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white transition-colors shadow-sm hover:shadow-md"
+                                               :class="feature.btnColor">
+                                                <span x-text="feature.btnText"></span>
+                                                <i class="fas fa-arrow-right ml-2"></i>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </template>
+                            </div>
+
+                            <!-- Navigation -->
+                            <div class="mt-8 flex items-center justify-between">
+                                <button @click="previousSlide(); pauseAutoPlay()"
+                                        class="p-3 rounded-full bg-white hover:bg-gray-100 transition-all shadow-sm hover:shadow-md">
+                                    <i class="fas fa-chevron-left text-gray-700 w-4"></i>
+                                </button>
+
+                                <!-- Dots -->
+                                <div class="flex space-x-2">
+                                    <template x-for="(feature, index) in features" :key="index">
+                                        <button @click="currentSlide = index; pauseAutoPlay()"
+                                                class="w-2.5 h-2.5 rounded-full transition-all hover:scale-125"
+                                                :class="currentSlide === index ? 'bg-blue-600 scale-110' : 'bg-gray-300 hover:bg-gray-400'">
+                                        </button>
+                                    </template>
+                                </div>
+
+                                <button @click="nextSlide(); pauseAutoPlay()"
+                                        class="p-3 rounded-full bg-white hover:bg-gray-100 transition-all shadow-sm hover:shadow-md">
+                                    <i class="fas fa-chevron-right text-gray-700 w-4"></i>
+                                </button>
+                            </div>
+
+                            <!-- Slide Counter & Auto-play indicator -->
+                            <div class="mt-4 flex items-center justify-center gap-4 text-sm text-gray-500">
+                                <span>
+                                    <span x-text="currentSlide + 1"></span> / <span x-text="features.length"></span>
+                                </span>
+                                <button @click="toggleAutoPlay()"
+                                        class="text-gray-400 hover:text-gray-600 transition-colors"
+                                        :title="isPlaying ? 'Pause auto-play' : 'Resume auto-play'">
+                                    <i :class="isPlaying ? 'fas fa-pause' : 'fas fa-play'"></i>
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
