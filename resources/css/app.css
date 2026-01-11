@@ -2,6 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Alpine.js x-cloak - hide elements until Alpine is ready */
+[x-cloak] {
+    display: none !important;
+}
+
 @layer utilities {
     /* Select dropdown arrow spacing */
     .pr-dropdown {
@@ -30,6 +35,14 @@
     }
     .focus\:ring-blue-500:focus {
         --tw-ring-color: #1a1a1a !important;
+    }
+}
+
+.tagline span {
+    display: inline-block;
+    &::first-letter {
+        color: #0a0a0a;
+        font-weight: bold;
     }
 }
 

@@ -14,15 +14,15 @@
         <nav class="-mb-px flex space-x-8">
             <a href="{{ route('tags.index') }}" 
                class="py-4 px-1 border-b-2 {{ !request('type') ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }} font-medium text-sm">
-                All Tags ({{ $tags->count() }})
+                All Tags {{ !request('type') ? '('.$tags->count().')' : '' }}
             </a>
             <a href="{{ route('tags.index', ['type' => 'user']) }}" 
                class="py-4 px-1 border-b-2 {{ request('type') === 'user' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }} font-medium text-sm">
-                User Tags
+                User Tags {{ request('type') === 'user' ? '('.$tags->count().')' : '' }}
             </a>
             <a href="{{ route('tags.index', ['type' => 'ai']) }}" 
                class="py-4 px-1 border-b-2 {{ request('type') === 'ai' ? 'border-purple-500 text-purple-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }} font-medium text-sm">
-                AI Tags
+                AI Tags {{ request('type') === 'ai' ? '('.$tags->count().')' : '' }}
             </a>
         </nav>
     </div>
