@@ -104,10 +104,27 @@
             @endif
         </div>
     </div>
-    
+
+    <!-- View Toggle -->
+    <div class="mb-4 flex justify-end">
+        <div class="inline-flex rounded-md shadow-sm" role="group">
+            <button @click="viewMode = 'grid'; saveViewMode()"
+                    :class="viewMode === 'grid' ? 'bg-gray-900 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'"
+                    class="px-4 py-2 text-sm font-medium border border-gray-300 rounded-l-lg transition-colors">
+                <i class="fas fa-th mr-2"></i> Grid
+            </button>
+            <button @click="viewMode = 'list'; saveViewMode()"
+                    :class="viewMode === 'list' ? 'bg-gray-900 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'"
+                    class="px-4 py-2 text-sm font-medium border border-gray-300 rounded-r-lg transition-colors">
+                <i class="fas fa-list mr-2"></i> List
+            </button>
+        </div>
+    </div>
+
     <!-- Asset grid -->
     @if($assets->count() > 0)
-    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 2xl:grid-cols-10 gap-4">
+    <!-- Grid View -->
+    <div x-show="viewMode === 'grid'" x-cloak class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 2xl:grid-cols-10 gap-4">
         @foreach($assets as $asset)
         <div class="group relative bg-white rounded-lg shadow hover:shadow-lg transition-shadow overflow-hidden cursor-pointer"
              x-data="assetCard({{ $asset->id }})"
@@ -195,7 +212,192 @@
         </div>
         @endforeach
     </div>
-    
+
+    <!-- List/Table View -->
+    <div x-show="viewMode === 'list'" x-cloak class="bg-white rounded-lg shadow overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-20">
+                            Thumbnail
+                        </th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[200px]">
+                            Filename
+                        </th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-40">
+                            Actions
+                        </th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[250px]">
+                            S3 Key
+                        </th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-24">
+                            Size
+                        </th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[300px]">
+                            Tags
+                        </th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[180px]">
+                            License
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    @foreach($assets as $asset)
+                    <tr x-data="assetRow({{ $asset->id }}, @js($asset->tags->map(fn($t) => ['id' => $t->id, 'name' => $t->name, 'type' => $t->type])->toArray()), '{{ $asset->license_type }}', '{{ $asset->url }}')"
+                        class="hover:bg-gray-50 transition-colors">
+
+                        <!-- Thumbnail -->
+                        <td class="px-4 py-3">
+                            <div class="w-16 h-16 bg-gray-100 rounded flex items-center justify-center overflow-hidden">
+                                @if($asset->isImage() && $asset->thumbnail_url)
+                                    <img src="{{ $asset->thumbnail_url }}"
+                                         alt="{{ $asset->filename }}"
+                                         class="w-full h-full object-cover"
+                                         loading="lazy">
+                                @else
+                                    @php
+                                        $icon = $asset->getFileIcon();
+                                        $colorClass = match($icon) {
+                                            'fa-file-pdf' => 'text-red-500',
+                                            'fa-file-word' => 'text-blue-600',
+                                            'fa-file-excel' => 'text-green-600',
+                                            'fa-file-powerpoint' => 'text-orange-500',
+                                            'fa-file-zipper' => 'text-yellow-600',
+                                            'fa-file-code' => 'text-purple-600',
+                                            'fa-file-video' => 'text-pink-600',
+                                            'fa-file-audio' => 'text-indigo-600',
+                                            'fa-file-csv' => 'text-teal-600',
+                                            'fa-file-lines' => 'text-gray-500',
+                                            default => 'text-gray-400'
+                                        };
+                                    @endphp
+                                    <i class="fas {{ $icon }} text-3xl {{ $colorClass }} opacity-60"></i>
+                                @endif
+                            </div>
+                        </td>
+
+                        <!-- Filename -->
+                        <td class="px-4 py-3">
+                            <div class="text-sm font-medium text-gray-900">{{ $asset->filename }}</div>
+                            <div class="text-xs text-gray-500 mt-1">
+                                <span title="{{ $asset->updated_at }}">{{ $asset->updated_at->diffForHumans() }}</span>
+                                <span class="mx-1">•</span>
+                                <span title="{{ $asset->user->name }}">{{ $asset->user->name }}</span>
+                            </div>
+                        </td>
+
+                        <!-- Actions -->
+                        <td class="px-4 py-3">
+                            <div class="flex gap-3">
+                                <a href="{{ route('assets.show', $asset) }}"
+                                   class="text-blue-600 hover:text-blue-800"
+                                   title="View asset">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <button @click="copyUrl()"
+                                        :class="copied ? 'text-green-600' : 'text-gray-600 hover:text-gray-800'"
+                                        :title="copied ? 'Copied!' : 'Copy URL'">
+                                    <i :class="copied ? 'fas fa-check' : 'fas fa-copy'"></i>
+                                </button>
+                                <a href="{{ route('assets.edit', $asset) }}"
+                                   class="text-yellow-600 hover:text-yellow-800"
+                                   title="Edit asset">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <button @click="deleteAsset()"
+                                        :disabled="loading"
+                                        class="text-red-600 hover:text-red-800 disabled:opacity-50"
+                                        title="Delete asset">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+
+                        <!-- S3 Key -->
+                        <td class="px-4 py-3">
+                            <div class="text-xs text-gray-600 font-mono break-all">{{ $asset->s3_key }}</div>
+                        </td>
+
+                        <!-- File Size -->
+                        <td class="px-4 py-3">
+                            <span class="text-sm text-gray-700">{{ $asset->formatted_size }}</span>
+                        </td>
+
+                        <!-- Tags with Inline Editing -->
+                        <td class="px-4 py-3">
+                            <div class="flex flex-wrap gap-2">
+                                <!-- Existing Tags -->
+                                <template x-for="(tag, index) in tags" :key="tag.id">
+                                    <span :class="tag.type === 'ai' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700'"
+                                          class="inline-flex items-center px-2 py-1 rounded text-xs font-medium">
+                                        <span x-text="tag.name"></span>
+                                        <button @click="removeTag(tag)"
+                                                :disabled="loading"
+                                                class="ml-1 hover:text-red-600 disabled:opacity-50"
+                                                title="Remove tag">
+                                            <i class="fas fa-times text-xs"></i>
+                                        </button>
+                                    </span>
+                                </template>
+
+                                <!-- Add Tag Button/Input -->
+                                <div x-show="!addingTag">
+                                    <button @click="addingTag = true"
+                                            :disabled="loading"
+                                            class="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-gray-100 text-gray-600 hover:bg-gray-200 disabled:opacity-50">
+                                        <i class="fas fa-plus mr-1"></i> Add
+                                    </button>
+                                </div>
+
+                                <div x-show="addingTag" x-cloak class="inline-flex items-center gap-1">
+                                    <input type="text"
+                                           x-model="newTagName"
+                                           @keydown.enter="if(newTagName.trim()) { addTag(); }"
+                                           @keydown.escape="addingTag = false; newTagName = '';"
+                                           class="px-2 py-1 text-xs border border-gray-300 rounded focus:ring-1 focus:ring-blue-500"
+                                           placeholder="Tag name"
+                                           style="width: 120px;">
+                                    <button @click="addTag()"
+                                            :disabled="!newTagName.trim() || loading"
+                                            class="px-2 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 disabled:opacity-50">
+                                        Add
+                                    </button>
+                                    <button @click="addingTag = false; newTagName = '';"
+                                            class="px-2 py-1 bg-gray-200 text-gray-700 text-xs rounded hover:bg-gray-300">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </td>
+
+                        <!-- License with Inline Editing -->
+                        <td class="px-4 py-3">
+                            <select x-model="license"
+                                    @change="updateLicense()"
+                                    :disabled="loading"
+                                    class="text-sm border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50">
+                                <option value="">Not specified</option>
+                                <option value="public_domain">Public Domain</option>
+                                <option value="cc0">CC0</option>
+                                <option value="cc_by">CC BY</option>
+                                <option value="cc_by_sa">CC BY-SA</option>
+                                <option value="cc_by_nd">CC BY-ND</option>
+                                <option value="cc_by_nc">CC BY-NC</option>
+                                <option value="cc_by_nc_sa">CC BY-NC-SA</option>
+                                <option value="cc_by_nc_nd">CC BY-NC-ND</option>
+                                <option value="fair_use">Fair Use</option>
+                                <option value="all_rights_reserved">All Rights Reserved</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+    </div>
+
     <!-- Pagination -->
     <div class="mt-8">
         {{ $assets->links() }}
@@ -230,6 +432,11 @@ function assetGrid() {
         selectedTags: @json(request('tags', [])),
         initialTags: @json(request('tags', [])),
         showTagFilter: false,
+        viewMode: localStorage.getItem('orcaAssetViewMode') || 'grid',
+
+        saveViewMode() {
+            localStorage.setItem('orcaAssetViewMode', this.viewMode);
+        },
 
         tagsChanged() {
             // Check if the selected tags differ from initial tags
@@ -289,6 +496,195 @@ function assetCard(assetId) {
             setTimeout(() => {
                 this.copied = false;
             }, 2000);
+        }
+    };
+}
+
+function assetRow(assetId, initialTags, initialLicense, assetUrl) {
+    return {
+        assetId: assetId,
+        tags: initialTags,
+        license: initialLicense,
+        previousLicense: initialLicense,
+        assetUrl: assetUrl,
+        addingTag: false,
+        newTagName: '',
+        loading: false,
+        copied: false,
+
+        getCsrfToken() {
+            return document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        },
+
+        showToast(message, type = 'success') {
+            // Use existing toast if available, otherwise fallback to console
+            if (window.showToast) {
+                window.showToast(message, type);
+            } else {
+                console.log(`[${type}] ${message}`);
+            }
+        },
+
+        copyUrl() {
+            if (window.copyToClipboard) {
+                window.copyToClipboard(this.assetUrl);
+            } else {
+                navigator.clipboard.writeText(this.assetUrl);
+            }
+            this.copied = true;
+            setTimeout(() => {
+                this.copied = false;
+            }, 2000);
+        },
+
+        async removeTag(tag) {
+            if (this.loading) return;
+
+            this.loading = true;
+            try {
+                const response = await fetch(`/assets/${this.assetId}/tags/${tag.id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': this.getCsrfToken(),
+                        'Accept': 'application/json',
+                    },
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to remove tag');
+                }
+
+                // Remove tag from local array
+                this.tags = this.tags.filter(t => t.id !== tag.id);
+                this.showToast('Tag removed successfully', 'success');
+            } catch (error) {
+                console.error('Failed to remove tag:', error);
+                this.showToast('Failed to remove tag', 'error');
+            } finally {
+                this.loading = false;
+            }
+        },
+
+        async addTag() {
+            if (this.loading || !this.newTagName.trim()) return;
+
+            this.loading = true;
+            try {
+                const response = await fetch(`/assets/${this.assetId}/tags`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': this.getCsrfToken(),
+                        'Accept': 'application/json',
+                    },
+                    body: JSON.stringify({ tags: [this.newTagName.trim()] }),
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to add tag');
+                }
+
+                const data = await response.json();
+
+                // Response includes all tags - update our local array
+                if (data.tags && Array.isArray(data.tags)) {
+                    this.tags = data.tags.map(t => ({
+                        id: t.id,
+                        name: t.name,
+                        type: t.type
+                    }));
+                }
+
+                this.showToast('Tag added successfully', 'success');
+                this.newTagName = '';
+                this.addingTag = false;
+            } catch (error) {
+                console.error('Failed to add tag:', error);
+                this.showToast('Failed to add tag', 'error');
+            } finally {
+                this.loading = false;
+            }
+        },
+
+        async updateLicense() {
+            if (this.loading) return;
+
+            // this.license has already been updated by x-model
+            const newLicense = this.license;
+            const oldLicense = this.previousLicense;
+
+            // Don't make request if value hasn't actually changed
+            if (newLicense === oldLicense) return;
+
+            this.loading = true;
+
+            try {
+                // Use POST with _method override for better compatibility
+                const formData = new FormData();
+                formData.append('_method', 'PATCH');
+                formData.append('license_type', newLicense || '');
+
+                const response = await fetch(`/assets/${this.assetId}`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': this.getCsrfToken(),
+                        'Accept': 'application/json',
+                    },
+                    body: formData,
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({}));
+                    console.error('Update failed:', errorData);
+                    throw new Error(errorData.message || 'Failed to update license');
+                }
+
+                const data = await response.json();
+                // Update previousLicense to the new value after successful save
+                this.previousLicense = newLicense;
+                this.showToast('License updated successfully', 'success');
+            } catch (error) {
+                console.error('Failed to update license:', error);
+                this.showToast(error.message || 'Failed to update license', 'error');
+                // Revert to previous value on error
+                this.license = oldLicense;
+            } finally {
+                this.loading = false;
+            }
+        },
+
+        async deleteAsset() {
+            if (this.loading) return;
+
+            if (!confirm('Are you sure you want to delete this asset? It will be moved to trash.')) {
+                return;
+            }
+
+            this.loading = true;
+            try {
+                const response = await fetch(`/assets/${this.assetId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': this.getCsrfToken(),
+                        'Accept': 'application/json',
+                    },
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to delete asset');
+                }
+
+                this.showToast('Asset deleted successfully', 'success');
+
+                // Reload page after short delay to show updated list
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1000);
+            } catch (error) {
+                console.error('Failed to delete asset:', error);
+                this.showToast('Failed to delete asset', 'error');
+                this.loading = false;
+            }
         }
     };
 }
