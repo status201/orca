@@ -61,7 +61,7 @@
 
                     <x-slot name="content">
                         <x-dropdown-link :href="route('profile.edit')">
-                            {{ __('Profile') }}
+                            <i class="fas fa-user mr-2"></i>{{ __('Profile') }}
                         </x-dropdown-link>
 
                         @can('access', App\Http\Controllers\SystemController::class)
@@ -77,7 +77,7 @@
                             <x-dropdown-link :href="route('logout')"
                                     onclick="event.preventDefault();
                                                 this.closest('form').submit();">
-                                {{ __('Log Out') }}
+                                <i class="fas fa-arrow-right-from-bracket mr-2"></i>{{ __('Log Out') }}
                             </x-dropdown-link>
                         </form>
                     </x-slot>
@@ -139,7 +139,7 @@
 
             <div class="mt-3 space-y-1">
                 <x-responsive-nav-link :href="route('profile.edit')">
-                    {{ __('Profile') }}
+                    <i class="fas fa-user mr-2"></i>{{ __('Profile') }}
                 </x-responsive-nav-link>
 
                 @can('access', App\Http\Controllers\SystemController::class)
@@ -155,7 +155,7 @@
                     <x-responsive-nav-link :href="route('logout')"
                             onclick="event.preventDefault();
                                         this.closest('form').submit();">
-                        {{ __('Log Out') }}
+                        <i class="fas fa-arrow-right-from-bracket mr-2"></i>{{ __('Log Out') }}
                     </x-responsive-nav-link>
                 </form>
             </div>
