@@ -203,12 +203,12 @@ function discoverObjects() {
         
         async importSelected() {
             if (this.selectedObjects.length === 0) return;
-            
-            const confirmed = confirm(`Import ${this.selectedObjects.length} object(s)? This will create database records and generate thumbnails for images.`);
+
+            const confirmed = confirm(`Import ${this.selectedObjects.length} object(s)? Processing will continue in the background.`);
             if (!confirmed) return;
-            
+
             this.importing = true;
-            
+
             try {
                 const response = await fetch('{{ route('discover.import') }}', {
                     method: 'POST',
@@ -221,25 +221,34 @@ function discoverObjects() {
                         keys: this.selectedObjects
                     }),
                 });
-                
+
                 const data = await response.json();
-                
-                window.showToast(data.message);
-                
-                // Remove imported objects from the list
-                this.unmappedObjects = this.unmappedObjects.filter(
-                    obj => !this.selectedObjects.includes(obj.key)
-                );
-                this.selectedObjects = [];
-                
-                // Redirect to assets after a delay
-                setTimeout(() => {
-                    window.location.href = '{{ route('assets.index') }}';
-                }, 2000);
-                
+
+                if (data.success) {
+                    // Show success message with background processing info
+                    let message = data.message;
+                    if (data.imported > 0) {
+                        message += ' Thumbnails and AI tags will be processed in background.';
+                    }
+                    window.showToast(message, 'success');
+
+                    // Remove imported objects from the list
+                    this.unmappedObjects = this.unmappedObjects.filter(
+                        obj => !this.selectedObjects.includes(obj.key)
+                    );
+                    this.selectedObjects = [];
+
+                    // Refresh scan results after short delay
+                    setTimeout(() => {
+                        this.scan();
+                    }, 2000);
+                } else {
+                    window.showToast('Import failed: ' + (data.message || 'Unknown error'), 'error');
+                }
+
             } catch (error) {
                 console.error('Import error:', error);
-                window.showToast('Failed to import objects', 'error');
+                window.showToast('Failed to import objects: ' + error.message, 'error');
             } finally {
                 this.importing = false;
             }

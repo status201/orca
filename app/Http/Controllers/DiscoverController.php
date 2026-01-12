@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\ProcessDiscoveredAsset;
 use App\Models\Asset;
 use App\Services\S3Service;
 use App\Services\RekognitionService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Intervention\Image\ImageManager;
 use Intervention\Image\Drivers\Gd\Driver;
@@ -70,6 +72,7 @@ class DiscoverController extends Controller
 
     /**
      * Import selected unmapped objects into the database
+     * Creates asset records immediately and queues background jobs for processing
      */
     public function import(Request $request)
     {
@@ -80,75 +83,69 @@ class DiscoverController extends Controller
             'keys.*' => 'required|string',
         ]);
 
-        $imported = [];
+        $imported = 0;
+        $skipped = 0;
+        $queued = [];
 
         foreach ($request->keys as $s3Key) {
-            // Check if already exists by s3_key (including trashed)
+            // Check if asset already exists by s3_key (quick database query, including trashed)
             if (Asset::withTrashed()->where('s3_key', $s3Key)->exists()) {
+                $skipped++;
                 continue;
             }
 
-            // Get metadata
-            $metadata = $this->s3Service->getObjectMetadata($s3Key);
-            if (!$metadata) {
-                continue;
-            }
+            try {
+                // Get minimal S3 metadata only (fast operation)
+                $metadata = $this->s3Service->getObjectMetadata($s3Key);
 
-            // Check for duplicate content by ETag (MD5 hash) (including trashed)
-            if (!empty($metadata['etag'])) {
-                $duplicateAsset = Asset::withTrashed()->where('etag', $metadata['etag'])->first();
-                if ($duplicateAsset) {
-                    \Log::info("Skipping duplicate file: {$s3Key} - same content as asset #{$duplicateAsset->id} ({$duplicateAsset->s3_key})");
+                if (!$metadata) {
+                    Log::warning("Could not fetch metadata for S3 key: {$s3Key}");
+                    $skipped++;
                     continue;
                 }
-            }
 
-            // Create asset
-            $asset = Asset::create([
-                's3_key' => $s3Key,
-                'filename' => basename($s3Key),
-                'mime_type' => $metadata['mime_type'],
-                'size' => $metadata['size'],
-                'etag' => $metadata['etag'] ?? null,
-                'user_id' => Auth::id(),
-            ]);
-
-            // Generate thumbnail for images
-            if ($asset->isImage()) {
-                // Try to get dimensions from S3 object
-                try {
-                    $imageContent = $this->s3Service->getObjectContent($s3Key);
-                    if ($imageContent) {
-                        $manager = new ImageManager(new Driver());
-                        $image = $manager->read($imageContent);
-
-                        $asset->update([
-                            'width' => $image->width(),
-                            'height' => $image->height(),
-                        ]);
+                // Quick ETag duplicate check (including trashed)
+                if (!empty($metadata['etag'])) {
+                    $existingAsset = Asset::withTrashed()->where('etag', $metadata['etag'])->first();
+                    if ($existingAsset) {
+                        Log::info("Asset with ETag {$metadata['etag']} already exists (ID: {$existingAsset->id})");
+                        $skipped++;
+                        continue;
                     }
-                } catch (\Exception $e) {
-                    \Log::warning('Could not get image dimensions: ' . $e->getMessage());
                 }
 
-                // Generate thumbnail
-                $thumbnailKey = $this->s3Service->generateThumbnail($asset->s3_key);
-                if ($thumbnailKey) {
-                    $asset->update(['thumbnail_s3_key' => $thumbnailKey]);
-                }
+                // Extract filename from S3 key
+                $filename = basename($s3Key);
 
-                // Auto-tag with AI
-                if ($this->rekognitionService->isEnabled()) {
-                    $this->rekognitionService->autoTagAsset($asset);
-                }
+                // Create asset record immediately (no thumbnail yet, dimensions will be set by job)
+                $asset = Asset::create([
+                    's3_key' => $s3Key,
+                    'etag' => $metadata['etag'] ?? null,
+                    'filename' => $filename,
+                    'mime_type' => $metadata['mime_type'],
+                    'size' => $metadata['size'],
+                    'user_id' => Auth::id(),
+                    // width, height, thumbnail_s3_key will be set by background job
+                ]);
+
+                // Dispatch background job to process thumbnails and AI tagging
+                ProcessDiscoveredAsset::dispatch($asset->id);
+
+                $queued[] = $asset->id;
+                $imported++;
+
+            } catch (\Exception $e) {
+                Log::error("Failed to import {$s3Key}: " . $e->getMessage());
+                $skipped++;
             }
-
-            $imported[] = $asset;
         }
 
         return response()->json([
-            'message' => count($imported) . ' object(s) imported successfully',
+            'success' => true,
+            'message' => "Import initiated: {$imported} assets queued for processing, {$skipped} skipped.",
             'imported' => $imported,
+            'skipped' => $skipped,
+            'queued_asset_ids' => $queued,
         ]);
     }
 }

@@ -343,27 +343,50 @@
 
                                 <!-- Add Tag Button/Input -->
                                 <div x-show="!addingTag">
-                                    <button @click="addingTag = true"
+                                    <button @click="showAddTagInput()"
                                             :disabled="loading"
                                             class="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-gray-100 text-gray-600 hover:bg-gray-200 disabled:opacity-50">
                                         <i class="fas fa-plus mr-1"></i> Add
                                     </button>
                                 </div>
 
-                                <div x-show="addingTag" x-cloak class="inline-flex items-center gap-1">
-                                    <input type="text"
-                                           x-model="newTagName"
-                                           @keydown.enter="if(newTagName.trim()) { addTag(); }"
-                                           @keydown.escape="addingTag = false; newTagName = '';"
-                                           class="px-2 py-1 text-xs border border-gray-300 rounded focus:ring-1 focus:ring-blue-500"
-                                           placeholder="Tag name"
-                                           style="width: 120px;">
+                                <div x-show="addingTag" x-cloak class="relative inline-flex items-center gap-1">
+                                    <div class="relative">
+                                        <input type="text"
+                                               x-ref="tagInput"
+                                               x-model="newTagName"
+                                               @input="filterTagSuggestions()"
+                                               @keydown.enter="if(newTagName.trim()) { addTag(); }"
+                                               @keydown.escape="cancelAddTag()"
+                                               @keydown.arrow-down.prevent="selectNextSuggestion()"
+                                               @keydown.arrow-up.prevent="selectPrevSuggestion()"
+                                               @blur="setTimeout(() => showSuggestions = false, 200)"
+                                               @focus="filterTagSuggestions()"
+                                               class="px-2 py-1 text-xs border border-gray-300 rounded focus:ring-1 focus:ring-blue-500"
+                                               placeholder="Tag name"
+                                               style="width: 120px;">
+
+                                        <!-- Autocomplete dropdown -->
+                                        <div x-show="showSuggestions && filteredSuggestions.length > 0"
+                                             x-cloak
+                                             class="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded shadow-lg max-h-40 overflow-y-auto">
+                                            <template x-for="(suggestion, index) in filteredSuggestions" :key="suggestion">
+                                                <button type="button"
+                                                        @click="selectSuggestion(suggestion)"
+                                                        :class="selectedSuggestionIndex === index ? 'bg-blue-100' : 'hover:bg-gray-100'"
+                                                        class="w-full text-left px-3 py-1.5 text-xs text-gray-700 border-b border-gray-100 last:border-b-0"
+                                                        x-text="suggestion">
+                                                </button>
+                                            </template>
+                                        </div>
+                                    </div>
+
                                     <button @click="addTag()"
                                             :disabled="!newTagName.trim() || loading"
                                             class="px-2 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 disabled:opacity-50">
                                         Add
                                     </button>
-                                    <button @click="addingTag = false; newTagName = '';"
+                                    <button @click="cancelAddTag()"
                                             class="px-2 py-1 bg-gray-200 text-gray-700 text-xs rounded hover:bg-gray-300">
                                         <i class="fas fa-times"></i>
                                     </button>
@@ -424,6 +447,9 @@
 
 @push('scripts')
 <script>
+// Make all tags available globally for autocomplete
+window.allTags = @json($tags->pluck('name')->toArray());
+
 function assetGrid() {
     return {
         search: @json(request('search', '')),
@@ -511,6 +537,9 @@ function assetRow(assetId, initialTags, initialLicense, assetUrl) {
         newTagName: '',
         loading: false,
         copied: false,
+        showSuggestions: false,
+        filteredSuggestions: [],
+        selectedSuggestionIndex: -1,
 
         getCsrfToken() {
             return document.querySelector('meta[name="csrf-token"]').getAttribute('content');
@@ -535,6 +564,78 @@ function assetRow(assetId, initialTags, initialLicense, assetUrl) {
             setTimeout(() => {
                 this.copied = false;
             }, 2000);
+        },
+
+        showAddTagInput() {
+            this.addingTag = true;
+            // Focus the input field after Alpine renders it
+            this.$nextTick(() => {
+                this.$refs.tagInput.focus();
+            });
+        },
+
+        cancelAddTag() {
+            this.addingTag = false;
+            this.newTagName = '';
+            this.showSuggestions = false;
+            this.selectedSuggestionIndex = -1;
+        },
+
+        filterTagSuggestions() {
+            const input = this.newTagName.toLowerCase().trim();
+            const existingTagNames = this.tags.map(t => t.name.toLowerCase());
+
+            if (input === '') {
+                // Show all tags not already on this asset
+                this.filteredSuggestions = (window.allTags || [])
+                    .filter(tag => !existingTagNames.includes(tag.toLowerCase()))
+                    .slice(0, 10);
+            } else {
+                // Filter tags that match the input and aren't already on this asset
+                this.filteredSuggestions = (window.allTags || [])
+                    .filter(tag =>
+                        tag.toLowerCase().includes(input) &&
+                        !existingTagNames.includes(tag.toLowerCase())
+                    )
+                    .slice(0, 10);
+            }
+
+            this.showSuggestions = true;
+            this.selectedSuggestionIndex = -1;
+        },
+
+        selectSuggestion(suggestion) {
+            this.newTagName = suggestion;
+            this.showSuggestions = false;
+            this.selectedSuggestionIndex = -1;
+            // Focus back on input so user can press Enter to add
+            this.$refs.tagInput.focus();
+        },
+
+        selectNextSuggestion() {
+            if (this.filteredSuggestions.length === 0) return;
+
+            this.selectedSuggestionIndex =
+                (this.selectedSuggestionIndex + 1) % this.filteredSuggestions.length;
+
+            // Update input with selected suggestion
+            if (this.selectedSuggestionIndex >= 0) {
+                this.newTagName = this.filteredSuggestions[this.selectedSuggestionIndex];
+            }
+        },
+
+        selectPrevSuggestion() {
+            if (this.filteredSuggestions.length === 0) return;
+
+            this.selectedSuggestionIndex =
+                this.selectedSuggestionIndex <= 0
+                    ? this.filteredSuggestions.length - 1
+                    : this.selectedSuggestionIndex - 1;
+
+            // Update input with selected suggestion
+            if (this.selectedSuggestionIndex >= 0) {
+                this.newTagName = this.filteredSuggestions[this.selectedSuggestionIndex];
+            }
         },
 
         async removeTag(tag) {
@@ -598,6 +699,8 @@ function assetRow(assetId, initialTags, initialLicense, assetUrl) {
                 this.showToast('Tag added successfully', 'success');
                 this.newTagName = '';
                 this.addingTag = false;
+                this.showSuggestions = false;
+                this.selectedSuggestionIndex = -1;
             } catch (error) {
                 console.error('Failed to add tag:', error);
                 this.showToast('Failed to add tag', 'error');

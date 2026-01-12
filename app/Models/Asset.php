@@ -197,6 +197,7 @@ class Asset extends Model
 
         return $query->where(function ($q) use ($search) {
             $q->where('filename', 'like', "%{$search}%")
+              ->orWhere('s3_key', 'like', "%{$search}%")
               ->orWhere('alt_text', 'like', "%{$search}%")
               ->orWhere('caption', 'like', "%{$search}%")
               ->orWhereHas('tags', function ($tagQuery) use ($search) {

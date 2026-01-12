@@ -139,6 +139,58 @@ class S3Service
     }
 
     /**
+     * Extract image dimensions from S3 object
+     * More efficient than loading full image into memory for processing
+     */
+    public function extractImageDimensions(string $s3Key, string $mimeType): ?array
+    {
+        // Skip GIFs - use getimagesize approach from existing code
+        if ($mimeType === 'image/gif') {
+            try {
+                $result = $this->s3Client->getObject([
+                    'Bucket' => $this->bucket,
+                    'Key' => $s3Key,
+                ]);
+
+                $imageData = (string) $result['Body'];
+                $image = imagecreatefromstring($imageData);
+
+                if ($image) {
+                    $width = imagesx($image);
+                    $height = imagesy($image);
+                    imagedestroy($image);
+
+                    return ['width' => $width, 'height' => $height];
+                }
+            } catch (\Exception $e) {
+                \Log::warning("Failed to extract GIF dimensions: " . $e->getMessage());
+            }
+
+            return null;
+        }
+
+        // For other images, use Intervention Image
+        try {
+            $result = $this->s3Client->getObject([
+                'Bucket' => $this->bucket,
+                'Key' => $s3Key,
+            ]);
+
+            $imageData = (string) $result['Body'];
+            $image = $this->imageManager->read($imageData);
+
+            return [
+                'width' => $image->width(),
+                'height' => $image->height(),
+            ];
+
+        } catch (\Exception $e) {
+            \Log::warning("Failed to extract image dimensions for {$s3Key}: " . $e->getMessage());
+            return null;
+        }
+    }
+
+    /**
      * List all objects in the bucket with optional prefix
      */
     public function listObjects(string $prefix = '', int $maxKeys = 1000): array
