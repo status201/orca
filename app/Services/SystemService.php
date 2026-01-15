@@ -17,10 +17,11 @@ class SystemService
         'config:clear',
         'route:clear',
         'view:clear',
+        'optimize:clear',
+        'optimize',
         'config:cache',
         'route:cache',
-        'optimize',
-        'optimize:clear',
+        'view:cache',
         'storage:link',
         'uploads:cleanup',
         'queue:retry',
@@ -410,13 +411,8 @@ class SystemService
                 'category' => 'Cache',
             ],
             [
-                'command' => 'config:cache',
-                'description' => 'Cache configuration files',
-                'category' => 'Optimization',
-            ],
-            [
-                'command' => 'route:cache',
-                'description' => 'Cache route registrations',
+                'command' => 'optimize:clear',
+                'description' => 'Clear all cached bootstrap files',
                 'category' => 'Optimization',
             ],
             [
@@ -425,9 +421,19 @@ class SystemService
                 'category' => 'Optimization',
             ],
             [
-                'command' => 'optimize:clear',
-                'description' => 'Clear all cached bootstrap files',
-                'category' => 'Optimization',
+                'command' => 'config:cache',
+                'description' => 'Cache configuration files',
+                'category' => 'Cache',
+            ],
+            [
+                'command' => 'route:cache',
+                'description' => 'Cache route registrations',
+                'category' => 'Cache',
+            ],
+            [
+                'command' => 'view:cache',
+                'description' => 'Cache compiled views',
+                'category' => 'Cache',
             ],
             [
                 'command' => 'storage:link',

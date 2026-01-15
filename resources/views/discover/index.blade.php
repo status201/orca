@@ -28,8 +28,8 @@
         <!-- Summary -->
         <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
             <div class="flex items-center justify-between">
-                <div>
-                    <h2 class="text-xl font-semibold">
+                <div class="w-full sm:w-auto">
+                    <h2 class="text-xl font-semibold pr-2">
                         Found <span x-text="unmappedObjects.length" class="text-blue-600"></span> unmapped object(s)
                     </h2>
                     <p class="text-gray-600 text-sm mt-1">Select objects to import into ORCA</p>
@@ -38,12 +38,12 @@
                 <div class="flex space-x-3" x-show="unmappedObjects.length > 0">
                     <button @click="selectAll"
                             class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
-                        <i class="fas fa-check-double mr-2"></i> Select All
+                        <i class="fas fa-check-double mr-2"></i><span class="hidden sm:inline"> Select All</span>
                     </button>
                     
                     <button @click="deselectAll"
                             class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
-                        <i class="fas fa-times mr-2"></i> Deselect All
+                        <i class="fas fa-times mr-2"></i><span class="hidden sm:inline"> Deselect All</span>
                     </button>
                     
                     <button @click="importSelected"
