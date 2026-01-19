@@ -25,6 +25,7 @@ class SystemService
         'storage:link',
         'uploads:cleanup',
         'queue:retry',
+        'queue:retry all',
         'queue:flush',
         'queue:restart',
         'migrate:status',
@@ -147,29 +148,8 @@ class SystemService
                 'user_id' => auth()->id(),
             ]);
 
-            // Parse additional arguments from command string
-            $commandArgs = [];
-            if (count($parts) > 1) {
-                // Parse arguments and options
-                for ($i = 1; $i < count($parts); $i++) {
-                    $arg = $parts[$i];
-
-                    // Check if it's a flag/option (starts with --)
-                    if (strpos($arg, '--') === 0) {
-                        // It's an option like --force
-                        $commandArgs[$arg] = true;
-                    } elseif (strpos($arg, '-') === 0 && strlen($arg) === 2) {
-                        // It's a short option like -v
-                        $commandArgs[$arg] = true;
-                    } else {
-                        // It's a positional argument (like "all" in "queue:retry all")
-                        // Use 'argument' key for the first positional arg
-                        if (!isset($commandArgs['argument'])) {
-                            $commandArgs['argument'] = $arg;
-                        }
-                    }
-                }
-            }
+            // Handle special command cases that need specific argument mapping
+            $commandArgs = $this->parseCommandArguments($baseCommand, $parts);
 
             // Execute via Artisan facade (safer than shell)
             $exitCode = Artisan::call($baseCommand, array_merge($commandArgs, $parameters));
@@ -194,6 +174,68 @@ class SystemService
                 'error' => $e->getMessage(),
             ];
         }
+    }
+
+    /**
+     * Parse command arguments based on the specific command type
+     */
+    private function parseCommandArguments(string $baseCommand, array $parts): array
+    {
+        $commandArgs = [];
+
+        if (count($parts) <= 1) {
+            return $commandArgs;
+        }
+
+        // Handle specific commands that need special argument mapping
+        switch ($baseCommand) {
+            case 'queue:retry':
+                // queue:retry accepts 'all' or job IDs as the 'id' argument
+                // Signature: queue:retry {id?*}
+                $ids = [];
+                for ($i = 1; $i < count($parts); $i++) {
+                    $arg = $parts[$i];
+                    if (strpos($arg, '--') === 0) {
+                        // Handle options like --queue=default
+                        if (strpos($arg, '=') !== false) {
+                            [$option, $value] = explode('=', $arg, 2);
+                            $commandArgs[$option] = $value;
+                        } else {
+                            $commandArgs[$arg] = true;
+                        }
+                    } else {
+                        // It's 'all' or a job ID - collect as id argument
+                        $ids[] = $arg;
+                    }
+                }
+                if (!empty($ids)) {
+                    $commandArgs['id'] = $ids;
+                }
+                break;
+
+            default:
+                // Generic parsing for other commands
+                for ($i = 1; $i < count($parts); $i++) {
+                    $arg = $parts[$i];
+
+                    if (strpos($arg, '--') === 0) {
+                        // Handle --option=value syntax
+                        if (strpos($arg, '=') !== false) {
+                            [$option, $value] = explode('=', $arg, 2);
+                            $commandArgs[$option] = $value;
+                        } else {
+                            $commandArgs[$arg] = true;
+                        }
+                    } elseif (strpos($arg, '-') === 0 && strlen($arg) === 2) {
+                        $commandArgs[$arg] = true;
+                    }
+                    // Skip positional arguments for generic commands as they require
+                    // command-specific argument names
+                }
+                break;
+        }
+
+        return $commandArgs;
     }
 
     /**
