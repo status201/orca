@@ -128,7 +128,7 @@ Uses Laravel Policies for fine-grained access control:
 - Appends computed attributes: `url`, `thumbnail_url`, `formatted_size`
 - Scopes for search, filtering by tags, type, and user
 - Helper methods: `isImage()`, `getFileIcon()`, `userTags()`, `aiTags()`
-- Includes license and copyright fields: `license_type`, `copyright`
+- Includes license and copyright fields: `license_type`, `license_expiry_date`, `copyright`, `copyright_source`
 
 **Tag Model** (`app/Models/Tag.php`)
 - Has type field: `user` (manual) or `ai` (auto-generated)
@@ -325,7 +325,9 @@ The application handles large files (PDFs, GIFs, videos) by:
 - `thumbnail_s3_key` (nullable)
 - `alt_text`, `caption` (nullable)
 - `license_type` (nullable) - License type (public_domain, cc_by, cc_by_sa, cc_by_nd, cc_by_nc, cc_by_nc_sa, cc_by_nc_nd, fair_use, all_rights_reserved)
+- `license_expiry_date` (nullable, date) - When the license expires
 - `copyright` (nullable) - Copyright notice/holder
+- `copyright_source` (nullable) - URL or reference to copyright source
 - `user_id` - Foreign key to uploader
 - Soft deletes with `deleted_at`
 

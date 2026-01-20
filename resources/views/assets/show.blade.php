@@ -194,10 +194,39 @@
                 </div>
                 @endif
 
+                @if($asset->license_expiry_date)
+                <div class="mt-4 pt-4 border-t">
+                    <h4 class="text-sm font-semibold text-gray-700 mb-1">License Expiry Date</h4>
+                    <p class="text-sm text-gray-600">
+                        {{ $asset->license_expiry_date->format('M d, Y') }}
+                        @if($asset->license_expiry_date->isPast())
+                            <span class="ml-2 text-xs px-2 py-0.5 bg-red-100 text-red-700 rounded-full">Expired</span>
+                        @elseif($asset->license_expiry_date->diffInDays(now()) <= 30)
+                            <span class="ml-2 text-xs px-2 py-0.5 bg-yellow-100 text-yellow-700 rounded-full">Expiring soon</span>
+                        @endif
+                    </p>
+                </div>
+                @endif
+
                 @if($asset->copyright)
                 <div class="mt-4 pt-4 border-t">
                     <h4 class="text-sm font-semibold text-gray-700 mb-1">Copyright Information</h4>
                     <p class="text-sm text-gray-600">{{ $asset->copyright }}</p>
+                </div>
+                @endif
+
+                @if($asset->copyright_source)
+                <div class="mt-4 pt-4 border-t">
+                    <h4 class="text-sm font-semibold text-gray-700 mb-1">Copyright Source</h4>
+                    <p class="text-sm text-gray-600">
+                        @if(Str::startsWith($asset->copyright_source, ['http://', 'https://']))
+                            <a href="{{ $asset->copyright_source }}" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:text-blue-800 break-all">
+                                {{ $asset->copyright_source }} <i class="fas fa-external-link-alt text-xs ml-1"></i>
+                            </a>
+                        @else
+                            {{ $asset->copyright_source }}
+                        @endif
+                    </p>
                 </div>
                 @endif
             </div>

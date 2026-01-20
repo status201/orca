@@ -136,6 +136,22 @@
                 @enderror
             </div>
 
+            <!-- License Expiry Date -->
+            <div class="mb-6">
+                <label for="license_expiry_date" class="block text-sm font-medium text-gray-700 mb-2">
+                    License Expiry Date
+                    <span class="text-gray-500 font-normal">(optional)</span>
+                </label>
+                <input type="date"
+                       id="license_expiry_date"
+                       name="license_expiry_date"
+                       value="{{ old('license_expiry_date', $asset->license_expiry_date?->format('Y-m-d')) }}"
+                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                @error('license_expiry_date')
+                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                @enderror
+            </div>
+
             <!-- Copyright -->
             <div class="mb-6">
                 <label for="copyright" class="block text-sm font-medium text-gray-700 mb-2">
@@ -149,6 +165,24 @@
                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                        placeholder="e.g., © 2024 Company Name, or copyright holder information">
                 @error('copyright')
+                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                @enderror
+            </div>
+
+            <!-- Copyright Source -->
+            <div class="mb-6">
+                <label for="copyright_source" class="block text-sm font-medium text-gray-700 mb-2">
+                    Copyright Source
+                    <span class="text-gray-500 font-normal">(URL or reference)</span>
+                </label>
+                <input type="text"
+                       id="copyright_source"
+                       name="copyright_source"
+                       value="{{ old('copyright_source', $asset->copyright_source) }}"
+                       maxlength="500"
+                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                       placeholder="e.g., https://example.com/license or original source reference">
+                @error('copyright_source')
                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                 @enderror
             </div>

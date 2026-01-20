@@ -24,7 +24,9 @@ class Asset extends Model
         'alt_text',
         'caption',
         'license_type',
+        'license_expiry_date',
         'copyright',
+        'copyright_source',
         'user_id',
     ];
 
@@ -32,6 +34,7 @@ class Asset extends Model
         'size' => 'integer',
         'width' => 'integer',
         'height' => 'integer',
+        'license_expiry_date' => 'date',
     ];
 
     protected $appends = [

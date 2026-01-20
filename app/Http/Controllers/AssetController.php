@@ -229,13 +229,15 @@ class AssetController extends Controller
             'alt_text' => 'nullable|string|max:500',
             'caption' => 'nullable|string|max:1000',
             'license_type' => 'nullable|string|max:255',
+            'license_expiry_date' => 'nullable|date',
             'copyright' => 'nullable|string|max:500',
+            'copyright_source' => 'nullable|string|max:500',
             'tags' => 'nullable|array',
             'tags.*' => 'string|max:50',
         ]);
 
         // Update metadata
-        $asset->update($request->only(['alt_text', 'caption', 'license_type', 'copyright']));
+        $asset->update($request->only(['alt_text', 'caption', 'license_type', 'license_expiry_date', 'copyright', 'copyright_source']));
 
         // Handle tags - always sync, even if empty (to allow removing all tags)
         $tagIds = [];
