@@ -78,11 +78,16 @@ class AssetController extends Controller
                 $query->latest('updated_at');
         }
 
-        $perPage = Setting::get('items_per_page', 24);
-        $assets = $query->paginate($perPage);
+        // Allow per_page from request (user preference) to override global setting
+        $allowedPerPage = [12, 24, 36, 48, 60, 72, 96];
+        $perPage = $request->input('per_page');
+        if (!$perPage || !in_array((int) $perPage, $allowedPerPage)) {
+            $perPage = Setting::get('items_per_page', 24);
+        }
+        $assets = $query->paginate((int) $perPage)->withQueryString();
         $tags = Tag::orderBy('name')->get();
 
-        return view('assets.index', compact('assets', 'tags'));
+        return view('assets.index', compact('assets', 'tags', 'perPage'));
     }
 
     /**

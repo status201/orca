@@ -237,7 +237,8 @@ All API endpoints require `auth:sanctum` middleware except `/api/assets/meta` wh
   - Filter by file type (images, videos, documents)
   - Filter by tags (multi-select with checkboxes)
   - Sort options (date, size, name - ascending/descending)
-  - Pagination (configurable via Settings, default 24 items per page)
+  - Results per page selector (12-96), stored in localStorage per user
+  - Pagination (default from Settings, user preference overrides)
 
 **Alpine.js Components**:
 - `assetGrid()`: Manages filters, search, sort, tag selection, and view mode

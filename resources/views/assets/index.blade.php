@@ -6,57 +6,70 @@
 <div x-data="assetGrid()">
     <!-- Header with search and filters -->
     <div class="mb-6">
-        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
             <div>
                 <h1 class="text-3xl font-bold text-gray-900">Assets</h1>
                 <p class="text-gray-600 mt-2">Browse and manage your digital assets</p>
             </div>
-            
-            <div class="flex flex-col sm:flex-row gap-3">
-                <!-- Search -->
-                <div class="relative">
+
+            <div class="flex flex-col gap-3">
+                <!-- Row 1: Search (full width on sm-lg, auto on lg+) -->
+                <div class="relative lg:hidden">
                     <input type="text"
                            x-model="search"
                            @keyup.enter="applyFilters"
                            placeholder="Search assets..."
-                           class="w-full sm:w-64 pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                           class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                     <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
                 </div>
 
-                <!-- Sort -->
-                <select x-model="sort"
-                        @change="applyFilters"
-                        class="pr-dropdown px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                    <option value="date_desc">Newest First</option>
-                    <option value="date_asc">Oldest First</option>
-                    <option value="size_desc">Largest First</option>
-                    <option value="size_asc">Smallest First</option>
-                    <option value="name_asc">Name A-Z</option>
-                    <option value="name_desc">Name Z-A</option>
-                </select>
+                <!-- Row 2: Filters and Upload -->
+                <div class="flex flex-col sm:flex-row sm:flex-wrap sm:items-center sm:justify-end gap-3">
+                    <!-- Search (hidden on mobile, visible inline on lg+) -->
+                    <div class="relative hidden lg:block">
+                        <input type="text"
+                               x-model="search"
+                               @keyup.enter="applyFilters"
+                               placeholder="Search assets..."
+                               class="w-64 pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                    </div>
 
-                <!-- Type filter -->
-                <select x-model="type"
-                        @change="applyFilters"
-                        class="pr-dropdown px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                    <option value="">All Types</option>
-                    <option value="image">Images</option>
-                    <option value="video">Videos</option>
-                    <option value="application">Documents</option>
-                </select>
+                    <!-- Sort -->
+                    <select x-model="sort"
+                            @change="applyFilters"
+                            class="pr-dropdown px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <option value="date_desc">Newest First</option>
+                        <option value="date_asc">Oldest First</option>
+                        <option value="size_desc">Largest First</option>
+                        <option value="size_asc">Smallest First</option>
+                        <option value="name_asc">Name A-Z</option>
+                        <option value="name_desc">Name Z-A</option>
+                    </select>
 
-                <!-- Tag filter -->
-                <button @click="showTagFilter = !showTagFilter"
-                        class="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 flex items-center justify-center">
-                    <i class="fas fa-filter mr-2"></i>
-                    <span x-text="selectedTags.length > 0 ? `Tags (${selectedTags.length})` : 'Filter Tags'"></span>
-                </button>
+                    <!-- Type filter -->
+                    <select x-model="type"
+                            @change="applyFilters"
+                            class="pr-dropdown px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <option value="">All Types</option>
+                        <option value="image">Images</option>
+                        <option value="video">Videos</option>
+                        <option value="application">Documents</option>
+                    </select>
 
-                <!-- Upload button -->
-                <a href="{{ route('assets.create') }}"
-                   class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center justify-center whitespace-nowrap">
-                    <i class="fas fa-upload mr-2"></i> Upload
-                </a>
+                    <!-- Tag filter -->
+                    <button @click="showTagFilter = !showTagFilter"
+                            class="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 flex items-center justify-center">
+                        <i class="fas fa-filter mr-2"></i>
+                        <span x-text="selectedTags.length > 0 ? `Tags (${selectedTags.length})` : 'Filter Tags'"></span>
+                    </button>
+
+                    <!-- Upload button -->
+                    <a href="{{ route('assets.create') }}"
+                       class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center justify-center whitespace-nowrap">
+                        <i class="fas fa-upload mr-2"></i> Upload
+                    </a>
+                </div>
             </div>
         </div>
         
@@ -422,8 +435,25 @@
     </div>
 
     <!-- Pagination -->
-    <div class="mt-8">
-        {{ $assets->links() }}
+    <div class="mt-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div class="flex items-center gap-2">
+            <label for="perPageSelect" class="text-sm text-gray-600">Results per page:</label>
+            <select id="perPageSelect"
+                    x-model="perPage"
+                    @change="savePerPage(); applyFilters()"
+                    class="text-sm border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                <option value="12">12</option>
+                <option value="24">24</option>
+                <option value="36">36</option>
+                <option value="48">48</option>
+                <option value="60">60</option>
+                <option value="72">72</option>
+                <option value="96">96</option>
+            </select>
+        </div>
+        <div>
+            {{ $assets->links() }}
+        </div>
     </div>
     
     @else
@@ -459,9 +489,24 @@ function assetGrid() {
         initialTags: @json(request('tags', [])),
         showTagFilter: false,
         viewMode: localStorage.getItem('orcaAssetViewMode') || 'grid',
+        perPage: localStorage.getItem('orcaAssetsPerPage') || '{{ $perPage }}',
+
+        init() {
+            // If user has a stored preference and URL doesn't have per_page, apply it
+            const storedPerPage = localStorage.getItem('orcaAssetsPerPage');
+            const urlParams = new URLSearchParams(window.location.search);
+            if (storedPerPage && !urlParams.has('per_page') && storedPerPage !== '{{ $perPage }}') {
+                urlParams.set('per_page', storedPerPage);
+                window.location.href = '{{ route('assets.index') }}?' + urlParams.toString();
+            }
+        },
 
         saveViewMode() {
             localStorage.setItem('orcaAssetViewMode', this.viewMode);
+        },
+
+        savePerPage() {
+            localStorage.setItem('orcaAssetsPerPage', this.perPage);
         },
 
         tagsChanged() {
@@ -481,6 +526,7 @@ function assetGrid() {
             if (this.search) params.append('search', this.search);
             if (this.type) params.append('type', this.type);
             if (this.sort) params.append('sort', this.sort);
+            if (this.perPage) params.append('per_page', this.perPage);
             if (this.selectedTags.length > 0) {
                 this.selectedTags.forEach(tag => params.append('tags[]', tag));
             }
