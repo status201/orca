@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Services\SystemService;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
+use League\CommonMark\GithubFlavoredMarkdownConverter;
 
 class SystemController extends Controller
 {
@@ -202,5 +203,62 @@ class SystemController extends Controller
             'success' => $success,
             'message' => $success ? 'Setting updated successfully' : 'Failed to update setting',
         ]);
+    }
+
+    /**
+     * Get documentation file content (AJAX)
+     */
+    public function documentation(Request $request)
+    {
+        $this->authorize('access', SystemController::class);
+
+        $allowedFiles = [
+            'CLAUDE.md',
+            'DEPLOYMENT.md',
+            'QUICK_REFERENCE.md',
+            'README.md',
+            'RTE_INTEGRATION.md',
+            'SETUP_GUIDE.md',
+        ];
+
+        $file = $request->input('file', 'README.md');
+
+        if (! in_array($file, $allowedFiles)) {
+            return response()->json([
+                'success' => false,
+                'error' => 'Invalid documentation file',
+            ], 400);
+        }
+
+        $filePath = base_path($file);
+
+        if (! file_exists($filePath)) {
+            return response()->json([
+                'success' => false,
+                'error' => 'Documentation file not found',
+            ], 404);
+        }
+
+        try {
+            $content = file_get_contents($filePath);
+
+            $converter = new GithubFlavoredMarkdownConverter([
+                'html_input' => 'strip',
+                'allow_unsafe_links' => false,
+            ]);
+
+            $html = $converter->convert($content)->getContent();
+
+            return response()->json([
+                'success' => true,
+                'content' => $html,
+                'file' => $file,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error' => 'Failed to parse documentation: '.$e->getMessage(),
+            ], 500);
+        }
     }
 }

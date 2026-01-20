@@ -4,25 +4,52 @@
 
 @section('content')
 <div x-data="tagManager()">
+    <!-- Header with search -->
     <div class="mb-6">
-        <h1 class="text-3xl font-bold text-gray-900">Tags</h1>
-        <p class="text-gray-600 mt-2">Browse all tags in your asset library</p>
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900">Tags</h1>
+                <p class="text-gray-600 mt-2">Browse all tags in your asset library</p>
+            </div>
+
+            @if($tags->count() > 0)
+            <div class="flex flex-col sm:flex-row gap-3 sm:items-center">
+                <!-- Search -->
+                <div class="relative">
+                    <input type="text"
+                           x-model="searchQuery"
+                           placeholder="Search tags..."
+                           class="w-full sm:w-64 pl-10 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                    <button x-show="searchQuery.length > 0"
+                            x-cloak
+                            @click="searchQuery = ''"
+                            class="absolute right-3 top-2.5 text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <p x-show="searchQuery.length > 0" x-cloak class="text-sm text-gray-600 whitespace-nowrap">
+                    <span x-text="matchingCount"></span> of {{ $tags->count() }}
+                </p>
+            </div>
+            @endif
+        </div>
     </div>
-    
+
     <!-- Filter tabs -->
     <div class="mb-6 border-b border-gray-200">
         <nav class="-mb-px flex space-x-8">
-            <a href="{{ route('tags.index') }}" 
+            <a href="{{ route('tags.index') }}"
                class="py-4 px-1 border-b-2 {{ !request('type') ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }} font-medium text-sm">
-                All Tags {{ !request('type') ? '('.$tags->count().')' : '' }}
+                All Tags @if(!request('type'))<span>(<span x-text="matchingCount"></span>)</span>@endif
             </a>
-            <a href="{{ route('tags.index', ['type' => 'user']) }}" 
+            <a href="{{ route('tags.index', ['type' => 'user']) }}"
                class="py-4 px-1 border-b-2 {{ request('type') === 'user' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }} font-medium text-sm">
-                User Tags {{ request('type') === 'user' ? '('.$tags->count().')' : '' }}
+                User Tags @if(request('type') === 'user')<span>(<span x-text="matchingCount"></span>)</span>@endif
             </a>
-            <a href="{{ route('tags.index', ['type' => 'ai']) }}" 
+            <a href="{{ route('tags.index', ['type' => 'ai']) }}"
                class="py-4 px-1 border-b-2 {{ request('type') === 'ai' ? 'border-purple-500 text-purple-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }} font-medium text-sm">
-                AI Tags {{ request('type') === 'ai' ? '('.$tags->count().')' : '' }}
+                AI Tags @if(request('type') === 'ai')<span>(<span x-text="matchingCount"></span>)</span>@endif
             </a>
         </nav>
     </div>
@@ -31,7 +58,11 @@
     <!-- Tags grid -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 xxl:grid-cols-6 gap-4">
         @foreach($tags as $tag)
-        <div class="bg-white rounded-lg shadow hover:shadow-lg transition-shadow p-4">
+        <div x-show="matchesSearch('{{ addslashes($tag->name) }}')"
+             x-transition:enter="transition ease-out duration-200"
+             x-transition:enter-start="opacity-0 scale-95"
+             x-transition:enter-end="opacity-100 scale-100"
+             class="bg-white rounded-lg shadow hover:shadow-lg transition-shadow p-4">
             <div class="flex items-start justify-between mb-2 gap-3">
                 <a href="{{ route('assets.index', ['tags' => [$tag->id]]) }}"
                    class="flex-1 min-w-0">
@@ -68,6 +99,20 @@
             </p>
         </div>
         @endforeach
+    </div>
+
+    <!-- No matching tags message -->
+    <div x-show="searchQuery.length > 0 && matchingCount === 0"
+         x-cloak
+         class="text-center py-12 bg-white rounded-lg shadow">
+        <i class="fas fa-search text-6xl text-gray-300 mb-4"></i>
+        <h3 class="text-xl font-semibold text-gray-700 mb-2">No matching tags</h3>
+        <p class="text-gray-500">
+            No tags match "<span x-text="searchQuery"></span>"
+        </p>
+        <button @click="searchQuery = ''" class="mt-4 text-blue-600 hover:text-blue-800">
+            Clear search
+        </button>
     </div>
     @else
     <div class="text-center py-12 bg-white rounded-lg shadow">
@@ -123,6 +168,41 @@ function tagManager() {
         showEditModal: false,
         editingTagId: null,
         editingTagName: '',
+        searchQuery: '',
+        tags: @json($tags->map(fn($tag) => ['name' => $tag->name, 'type' => $tag->type])),
+
+        get matchingCount() {
+            if (this.searchQuery.length === 0) {
+                return this.tags.length;
+            }
+            const query = this.searchQuery.toLowerCase();
+            return this.tags.filter(tag => tag.name.toLowerCase().includes(query)).length;
+        },
+
+        get matchingUserCount() {
+            const userTags = this.tags.filter(tag => tag.type === 'user');
+            if (this.searchQuery.length === 0) {
+                return userTags.length;
+            }
+            const query = this.searchQuery.toLowerCase();
+            return userTags.filter(tag => tag.name.toLowerCase().includes(query)).length;
+        },
+
+        get matchingAiCount() {
+            const aiTags = this.tags.filter(tag => tag.type === 'ai');
+            if (this.searchQuery.length === 0) {
+                return aiTags.length;
+            }
+            const query = this.searchQuery.toLowerCase();
+            return aiTags.filter(tag => tag.name.toLowerCase().includes(query)).length;
+        },
+
+        matchesSearch(tagName) {
+            if (this.searchQuery.length === 0) {
+                return true;
+            }
+            return tagName.toLowerCase().includes(this.searchQuery.toLowerCase());
+        },
 
         editTag(id, name) {
             this.editingTagId = id;

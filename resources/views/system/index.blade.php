@@ -54,6 +54,12 @@
                     class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
                 <i class="fas fa-stethoscope mr-2"></i>Diagnostics
             </button>
+
+            <button @click="activeTab = 'documentation'"
+                    :class="activeTab === 'documentation' ? 'border-orca-black text-orca-black' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
+                    class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
+                <i class="fas fa-book mr-2"></i>Documentation
+            </button>
         </nav>
     </div>
 
@@ -654,6 +660,50 @@
             </div>
         </div>
     </div>
+
+    <!-- Documentation Tab -->
+    <div x-show="activeTab === 'documentation'" x-init="$watch('activeTab', value => { if (value === 'documentation' && !docContent && !docError) loadDocumentation(); })" class="space-y-6">
+        <div class="bg-white rounded-lg shadow">
+            <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+                <h3 class="text-lg font-semibold text-gray-900">
+                    <i class="fas fa-book mr-2"></i>Project Documentation
+                </h3>
+                <div class="flex items-center space-x-3">
+                    <select x-model="selectedDoc"
+                            @change="loadDocumentation()"
+                            class="rounded-md border-gray-300 text-sm">
+                        <option value="README.md">README.md</option>
+                        <option value="CLAUDE.md">CLAUDE.md</option>
+                        <option value="DEPLOYMENT.md">DEPLOYMENT.md</option>
+                        <option value="QUICK_REFERENCE.md">QUICK_REFERENCE.md</option>
+                        <option value="RTE_INTEGRATION.md">RTE_INTEGRATION.md</option>
+                        <option value="SETUP_GUIDE.md">SETUP_GUIDE.md</option>
+                    </select>
+                    <button @click="loadDocumentation()"
+                            class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700">
+                        <i class="fas fa-sync-alt mr-2" :class="{'fa-spin': loadingDoc}"></i>Refresh
+                    </button>
+                </div>
+            </div>
+            <div class="p-6">
+                <div x-show="loadingDoc" class="text-center py-8 text-gray-500">
+                    <i class="fas fa-spinner fa-spin text-4xl mb-3"></i>
+                    <p>Loading documentation...</p>
+                </div>
+                <div x-show="!loadingDoc && docError" class="text-center py-8 text-red-500">
+                    <i class="fas fa-exclamation-circle text-4xl mb-3"></i>
+                    <p x-text="docError"></p>
+                </div>
+                <div x-show="!loadingDoc && !docError && docContent" class="prose prose-sm max-w-none">
+                    <div x-html="docContent"></div>
+                </div>
+                <div x-show="!loadingDoc && !docError && !docContent" class="text-center py-8 text-gray-500">
+                    <i class="fas fa-book-open text-4xl mb-3"></i>
+                    <p>Select a documentation file to view its contents.</p>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 @push('scripts')
@@ -704,6 +754,12 @@ function systemAdmin() {
         settingsSaved: false,
         settingsError: '',
         savingSettings: false,
+
+        // Documentation
+        selectedDoc: 'README.md',
+        docContent: '',
+        docError: '',
+        loadingDoc: false,
 
         init() {
             // Initial load
@@ -942,6 +998,28 @@ function systemAdmin() {
             if (line.includes('WARNING')) return 'text-yellow-400';
             if (line.includes('INFO')) return 'text-blue-400';
             return 'text-green-400';
+        },
+
+        async loadDocumentation() {
+            this.loadingDoc = true;
+            this.docError = '';
+            this.docContent = '';
+
+            try {
+                const response = await fetch(`{{ route('system.documentation') }}?file=${encodeURIComponent(this.selectedDoc)}`);
+                const result = await response.json();
+
+                if (result.success) {
+                    this.docContent = result.content;
+                } else {
+                    this.docError = result.error || 'Failed to load documentation';
+                }
+            } catch (error) {
+                console.error('Failed to load documentation:', error);
+                this.docError = 'Failed to load documentation: ' + error.message;
+            } finally {
+                this.loadingDoc = false;
+            }
         },
     };
 }

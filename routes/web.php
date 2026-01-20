@@ -2,11 +2,11 @@
 
 use App\Http\Controllers\AssetController;
 use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\TagController;
 use App\Http\Controllers\DiscoverController;
 use App\Http\Controllers\ExportController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SystemController;
+use App\Http\Controllers\TagController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -19,10 +19,10 @@ Route::get('/dashboard', [DashboardController::class, 'index'])
     ->name('dashboard');
 
 Route::middleware(['auth'])->group(function () {
-	Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-	
+
     // Asset routes
     Route::resource('assets', AssetController::class);
 
@@ -42,13 +42,13 @@ Route::middleware(['auth'])->group(function () {
     // Asset tag management
     Route::post('assets/{asset}/tags', [AssetController::class, 'addTags'])->name('assets.tags.add');
     Route::delete('assets/{asset}/tags/{tag}', [AssetController::class, 'removeTag'])->name('assets.tags.remove');
-    
+
     // Tag routes
     Route::get('tags', [TagController::class, 'index'])->name('tags.index');
     Route::get('tags/search', [TagController::class, 'search'])->name('tags.search');
     Route::patch('tags/{tag}', [TagController::class, 'update'])->name('tags.update');
     Route::delete('tags/{tag}', [TagController::class, 'destroy'])->name('tags.destroy');
-    
+
     // Discover routes (admin only)
     Route::middleware(['can:discover,App\Models\Asset'])->group(function () {
         Route::get('discover', [DiscoverController::class, 'index'])->name('discover.index');
@@ -77,6 +77,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('system/restart-queue', [SystemController::class, 'restartQueue'])->name('system.restart-queue');
         Route::get('system/supervisor-status', [SystemController::class, 'supervisorStatus'])->name('system.supervisor-status');
         Route::post('system/settings', [SystemController::class, 'updateSetting'])->name('system.update-setting');
+        Route::get('system/documentation', [SystemController::class, 'documentation'])->name('system.documentation');
     });
 });
 
