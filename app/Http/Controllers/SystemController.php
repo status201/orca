@@ -220,8 +220,9 @@ class SystemController extends Controller
         $suite = $request->input('suite', 'all');
         $filter = $request->input('filter');
 
-        // Build command
-        $command = 'php artisan test --colors=never';
+        // Build command using full PHP path (web server may not have php in PATH)
+        $phpBinary = PHP_BINARY;
+        $command = escapeshellarg($phpBinary).' artisan test --colors=never';
 
         if ($suite !== 'all') {
             $command .= ' --testsuite='.ucfirst($suite);
