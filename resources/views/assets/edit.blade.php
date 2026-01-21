@@ -48,8 +48,8 @@
                 </div>
 
                 <!-- Preview -->
-                <div class="mb-4 md:row-span-3 md:justify-self-end">
-                    <label class="block text-sm font-medium md:text-right text-gray-700 mb-2">Preview</label>
+                <div class="mb-4 md:row-span-3 md:justify-self-center">
+                    <label class="block text-sm font-medium md:text-center text-gray-700 mb-2">Preview</label>
                     @if($asset->isImage())
                         <img src="{{ $asset->thumbnail_url ?? $asset->url }}"
                              alt="{{ $asset->filename }}"
