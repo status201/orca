@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('name')->unique();
             $table->enum('type', ['user', 'ai'])->default('user');
             $table->timestamps();
-            
+
             $table->index(['name', 'type']);
         });
     }

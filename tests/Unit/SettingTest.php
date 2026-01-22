@@ -83,10 +83,11 @@ test('setting set updates existing value', function () {
     expect(Setting::get('test_key'))->toBe('new_value');
 });
 
-test('setting set returns false for nonexistent key', function () {
-    $result = Setting::set('nonexistent_key', 'value');
+test('setting set creates new setting for nonexistent key', function () {
+    $result = Setting::set('new_key', 'new_value', 'string', 'test');
 
-    expect($result)->toBeFalse();
+    expect($result)->toBeTrue();
+    expect(Setting::get('new_key'))->toBe('new_value');
 });
 
 test('setting set clears cache', function () {

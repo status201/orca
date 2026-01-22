@@ -3,25 +3,26 @@
 namespace App\Services;
 
 use Aws\S3\S3Client;
-use Aws\Rekognition\RekognitionClient;
 use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\Storage;
-use Intervention\Image\ImageManager;
-use Intervention\Image\Drivers\Gd\Driver;
 use Illuminate\Support\Str;
+use Intervention\Image\Drivers\Gd\Driver;
+use Intervention\Image\ImageManager;
 
 class S3Service
 {
     protected S3Client $s3Client;
+
     protected string $bucket;
+
     protected string $region;
+
     protected ImageManager $imageManager;
 
     public function __construct()
     {
         $this->bucket = config('filesystems.disks.s3.bucket');
         $this->region = config('filesystems.disks.s3.region');
-        
+
         $this->s3Client = new S3Client([
             'version' => 'latest',
             'region' => $this->region,
@@ -30,9 +31,9 @@ class S3Service
                 'secret' => config('filesystems.disks.s3.secret'),
             ],
         ]);
-        
+
         // Initialize Intervention Image 3.x
-        $this->imageManager = new ImageManager(new Driver());
+        $this->imageManager = new ImageManager(new Driver);
     }
 
     /**
@@ -86,6 +87,7 @@ class S3Service
             // Skip thumbnail generation for GIFs to avoid memory issues
             if (str_ends_with(strtolower($s3Key), '.gif')) {
                 \Log::info("Skipping thumbnail generation for GIF: $s3Key");
+
                 return null;
             }
 
@@ -104,8 +106,11 @@ class S3Service
             // Convert to JPEG for consistency
             $thumbnailContent = $image->toJpeg(quality: 80);
 
-            // Upload thumbnail
-            $thumbnailKey = 'thumbnails/' . Str::replaceLast('.', '_thumb.', basename($s3Key));
+            // Extract folder from s3_key and mirror it for thumbnails
+            // e.g., assets/marketing/abc.jpg -> thumbnails/marketing/abc_thumb.jpg
+            $folder = dirname(str_replace('assets/', '', $s3Key));
+            $folder = ($folder === '.' || $folder === '') ? '' : $folder.'/';
+            $thumbnailKey = 'thumbnails/'.$folder.Str::replaceLast('.', '_thumb.', basename($s3Key));
 
             $this->s3Client->putObject([
                 'Bucket' => $this->bucket,
@@ -116,7 +121,8 @@ class S3Service
 
             return $thumbnailKey;
         } catch (\Exception $e) {
-            \Log::error('Thumbnail generation failed: ' . $e->getMessage());
+            \Log::error('Thumbnail generation failed: '.$e->getMessage());
+
             return null;
         }
     }
@@ -131,9 +137,11 @@ class S3Service
                 'Bucket' => $this->bucket,
                 'Key' => $s3Key,
             ]);
+
             return true;
         } catch (\Exception $e) {
-            \Log::error('S3 deletion failed: ' . $e->getMessage());
+            \Log::error('S3 deletion failed: '.$e->getMessage());
+
             return false;
         }
     }
@@ -163,7 +171,7 @@ class S3Service
                     return ['width' => $width, 'height' => $height];
                 }
             } catch (\Exception $e) {
-                \Log::warning("Failed to extract GIF dimensions: " . $e->getMessage());
+                \Log::warning('Failed to extract GIF dimensions: '.$e->getMessage());
             }
 
             return null;
@@ -185,7 +193,8 @@ class S3Service
             ];
 
         } catch (\Exception $e) {
-            \Log::warning("Failed to extract image dimensions for {$s3Key}: " . $e->getMessage());
+            \Log::warning("Failed to extract image dimensions for {$s3Key}: ".$e->getMessage());
+
             return null;
         }
     }
@@ -202,7 +211,7 @@ class S3Service
                 'MaxKeys' => $maxKeys,
             ]);
 
-            if (!isset($result['Contents'])) {
+            if (! isset($result['Contents'])) {
                 return [];
             }
 
@@ -214,7 +223,8 @@ class S3Service
                 ];
             })->toArray();
         } catch (\Exception $e) {
-            \Log::error('S3 list objects failed: ' . $e->getMessage());
+            \Log::error('S3 list objects failed: '.$e->getMessage());
+
             return [];
         }
     }
@@ -229,11 +239,78 @@ class S3Service
 
         return collect($s3Objects)
             ->filter(function ($object) use ($mappedKeys) {
-                return !in_array($object['key'], $mappedKeys) 
-                    && !str_contains($object['key'], '/thumbnails/');
+                return ! in_array($object['key'], $mappedKeys)
+                    && ! str_contains($object['key'], '/thumbnails/')
+                    && $object['size'] > 0;  // Exclude zero-byte folder markers
             })
             ->values()
             ->toArray();
+    }
+
+    /**
+     * List all folder prefixes in S3 under the given prefix
+     */
+    public function listFolders(string $prefix = 'assets/'): array
+    {
+        try {
+            $folders = ['assets'];  // Always include root assets folder
+
+            // Use delimiter to get common prefixes (folders)
+            $result = $this->s3Client->listObjectsV2([
+                'Bucket' => $this->bucket,
+                'Prefix' => $prefix,
+                'Delimiter' => '/',
+            ]);
+
+            // Get subfolders from common prefixes
+            if (isset($result['CommonPrefixes'])) {
+                foreach ($result['CommonPrefixes'] as $commonPrefix) {
+                    $folderPath = rtrim($commonPrefix['Prefix'], '/');
+                    if ($folderPath !== 'assets' && ! empty($folderPath)) {
+                        $folders[] = $folderPath;
+
+                        // Recursively get nested folders
+                        $nestedFolders = $this->listFolders($commonPrefix['Prefix']);
+                        foreach ($nestedFolders as $nested) {
+                            if (! in_array($nested, $folders)) {
+                                $folders[] = $nested;
+                            }
+                        }
+                    }
+                }
+            }
+
+            sort($folders);
+
+            return array_values(array_unique($folders));
+        } catch (\Exception $e) {
+            \Log::error('S3 list folders failed: '.$e->getMessage());
+
+            return ['assets'];
+        }
+    }
+
+    /**
+     * Create a folder marker in S3
+     */
+    public function createFolder(string $folderPath): bool
+    {
+        try {
+            $folderKey = rtrim($folderPath, '/').'/';
+
+            $this->s3Client->putObject([
+                'Bucket' => $this->bucket,
+                'Key' => $folderKey,
+                'Body' => '',
+                'ContentType' => 'application/x-directory',
+            ]);
+
+            return true;
+        } catch (\Exception $e) {
+            \Log::error('S3 create folder failed: '.$e->getMessage());
+
+            return false;
+        }
     }
 
     /**
@@ -254,7 +331,8 @@ class S3Service
                 'etag' => isset($result['ETag']) ? trim($result['ETag'], '"') : null,
             ];
         } catch (\Exception $e) {
-            \Log::error('Get S3 metadata failed: ' . $e->getMessage());
+            \Log::error('Get S3 metadata failed: '.$e->getMessage());
+
             return null;
         }
     }
@@ -265,7 +343,8 @@ class S3Service
     protected function generateUniqueFilename(UploadedFile $file): string
     {
         $extension = $file->getClientOriginalExtension();
-        return Str::uuid() . '.' . $extension;
+
+        return Str::uuid().'.'.$extension;
     }
 
     /**
@@ -273,7 +352,7 @@ class S3Service
      */
     protected function getImageDimensions(UploadedFile $file): array
     {
-        if (!str_starts_with($file->getMimeType(), 'image/')) {
+        if (! str_starts_with($file->getMimeType(), 'image/')) {
             return [];
         }
 
@@ -289,19 +368,22 @@ class S3Service
                     ];
                 }
             } catch (\Exception $e) {
-                \Log::warning("Failed to get GIF dimensions: " . $e->getMessage());
+                \Log::warning('Failed to get GIF dimensions: '.$e->getMessage());
             }
+
             return [];
         }
 
         try {
             $image = $this->imageManager->read($file->getRealPath());
+
             return [
                 'width' => $image->width(),
                 'height' => $image->height(),
             ];
         } catch (\Exception $e) {
-            \Log::warning("Failed to get image dimensions: " . $e->getMessage());
+            \Log::warning('Failed to get image dimensions: '.$e->getMessage());
+
             return [];
         }
     }
@@ -311,7 +393,7 @@ class S3Service
      */
     public function getUrl(string $s3Key): string
     {
-        return config('filesystems.disks.s3.url') . '/' . $s3Key;
+        return config('filesystems.disks.s3.url').'/'.$s3Key;
     }
 
     /**
@@ -327,7 +409,8 @@ class S3Service
 
             return (string) $result['Body'];
         } catch (\Exception $e) {
-            \Log::error('Get S3 object content failed: ' . $e->getMessage());
+            \Log::error('Get S3 object content failed: '.$e->getMessage());
+
             return null;
         }
     }

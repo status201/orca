@@ -25,14 +25,14 @@ class GenerateAiTags implements ShouldQueue
      */
     public function handle(RekognitionService $rekognitionService): void
     {
-        if (!$this->asset->isImage()) {
+        if (! $this->asset->isImage()) {
             return;
         }
 
         try {
             $rekognitionService->autoTagAsset($this->asset);
         } catch (\Exception $e) {
-            \Log::error("AI tagging failed for asset {$this->asset->id}: " . $e->getMessage());
+            \Log::error("AI tagging failed for asset {$this->asset->id}: ".$e->getMessage());
         }
     }
 }

@@ -18,7 +18,9 @@ class ChunkedUploadController extends Controller
     use AuthorizesRequests;
 
     protected ChunkedUploadService $chunkedUploadService;
+
     protected S3Service $s3Service;
+
     protected RekognitionService $rekognitionService;
 
     public function __construct(
@@ -43,14 +45,18 @@ class ChunkedUploadController extends Controller
             'filename' => 'required|string|max:255',
             'mime_type' => 'required|string',
             'file_size' => 'required|integer|min:1|max:524288000', // 500MB in bytes
+            'folder' => 'nullable|string|max:255',
         ]);
+
+        $folder = $request->input('folder', 'assets');
 
         try {
             $session = $this->chunkedUploadService->initiateUpload(
                 $request->filename,
                 $request->mime_type,
                 $request->file_size,
-                Auth::id()
+                Auth::id(),
+                $folder
             );
 
             return response()->json([
@@ -61,13 +67,13 @@ class ChunkedUploadController extends Controller
             ], 201);
 
         } catch (\Exception $e) {
-            Log::error("Failed to initiate chunked upload", [
+            Log::error('Failed to initiate chunked upload', [
                 'filename' => $request->filename,
                 'error' => $e->getMessage(),
             ]);
 
             return response()->json([
-                'message' => 'Failed to initialize upload: ' . $e->getMessage(),
+                'message' => 'Failed to initialize upload: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -116,14 +122,14 @@ class ChunkedUploadController extends Controller
             ]);
 
         } catch (\Exception $e) {
-            Log::error("Chunk upload failed", [
+            Log::error('Chunk upload failed', [
                 'session_token' => $request->session_token,
                 'chunk_number' => $request->chunk_number,
                 'error' => $e->getMessage(),
             ]);
 
             return response()->json([
-                'message' => 'Chunk upload failed: ' . $e->getMessage(),
+                'message' => 'Chunk upload failed: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -156,7 +162,7 @@ class ChunkedUploadController extends Controller
                         $asset->update(['thumbnail_s3_key' => $thumbnailKey]);
                     }
                 } catch (\Exception $e) {
-                    Log::error("Thumbnail generation failed for chunked upload", [
+                    Log::error('Thumbnail generation failed for chunked upload', [
                         'asset_id' => $asset->id,
                         'error' => $e->getMessage(),
                     ]);
@@ -168,7 +174,7 @@ class ChunkedUploadController extends Controller
                 try {
                     GenerateAiTags::dispatch($asset)->afterResponse();
                 } catch (\Exception $e) {
-                    Log::error("AI tagging dispatch failed for chunked upload", [
+                    Log::error('AI tagging dispatch failed for chunked upload', [
                         'asset_id' => $asset->id,
                         'error' => $e->getMessage(),
                     ]);
@@ -181,13 +187,13 @@ class ChunkedUploadController extends Controller
             ]);
 
         } catch (\Exception $e) {
-            Log::error("Upload completion failed", [
+            Log::error('Upload completion failed', [
                 'session_token' => $request->session_token,
                 'error' => $e->getMessage(),
             ]);
 
             return response()->json([
-                'message' => 'Upload completion failed: ' . $e->getMessage(),
+                'message' => 'Upload completion failed: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -216,13 +222,13 @@ class ChunkedUploadController extends Controller
             ]);
 
         } catch (\Exception $e) {
-            Log::error("Upload abort failed", [
+            Log::error('Upload abort failed', [
                 'session_token' => $request->session_token,
                 'error' => $e->getMessage(),
             ]);
 
             return response()->json([
-                'message' => 'Failed to abort upload: ' . $e->getMessage(),
+                'message' => 'Failed to abort upload: '.$e->getMessage(),
             ], 500);
         }
     }

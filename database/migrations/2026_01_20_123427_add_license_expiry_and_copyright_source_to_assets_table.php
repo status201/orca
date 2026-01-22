@@ -12,10 +12,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('assets', function (Blueprint $table) {
-            if (!Schema::hasColumn('assets', 'license_expiry_date')) {
+            if (! Schema::hasColumn('assets', 'license_expiry_date')) {
                 $table->date('license_expiry_date')->nullable()->after('license_type');
             }
-            if (!Schema::hasColumn('assets', 'copyright_source')) {
+            if (! Schema::hasColumn('assets', 'copyright_source')) {
                 $table->string('copyright_source')->nullable()->after('copyright');
             }
         });

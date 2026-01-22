@@ -8,8 +8,61 @@
         <h1 class="text-3xl font-bold text-gray-900">Upload Assets</h1>
         <p class="text-gray-600 mt-2">Upload images and files to your S3 bucket</p>
     </div>
-    
+
     <div x-data="assetUploader()" class="bg-white rounded-lg shadow-lg p-6">
+        <!-- Folder selector -->
+        <div class="mb-6">
+            <label class="block text-sm font-medium text-gray-700 mb-2">Upload to Folder</label>
+            <div class="flex items-center space-x-3">
+                <select x-model="selectedFolder"
+                        class="flex-1 rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    @foreach($folders as $folder)
+                        <option value="{{ $folder }}">{{ $folder === 'assets' ? '/ (root)' : str_replace('assets/', '', $folder) }}</option>
+                    @endforeach
+                </select>
+
+                @can('discover', App\Models\Asset::class)
+                <!-- Admin-only: Create new folder -->
+                <template x-if="!showNewFolderInput">
+                    <button @click="showNewFolderInput = true"
+                            type="button"
+                            class="px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 whitespace-nowrap">
+                        <i class="fas fa-folder-plus mr-1"></i> New Folder
+                    </button>
+                </template>
+                <template x-if="showNewFolderInput">
+                    <div class="flex items-center space-x-2">
+                        <span class="text-gray-500 text-sm">assets/</span>
+                        <input type="text"
+                               x-model="newFolderName"
+                               x-ref="newFolderInput"
+                               @keydown.enter="createFolder"
+                               @keydown.escape="showNewFolderInput = false; newFolderName = ''"
+                               placeholder="folder-name"
+                               class="w-40 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:border-blue-500 focus:ring-blue-500">
+                        <button @click="createFolder"
+                                :disabled="creatingFolder || !newFolderName.trim()"
+                                type="button"
+                                class="px-3 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed">
+                            <template x-if="!creatingFolder">
+                                <span>Create</span>
+                            </template>
+                            <template x-if="creatingFolder">
+                                <i class="fas fa-spinner fa-spin"></i>
+                            </template>
+                        </button>
+                        <button @click="showNewFolderInput = false; newFolderName = ''"
+                                type="button"
+                                class="px-3 py-2 text-sm text-gray-600 hover:text-gray-800">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </template>
+                @endcan
+            </div>
+            <p class="mt-1 text-xs text-gray-500">Files will be uploaded to: <span class="font-mono" x-text="selectedFolder"></span></p>
+        </div>
+
         <!-- Drag and drop area -->
         <div @drop.prevent="handleDrop"
              @dragover.prevent="dragActive = true"
@@ -111,6 +164,10 @@ function assetUploader() {
         uploadProgress: {},
         CHUNK_SIZE: 10 * 1024 * 1024, // 10MB chunks
         CHUNKED_THRESHOLD: 10 * 1024 * 1024, // Use chunked upload for files >= 10MB
+        selectedFolder: 'assets',
+        showNewFolderInput: false,
+        newFolderName: '',
+        creatingFolder: false,
 
         handleDrop(e) {
             this.dragActive = false;
@@ -142,6 +199,42 @@ function assetUploader() {
             }
 
             return `${size.toFixed(2)} ${units[unitIndex]}`;
+        },
+
+        async createFolder() {
+            if (!this.newFolderName.trim() || this.creatingFolder) return;
+
+            this.creatingFolder = true;
+            try {
+                const response = await fetch('{{ route('folders.store') }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Accept': 'application/json',
+                    },
+                    body: JSON.stringify({ name: this.newFolderName.trim() }),
+                });
+
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.message || 'Failed to create folder');
+                }
+
+                const data = await response.json();
+                this.selectedFolder = data.folder;
+                this.showNewFolderInput = false;
+                this.newFolderName = '';
+                window.showToast('Folder created successfully!');
+
+                // Reload page to refresh folder list
+                setTimeout(() => window.location.reload(), 500);
+            } catch (error) {
+                console.error('Create folder error:', error);
+                window.showToast(error.message || 'Failed to create folder', 'error');
+            } finally {
+                this.creatingFolder = false;
+            }
         },
 
         async uploadFiles() {
@@ -177,6 +270,7 @@ function assetUploader() {
         async uploadFileDirect(file, index) {
             const formData = new FormData();
             formData.append('files[]', file);
+            formData.append('folder', this.selectedFolder);
 
             return new Promise((resolve, reject) => {
                 const xhr = new XMLHttpRequest();
@@ -248,6 +342,7 @@ function assetUploader() {
                     filename: file.name,
                     mime_type: file.type,
                     file_size: file.size,
+                    folder: this.selectedFolder,
                 }),
             });
 

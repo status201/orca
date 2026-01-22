@@ -12,7 +12,9 @@ use Illuminate\Support\Str;
 class ChunkedUploadService
 {
     protected S3Client $s3Client;
+
     protected string $bucket;
+
     protected S3Service $s3Service;
 
     public function __construct(S3Service $s3Service)
@@ -46,11 +48,13 @@ class ChunkedUploadService
         string $filename,
         string $mimeType,
         int $fileSize,
-        int $userId
+        int $userId,
+        string $folder = 'assets'
     ): UploadSession {
-        // Generate unique S3 key
+        // Generate unique S3 key with folder support
         $extension = pathinfo($filename, PATHINFO_EXTENSION);
-        $s3Key = 'assets/' . Str::uuid() . ($extension ? '.' . $extension : '');
+        $folder = rtrim($folder, '/');
+        $s3Key = $folder.'/'.Str::uuid().($extension ? '.'.$extension : '');
 
         // Initiate S3 multipart upload
         $result = $this->s3Client->createMultipartUpload([
@@ -80,7 +84,7 @@ class ChunkedUploadService
             'last_activity_at' => now(),
         ]);
 
-        Log::info("Chunked upload initiated", [
+        Log::info('Chunked upload initiated', [
             'session_token' => $session->session_token,
             'filename' => $filename,
             'file_size' => $fileSize,
@@ -134,7 +138,7 @@ class ChunkedUploadService
             return ['PartNumber' => $chunkNumber, 'ETag' => $etag];
 
         } catch (\Exception $e) {
-            Log::error("Chunk upload failed", [
+            Log::error('Chunk upload failed', [
                 'session_token' => $session->session_token,
                 'chunk_number' => $chunkNumber,
                 'error' => $e->getMessage(),
@@ -195,7 +199,7 @@ class ChunkedUploadService
             // Mark session as completed
             $session->update(['status' => 'completed']);
 
-            Log::info("Chunked upload completed", [
+            Log::info('Chunked upload completed', [
                 'session_token' => $session->session_token,
                 'asset_id' => $asset->id,
             ]);
@@ -203,7 +207,7 @@ class ChunkedUploadService
             return $asset;
 
         } catch (\Exception $e) {
-            Log::error("Upload completion failed", [
+            Log::error('Upload completion failed', [
                 'session_token' => $session->session_token,
                 'error' => $e->getMessage(),
             ]);
@@ -212,7 +216,7 @@ class ChunkedUploadService
             try {
                 $this->abortUpload($session);
             } catch (\Exception $abortError) {
-                Log::error("Failed to abort upload after completion error", [
+                Log::error('Failed to abort upload after completion error', [
                     'session_token' => $session->session_token,
                     'error' => $abortError->getMessage(),
                 ]);
@@ -236,12 +240,12 @@ class ChunkedUploadService
 
             $session->update(['status' => 'aborted']);
 
-            Log::info("Upload aborted", [
+            Log::info('Upload aborted', [
                 'session_token' => $session->session_token,
             ]);
 
         } catch (\Exception $e) {
-            Log::error("Failed to abort upload", [
+            Log::error('Failed to abort upload', [
                 'session_token' => $session->session_token,
                 'error' => $e->getMessage(),
             ]);
@@ -255,7 +259,7 @@ class ChunkedUploadService
     protected function extractDimensions(UploadSession $session): array
     {
         // Only extract dimensions for images
-        if (!str_starts_with($session->mime_type, 'image/')) {
+        if (! str_starts_with($session->mime_type, 'image/')) {
             return [];
         }
 
@@ -278,7 +282,7 @@ class ChunkedUploadService
                 return ['width' => $size[0], 'height' => $size[1]];
             }
         } catch (\Exception $e) {
-            Log::warning("Failed to extract dimensions", [
+            Log::warning('Failed to extract dimensions', [
                 'session_token' => $session->session_token,
                 'error' => $e->getMessage(),
             ]);

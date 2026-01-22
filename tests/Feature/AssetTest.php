@@ -1,8 +1,6 @@
 <?php
 
 use App\Models\Asset;
-use App\Models\Setting;
-use App\Models\Tag;
 use App\Models\User;
 
 test('guests cannot access assets index', function () {

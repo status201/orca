@@ -4,6 +4,7 @@ use App\Http\Controllers\AssetController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DiscoverController;
 use App\Http\Controllers\ExportController;
+use App\Http\Controllers\FolderController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SystemController;
 use App\Http\Controllers\TagController;
@@ -48,6 +49,15 @@ Route::middleware(['auth'])->group(function () {
     Route::get('tags/search', [TagController::class, 'search'])->name('tags.search');
     Route::patch('tags/{tag}', [TagController::class, 'update'])->name('tags.update');
     Route::delete('tags/{tag}', [TagController::class, 'destroy'])->name('tags.destroy');
+
+    // Folder routes (list for authenticated users)
+    Route::get('api/folders', [FolderController::class, 'index'])->name('folders.index');
+
+    // Folder management (admin only)
+    Route::middleware(['can:discover,App\Models\Asset'])->group(function () {
+        Route::post('folders/scan', [FolderController::class, 'scan'])->name('folders.scan');
+        Route::post('folders', [FolderController::class, 'store'])->name('folders.store');
+    });
 
     // Discover routes (admin only)
     Route::middleware(['can:discover,App\Models\Asset'])->group(function () {

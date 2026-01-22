@@ -4,8 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Asset;
 use App\Models\Tag;
-use Illuminate\Http\Request;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Http\Request;
 
 class ExportController extends Controller
 {
@@ -68,14 +68,14 @@ class ExportController extends Controller
         $assets = $query->orderBy('created_at', 'desc')->get();
 
         // Generate CSV
-        $filename = 'orca-assets-export-' . now()->format('Y-m-d-His') . '.csv';
+        $filename = 'orca-assets-export-'.now()->format('Y-m-d-His').'.csv';
 
         $headers = [
             'Content-Type' => 'text/csv',
             'Content-Disposition' => "attachment; filename=\"{$filename}\"",
         ];
 
-        $callback = function() use ($assets) {
+        $callback = function () use ($assets) {
             $file = fopen('php://output', 'w');
 
             // CSV Headers (reflecting database column names)

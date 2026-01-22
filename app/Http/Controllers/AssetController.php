@@ -48,6 +48,11 @@ class AssetController extends Controller
             $query->ofType($type);
         }
 
+        // Apply folder filter
+        if ($folder = $request->input('folder')) {
+            $query->inFolder($folder);
+        }
+
         // Apply user filter (admins only)
         if (Auth::user()->isAdmin() && $userId = $request->input('user')) {
             $query->byUser($userId);
@@ -81,13 +86,17 @@ class AssetController extends Controller
         // Allow per_page from request (user preference) to override global setting
         $allowedPerPage = [12, 24, 36, 48, 60, 72, 96];
         $perPage = $request->input('per_page');
-        if (!$perPage || !in_array((int) $perPage, $allowedPerPage)) {
+        if (! $perPage || ! in_array((int) $perPage, $allowedPerPage)) {
             $perPage = Setting::get('items_per_page', 24);
         }
         $assets = $query->paginate((int) $perPage)->withQueryString();
         $tags = Tag::orderBy('name')->get();
+        $folders = Setting::get('s3_folders', ['assets']);
+        if (empty($folders)) {
+            $folders = ['assets'];
+        }
 
-        return view('assets.index', compact('assets', 'tags', 'perPage'));
+        return view('assets.index', compact('assets', 'tags', 'perPage', 'folders'));
     }
 
     /**
@@ -97,7 +106,12 @@ class AssetController extends Controller
     {
         $this->authorize('create', Asset::class);
 
-        return view('assets.create');
+        $folders = Setting::get('s3_folders', ['assets']);
+        if (empty($folders)) {
+            $folders = ['assets'];
+        }
+
+        return view('assets.create', compact('folders'));
     }
 
     /**
@@ -110,14 +124,16 @@ class AssetController extends Controller
         try {
             $request->validate([
                 'files.*' => 'required|file|max:512000', // 500MB max
+                'folder' => 'nullable|string|max:255',
             ]);
 
+            $folder = $request->input('folder', 'assets');
             $uploadedAssets = [];
 
             foreach ($request->file('files') as $file) {
                 try {
-                    // Upload to S3
-                    $fileData = $this->s3Service->uploadFile($file);
+                    // Upload to S3 with folder support
+                    $fileData = $this->s3Service->uploadFile($file, $folder);
 
                     // Create asset record
                     $asset = Asset::create([

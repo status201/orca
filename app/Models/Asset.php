@@ -4,9 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Asset extends Model
 {
@@ -41,6 +41,7 @@ class Asset extends Model
         'url',
         'thumbnail_url',
         'formatted_size',
+        'folder',
     ];
 
     /**
@@ -80,7 +81,7 @@ class Asset extends Model
      */
     public function getUrlAttribute(): string
     {
-        return config('filesystems.disks.s3.url') . '/' . $this->s3_key;
+        return config('filesystems.disks.s3.url').'/'.$this->s3_key;
     }
 
     /**
@@ -88,15 +89,16 @@ class Asset extends Model
      */
     public function getThumbnailUrlAttribute(): ?string
     {
-        if (!$this->thumbnail_s3_key) {
+        if (! $this->thumbnail_s3_key) {
             // For GIFs without thumbnails, use the original
             if ($this->mime_type === 'image/gif') {
                 return $this->url;
             }
+
             return null;
         }
 
-        return config('filesystems.disks.s3.url') . '/' . $this->thumbnail_s3_key;
+        return config('filesystems.disks.s3.url').'/'.$this->thumbnail_s3_key;
     }
 
     /**
@@ -106,12 +108,24 @@ class Asset extends Model
     {
         $bytes = $this->size;
         $units = ['B', 'KB', 'MB', 'GB'];
-        
+
         for ($i = 0; $bytes > 1024 && $i < count($units) - 1; $i++) {
             $bytes /= 1024;
         }
-        
-        return round($bytes, 2) . ' ' . $units[$i];
+
+        return round($bytes, 2).' '.$units[$i];
+    }
+
+    /**
+     * Get the folder path from s3_key
+     * e.g., assets/marketing/uuid.jpg -> assets/marketing
+     */
+    public function getFolderAttribute(): string
+    {
+        $parts = explode('/', $this->s3_key);
+        array_pop($parts); // Remove filename
+
+        return implode('/', $parts) ?: 'assets';
     }
 
     /**
@@ -194,18 +208,18 @@ class Asset extends Model
      */
     public function scopeSearch($query, ?string $search)
     {
-        if (!$search) {
+        if (! $search) {
             return $query;
         }
 
         return $query->where(function ($q) use ($search) {
             $q->where('filename', 'like', "%{$search}%")
-              ->orWhere('s3_key', 'like', "%{$search}%")
-              ->orWhere('alt_text', 'like', "%{$search}%")
-              ->orWhere('caption', 'like', "%{$search}%")
-              ->orWhereHas('tags', function ($tagQuery) use ($search) {
-                  $tagQuery->where('name', 'like', "%{$search}%");
-              });
+                ->orWhere('s3_key', 'like', "%{$search}%")
+                ->orWhere('alt_text', 'like', "%{$search}%")
+                ->orWhere('caption', 'like', "%{$search}%")
+                ->orWhereHas('tags', function ($tagQuery) use ($search) {
+                    $tagQuery->where('name', 'like', "%{$search}%");
+                });
         });
     }
 
@@ -228,7 +242,7 @@ class Asset extends Model
      */
     public function scopeOfType($query, ?string $type)
     {
-        if (!$type) {
+        if (! $type) {
             return $query;
         }
 
@@ -240,10 +254,22 @@ class Asset extends Model
      */
     public function scopeByUser($query, ?int $userId)
     {
-        if (!$userId) {
+        if (! $userId) {
             return $query;
         }
 
         return $query->where('user_id', $userId);
+    }
+
+    /**
+     * Scope: Filter by folder
+     */
+    public function scopeInFolder($query, ?string $folder)
+    {
+        if (! $folder) {
+            return $query;
+        }
+
+        return $query->where('s3_key', 'like', rtrim($folder, '/').'/%');
     }
 }

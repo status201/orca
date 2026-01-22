@@ -3,17 +3,18 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Jobs\GenerateAiTags;
 use App\Models\Asset;
 use App\Models\Tag;
-use App\Services\S3Service;
 use App\Services\RekognitionService;
-use App\Jobs\GenerateAiTags;
+use App\Services\S3Service;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class AssetApiController extends Controller
 {
     protected S3Service $s3Service;
+
     protected RekognitionService $rekognitionService;
 
     public function __construct(S3Service $s3Service, RekognitionService $rekognitionService)
@@ -92,7 +93,7 @@ class AssetApiController extends Controller
         }
 
         return response()->json([
-            'message' => count($uploadedAssets) . ' file(s) uploaded successfully',
+            'message' => count($uploadedAssets).' file(s) uploaded successfully',
             'data' => $uploadedAssets,
         ], 201);
     }
@@ -103,6 +104,7 @@ class AssetApiController extends Controller
     public function show(Asset $asset)
     {
         $asset->load(['tags', 'user']);
+
         return response()->json($asset);
     }
 
@@ -111,7 +113,7 @@ class AssetApiController extends Controller
      */
     public function update(Request $request, Asset $asset)
     {
-        if (!Auth::user()->isAdmin() && $asset->user_id !== Auth::id()) {
+        if (! Auth::user()->isAdmin() && $asset->user_id !== Auth::id()) {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
@@ -152,12 +154,12 @@ class AssetApiController extends Controller
      */
     public function destroy(Asset $asset)
     {
-        if (!Auth::user()->isAdmin() && $asset->user_id !== Auth::id()) {
+        if (! Auth::user()->isAdmin() && $asset->user_id !== Auth::id()) {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
         $this->s3Service->deleteFile($asset->s3_key);
-        
+
         if ($asset->thumbnail_s3_key) {
             $this->s3Service->deleteFile($asset->thumbnail_s3_key);
         }
@@ -206,10 +208,10 @@ class AssetApiController extends Controller
         ]);
 
         $url = $request->input('url');
-        $baseUrl = config('filesystems.disks.s3.url') . '/';
+        $baseUrl = config('filesystems.disks.s3.url').'/';
 
         // Extract S3 key by removing the base URL
-        if (!str_starts_with($url, $baseUrl)) {
+        if (! str_starts_with($url, $baseUrl)) {
             return response()->json([
                 'message' => 'URL does not match configured S3 bucket',
             ], 400);
@@ -220,7 +222,7 @@ class AssetApiController extends Controller
         // Find asset by s3_key
         $asset = Asset::where('s3_key', $s3Key)->first();
 
-        if (!$asset) {
+        if (! $asset) {
             return response()->json([
                 'message' => 'Asset not found',
             ], 404);

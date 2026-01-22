@@ -3,8 +3,8 @@
 namespace App\Jobs;
 
 use App\Models\Asset;
-use App\Services\S3Service;
 use App\Services\RekognitionService;
+use App\Services\S3Service;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -17,6 +17,7 @@ class ProcessDiscoveredAsset implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public $timeout = 300; // 5 minutes per asset
+
     public $tries = 3;
 
     public function __construct(
@@ -27,14 +28,15 @@ class ProcessDiscoveredAsset implements ShouldQueue
     {
         $asset = Asset::find($this->assetId);
 
-        if (!$asset) {
+        if (! $asset) {
             Log::error("ProcessDiscoveredAsset: Asset {$this->assetId} not found");
+
             return;
         }
 
         try {
             // Step 1: Extract image dimensions if not set
-            if ($asset->isImage() && (!$asset->width || !$asset->height)) {
+            if ($asset->isImage() && (! $asset->width || ! $asset->height)) {
                 $dimensions = $s3Service->extractImageDimensions($asset->s3_key, $asset->mime_type);
                 if ($dimensions) {
                     $asset->update($dimensions);
@@ -51,19 +53,19 @@ class ProcessDiscoveredAsset implements ShouldQueue
             if (config('services.aws.rekognition_enabled') && $asset->isImage()) {
                 Log::info("ProcessDiscoveredAsset: Running AI tagging for asset {$asset->id}");
                 $labels = $rekognitionService->autoTagAsset($asset);
-                Log::info("ProcessDiscoveredAsset: Generated " . count($labels) . " AI tags for asset {$asset->id}");
+                Log::info('ProcessDiscoveredAsset: Generated '.count($labels)." AI tags for asset {$asset->id}");
             }
 
             Log::info("ProcessDiscoveredAsset: Successfully processed asset {$asset->id}");
 
         } catch (\Exception $e) {
-            Log::error("ProcessDiscoveredAsset: Failed for asset {$asset->id}: " . $e->getMessage());
+            Log::error("ProcessDiscoveredAsset: Failed for asset {$asset->id}: ".$e->getMessage());
             throw $e; // Re-throw to trigger job retry
         }
     }
 
     public function failed(\Throwable $exception): void
     {
-        Log::error("ProcessDiscoveredAsset: Job permanently failed for asset {$this->assetId}: " . $exception->getMessage());
+        Log::error("ProcessDiscoveredAsset: Job permanently failed for asset {$this->assetId}: ".$exception->getMessage());
     }
 }

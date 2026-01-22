@@ -43,18 +43,24 @@ class Setting extends Model
     /**
      * Set a setting value
      */
-    public static function set(string $key, mixed $value): bool
+    public static function set(string $key, mixed $value, ?string $type = null, ?string $group = null): bool
     {
         $setting = self::where('key', $key)->first();
-
-        if (! $setting) {
-            return false;
-        }
 
         // Convert value to string for storage
         $stringValue = is_array($value) ? json_encode($value) : (string) $value;
 
-        $setting->update(['value' => $stringValue]);
+        if (! $setting) {
+            // Create new setting if it doesn't exist
+            self::create([
+                'key' => $key,
+                'value' => $stringValue,
+                'type' => $type ?? 'string',
+                'group' => $group ?? 'general',
+            ]);
+        } else {
+            $setting->update(['value' => $stringValue]);
+        }
 
         // Clear cache
         Cache::forget(self::CACHE_PREFIX.$key);

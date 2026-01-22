@@ -4,20 +4,19 @@ namespace App\Http\Controllers;
 
 use App\Jobs\ProcessDiscoveredAsset;
 use App\Models\Asset;
-use App\Services\S3Service;
 use App\Services\RekognitionService;
+use App\Services\S3Service;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
-use Intervention\Image\ImageManager;
-use Intervention\Image\Drivers\Gd\Driver;
 
 class DiscoverController extends Controller
 {
     use AuthorizesRequests;
 
     protected S3Service $s3Service;
+
     protected RekognitionService $rekognitionService;
 
     public function __construct(S3Service $s3Service, RekognitionService $rekognitionService)
@@ -32,7 +31,7 @@ class DiscoverController extends Controller
     public function index()
     {
         $this->authorize('discover', Asset::class);
-        
+
         return view('discover.index');
     }
 
@@ -91,6 +90,7 @@ class DiscoverController extends Controller
             // Check if asset already exists by s3_key (quick database query, including trashed)
             if (Asset::withTrashed()->where('s3_key', $s3Key)->exists()) {
                 $skipped++;
+
                 continue;
             }
 
@@ -98,18 +98,20 @@ class DiscoverController extends Controller
                 // Get minimal S3 metadata only (fast operation)
                 $metadata = $this->s3Service->getObjectMetadata($s3Key);
 
-                if (!$metadata) {
+                if (! $metadata) {
                     Log::warning("Could not fetch metadata for S3 key: {$s3Key}");
                     $skipped++;
+
                     continue;
                 }
 
                 // Quick ETag duplicate check (including trashed)
-                if (!empty($metadata['etag'])) {
+                if (! empty($metadata['etag'])) {
                     $existingAsset = Asset::withTrashed()->where('etag', $metadata['etag'])->first();
                     if ($existingAsset) {
                         Log::info("Asset with ETag {$metadata['etag']} already exists (ID: {$existingAsset->id})");
                         $skipped++;
+
                         continue;
                     }
                 }
@@ -135,7 +137,7 @@ class DiscoverController extends Controller
                 $imported++;
 
             } catch (\Exception $e) {
-                Log::error("Failed to import {$s3Key}: " . $e->getMessage());
+                Log::error("Failed to import {$s3Key}: ".$e->getMessage());
                 $skipped++;
             }
         }

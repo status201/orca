@@ -135,14 +135,14 @@ test('api asset meta endpoint is public', function () {
     ]);
 
     // The meta endpoint should work without authentication
-    $response = $this->getJson('/api/assets/meta?url=' . urlencode($asset->url));
+    $response = $this->getJson('/api/assets/meta?url='.urlencode($asset->url));
 
     $response->assertOk();
     $response->assertJsonFragment(['alt_text' => 'Test alt text']);
 });
 
 test('api asset meta returns error for unknown url', function () {
-    $response = $this->getJson('/api/assets/meta?url=' . urlencode('https://example.com/nonexistent.jpg'));
+    $response = $this->getJson('/api/assets/meta?url='.urlencode('https://example.com/nonexistent.jpg'));
 
     $response->assertStatus(400);
 });

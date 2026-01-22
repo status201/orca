@@ -9,7 +9,7 @@ class TagController extends Controller
 {
     public function __construct()
     {
-        #$this->middleware('auth');
+        // $this->middleware('auth');
     }
 
     /**
@@ -61,12 +61,12 @@ class TagController extends Controller
         // Only allow updating user tags
         if ($tag->type !== 'user') {
             return response()->json([
-                'message' => 'AI tags cannot be edited'
+                'message' => 'AI tags cannot be edited',
             ], 403);
         }
 
         $request->validate([
-            'name' => 'required|string|max:50|unique:tags,name,' . $tag->id,
+            'name' => 'required|string|max:50|unique:tags,name,'.$tag->id,
         ]);
 
         $tag->update([

@@ -48,6 +48,7 @@ class CleanupStaleUploads extends Command
 
         if ($staleSessions->isEmpty()) {
             $this->info('No stale upload sessions found.');
+
             return Command::SUCCESS;
         }
 
@@ -71,7 +72,7 @@ class CleanupStaleUploads extends Command
         }
 
         $this->newLine();
-        $this->info("Cleanup complete:");
+        $this->info('Cleanup complete:');
         $this->table(
             ['Status', 'Count'],
             [

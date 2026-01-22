@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        if (!Schema::hasColumn('assets', 'etag')) {
+        if (! Schema::hasColumn('assets', 'etag')) {
             Schema::table('assets', function (Blueprint $table) {
                 $table->string('etag')->nullable()->index()->after('size');
             });

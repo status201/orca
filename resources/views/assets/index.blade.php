@@ -57,6 +57,16 @@
                         <option value="application">Documents</option>
                     </select>
 
+                    <!-- Folder filter -->
+                    <select x-model="folder"
+                            @change="applyFilters"
+                            class="pr-dropdown px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <option value="">All Folders</option>
+                        @foreach($folders as $f)
+                            <option value="{{ $f }}">{{ $f === 'assets' ? '/ (root)' : str_replace('assets/', '', $f) }}</option>
+                        @endforeach
+                    </select>
+
                     <!-- Tag filter -->
                     <button @click="showTagFilter = !showTagFilter"
                             class="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 flex items-center justify-center">
@@ -495,6 +505,7 @@ function assetGrid() {
     return {
         search: @json(request('search', '')),
         type: @json(request('type', '')),
+        folder: @json(request('folder', '')),
         sort: @json(request('sort', 'date_desc')),
         selectedTags: @json(request('tags', [])),
         initialTags: @json(request('tags', [])),
@@ -538,6 +549,7 @@ function assetGrid() {
 
             if (this.search) params.append('search', this.search);
             if (this.type) params.append('type', this.type);
+            if (this.folder) params.append('folder', this.folder);
             if (this.sort) params.append('sort', this.sort);
             if (this.perPage) params.append('per_page', this.perPage);
             if (this.selectedTags.length > 0) {
