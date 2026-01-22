@@ -95,6 +95,7 @@ AWS_URL=https://your-bucket-name.s3.us-east-1.amazonaws.com
 # AWS Rekognition (optional)
 AWS_REKOGNITION_ENABLED=true
 AWS_REKOGNITION_MAX_LABELS=5
+AWS_REKOGNITION_MIN_CONFIDENCE=75
 AWS_REKOGNITION_LANGUAGE=en
 ```
 
