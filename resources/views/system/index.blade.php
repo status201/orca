@@ -561,42 +561,42 @@
                     </h3>
                     <p class="text-sm text-gray-500 mt-1">Manage caching, run migrations, etc.</p>
                 </div>
+
+                <div class="flex flex-col sm:flex-row items-stretch sm:items-top gap-3">
+                    <div>
+                        <!--<label class="block text-sm font-medium text-gray-700 mb-2">Command</label>-->
+                        <input type="text"
+                               x-model="customCommand"
+                               @keydown.enter="executeCustomCommand()"
+                               placeholder="e.g., cache:clear"
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg font-mono text-sm">
+                        <p class="text-xs text-gray-500 mt-1">
+                            <i class="fas fa-shield-alt mr-1"></i>
+                            Only whitelisted commands are allowed for security.
+                        </p>
+                    </div>
+                    <button @click="executeCustomCommand()"
+                            :disabled="!customCommand || executingCommand"
+                            class="px-6 py-2 bg-orca-black text-white rounded-lg hover:bg-orca-black-hover disabled:opacity-50">
+                        <i class="fas mr-2" :class="executingCommand ? 'fa-spinner fa-spin' : 'fa-play'"></i>
+                        Execute
+                    </button>
+                </div>
+
             </div>
 
             <div class="space-y-4  p-6">
-
-                <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Command</label>
-                    <input type="text"
-                           x-model="customCommand"
-                           @keydown.enter="executeCustomCommand()"
-                           placeholder="e.g., cache:clear"
-                           class="w-full px-4 py-2 border border-gray-300 rounded-lg font-mono text-sm">
-                    <p class="text-xs text-gray-500 mt-1">
-                        <i class="fas fa-shield-alt mr-1"></i>
-                        Only whitelisted commands are allowed for security.
-                    </p>
-                </div>
-                <button @click="executeCustomCommand()"
-                        :disabled="!customCommand || executingCommand"
-                        class="px-6 py-2 mt-2 bg-orca-black text-white rounded-lg hover:bg-orca-black-hover disabled:opacity-50">
-                    <i class="fas mr-2" :class="executingCommand ? 'fa-spinner fa-spin' : 'fa-play'"></i>
-                    Execute
-                </button>
-                </div>
-
-            </div>
-
-            <!-- Command Output -->
-            <div x-show="commandOutput" class="mt-4">
-                <label class="block text-sm font-medium text-gray-700 mb-2">Output</label>
-                <div class="bg-gray-900 rounded-lg p-4 overflow-x-auto">
+                <!-- Command Output -->
+                <div x-show="commandOutput" class="mt-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Output</label>
+                    <div class="bg-gray-900 rounded-lg p-4 overflow-x-auto">
                     <pre class="text-xs font-mono"
                          :class="commandSuccess ? 'text-green-400' : 'text-red-400'"
                          x-text="commandOutput"></pre>
+                    </div>
                 </div>
             </div>
+
         </div>
 
         <!-- Suggested Commands -->
