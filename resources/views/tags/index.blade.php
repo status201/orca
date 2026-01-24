@@ -15,7 +15,7 @@
             @if($tags->count() > 0)
             <div class="flex flex-col sm:flex-row gap-3 sm:items-center">
                 <!-- Search -->
-                <div class="relative">
+                <div class="relative md:order-2">
                     <input type="text"
                            x-model="searchQuery"
                            placeholder="Search tags..."
@@ -28,7 +28,7 @@
                         <i class="fas fa-times"></i>
                     </button>
                 </div>
-                <p x-show="searchQuery.length > 0" x-cloak class="text-sm text-gray-600 whitespace-nowrap">
+                <p x-show="searchQuery.length > 0" x-cloak class="md:order-1 text-sm text-gray-600 whitespace-nowrap">
                     <span x-text="matchingCount"></span> of {{ $tags->count() }}
                 </p>
             </div>
