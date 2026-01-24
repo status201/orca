@@ -259,6 +259,8 @@ class SystemService
             'max_execution_time' => ini_get('max_execution_time'),
             'upload_max_filesize' => ini_get('upload_max_filesize'),
             'post_max_size' => ini_get('post_max_size'),
+            'gd_enabled' => extension_loaded('gd'),
+            'imagick_enabled' => extension_loaded('imagick'),
         ];
     }
 

@@ -694,6 +694,18 @@
                     <span class="text-sm text-gray-600">Max Execution Time:</span>
                     <span class="text-sm font-semibold text-gray-900">{{ $systemInfo['max_execution_time'] }}s</span>
                 </div>
+                <div class="flex justify-between py-2 border-b border-gray-200">
+                    <span class="text-sm text-gray-600">GD Extension:</span>
+                    <span class="text-sm font-semibold {{ $systemInfo['gd_enabled'] ? 'text-green-600' : 'text-red-600' }}">
+                        {{ $systemInfo['gd_enabled'] ? 'Enabled' : 'Not Available' }}
+                    </span>
+                </div>
+                <div class="flex justify-between py-2 border-b border-gray-200">
+                    <span class="text-sm text-gray-600">Imagick Extension:</span>
+                    <span class="text-sm font-semibold {{ $systemInfo['imagick_enabled'] ? 'text-green-600' : 'text-gray-500' }}">
+                        {{ $systemInfo['imagick_enabled'] ? 'Enabled' : 'Not Available' }}
+                    </span>
+                </div>
             </div>
         </div>
 
