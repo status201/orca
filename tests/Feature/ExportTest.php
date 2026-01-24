@@ -124,3 +124,18 @@ test('export separates user tags and ai tags', function () {
     expect($content)->toContain('user_tags');
     expect($content)->toContain('ai_tags');
 });
+
+test('export can filter by folder', function () {
+    $admin = User::factory()->create(['role' => 'admin']);
+    Asset::factory()->create(['s3_key' => 'assets/photos/img1.jpg', 'filename' => 'img1.jpg']);
+    Asset::factory()->create(['s3_key' => 'assets/docs/file.pdf', 'filename' => 'file.pdf']);
+
+    $response = $this->actingAs($admin)->post(route('export.download'), [
+        'folder' => 'assets/photos',
+    ]);
+
+    $response->assertOk();
+    $content = $response->streamedContent();
+    expect($content)->toContain('img1.jpg');
+    expect($content)->not->toContain('file.pdf');
+});

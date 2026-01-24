@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Asset;
+use App\Models\Setting;
 use App\Models\Tag;
+use App\Services\S3Service;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 
@@ -32,9 +34,20 @@ class ExportController extends Controller
             ->sort()
             ->values();
 
+        $rootFolder = S3Service::getRootFolder();
+        $folders = Setting::get('s3_folders', $rootFolder !== '' ? [$rootFolder] : []);
+        if (empty($folders) && $rootFolder !== '') {
+            $folders = [$rootFolder];
+        }
+        if ($rootFolder === '' && !in_array('', $folders)) {
+            array_unshift($folders, '');
+        }
+
         return view('export.index', [
             'tags' => $tags,
             'fileTypes' => $fileTypes,
+            'folders' => $folders,
+            'rootFolder' => $rootFolder,
         ]);
     }
 
@@ -47,12 +60,18 @@ class ExportController extends Controller
 
         $request->validate([
             'file_type' => 'nullable|string',
+            'folder' => 'nullable|string',
             'tags' => 'nullable|array',
             'tags.*' => 'integer|exists:tags,id',
         ]);
 
         // Build query with filters
         $query = Asset::with(['user', 'tags']);
+
+        // Filter by folder if specified
+        if ($request->filled('folder')) {
+            $query->inFolder($request->folder);
+        }
 
         // Filter by file type if specified
         if ($request->filled('file_type')) {

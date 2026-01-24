@@ -14,7 +14,30 @@
         <form action="{{ route('export.download') }}" method="POST">
             @csrf
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                <!-- Folder Filter -->
+                <div>
+                    <label for="folder" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-folder mr-2"></i>Folder
+                    </label>
+                    <select id="folder"
+                            name="folder"
+                            x-model="folder"
+                            class="w-full rounded-lg border-gray-300 focus:border-blue-500 focus:ring-blue-500 font-mono text-sm">
+                        <option value="">All Folders</option>
+                        @foreach($folders as $f)
+                            @php
+                                $rootPrefix = $rootFolder !== '' ? $rootFolder . '/' : '';
+                                $relativePath = ($f === '' || ($rootFolder !== '' && $f === $rootFolder)) ? '' : ($rootPrefix !== '' ? str_replace($rootPrefix, '', $f) : $f);
+                                $depth = $relativePath ? substr_count($relativePath, '/') + 1 : 0;
+                                $label = ($f === '' || ($rootFolder !== '' && $f === $rootFolder)) ? '/ (root)' : str_repeat('│  ', max(0, $depth - 1)) . '├─ ' . basename($f);
+                            @endphp
+                            <option value="{{ $f }}">{{ $label }}</option>
+                        @endforeach
+                    </select>
+                    <p class="text-xs text-gray-500 mt-1">Filter by S3 folder (leave empty for all)</p>
+                </div>
+
                 <!-- File Type Filter -->
                 <div>
                     <label for="file_type" class="block text-sm font-medium text-gray-700 mb-2">
@@ -65,14 +88,16 @@
                     <p><strong>Export Format:</strong> CSV (Comma-Separated Values)</p>
                     <p><strong>Included Fields:</strong> id, s3_key, filename, mime_type, size, etag, dimensions, thumbnails, metadata, user info, tags, URLs, timestamps</p>
                     <p><strong>Tags Format:</strong> Comma-separated tag names (not IDs)</p>
-                    <p x-show="fileType || selectedTags.length > 0" class="text-blue-900 font-semibold">
+                    <p x-show="folder || fileType || selectedTags.length > 0" class="text-blue-900 font-semibold">
                         <i class="fas fa-filter mr-1"></i>
                         Filters active:
+                        <span x-show="folder" x-text="'Folder: ' + folder"></span>
+                        <span x-show="folder && (fileType || selectedTags.length > 0)">, </span>
                         <span x-show="fileType" x-text="'File Type: ' + fileType"></span>
                         <span x-show="fileType && selectedTags.length > 0">, </span>
                         <span x-show="selectedTags.length > 0" x-text="selectedTags.length + ' tag(s) selected'"></span>
                     </p>
-                    <p x-show="!fileType && selectedTags.length === 0" class="text-blue-900 font-semibold">
+                    <p x-show="!folder && !fileType && selectedTags.length === 0" class="text-blue-900 font-semibold">
                         <i class="fas fa-globe mr-1"></i>All assets will be exported
                     </p>
                 </div>
@@ -137,10 +162,12 @@
 <script>
 function exportAssets() {
     return {
+        folder: '',
         fileType: '',
         selectedTags: [],
 
         resetFilters() {
+            this.folder = '';
             this.fileType = '';
             this.selectedTags = [];
         }
