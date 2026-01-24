@@ -9,7 +9,7 @@
         <p class="text-gray-600 mt-2">Update user information and role</p>
     </div>
 
-    <div class="max-w-2xl bg-white rounded-lg shadow p-6">
+    <div class="bg-white rounded-lg shadow p-6">
         <form action="{{ route('users.update', $user) }}" method="POST">
             @csrf
             @method('PATCH')
