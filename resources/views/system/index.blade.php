@@ -207,7 +207,7 @@
                                    x-model="settings.s3_root_folder"
                                    @change="updateSetting('s3_root_folder', settings.s3_root_folder)"
                                    placeholder=""
-                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orca-blue focus:border-orca-blue">
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orca-black focus:border-transparent">
                             <p class="text-xs text-gray-500 mt-1">S3 prefix for root folder view &amp; uploads. Leave empty for bucket root.</p>
                             <p class="text-xs text-amber-600 mt-1"><i class="fas fa-exclamation-triangle mr-1"></i>Changing this does not move existing assets.</p>
                         </div>
@@ -227,7 +227,7 @@
                             </label>
                             <select x-model="settings.items_per_page"
                                     @change="updateSetting('items_per_page', settings.items_per_page)"
-                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orca-blue focus:border-orca-blue">
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orca-black focus:border-transparent">
                                 <option value="12">12</option>
                                 <option value="24">24</option>
                                 <option value="36">36</option>
@@ -257,7 +257,7 @@
                                    @change="updateSetting('rekognition_max_labels', settings.rekognition_max_labels)"
                                    min="1"
                                    max="20"
-                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orca-blue focus:border-orca-blue">
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orca-black focus:border-transparent">
                             <p class="text-xs text-gray-500 mt-1">Maximum number of AI-generated tags per asset (1-20)</p>
                         </div>
 
@@ -268,7 +268,7 @@
                             </label>
                             <select x-model="settings.rekognition_language"
                                     @change="updateSetting('rekognition_language', settings.rekognition_language)"
-                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orca-blue focus:border-orca-blue">
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orca-black focus:border-transparent">
                                 @foreach($availableLanguages as $code => $name)
                                     <option value="{{ $code }}">{{ $name }}</option>
                                 @endforeach
@@ -283,7 +283,7 @@
                             </label>
                             <select x-model="settings.rekognition_min_confidence"
                                     @change="updateSetting('rekognition_min_confidence', settings.rekognition_min_confidence)"
-                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orca-blue focus:border-orca-blue">
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orca-black focus:border-transparent">
                                 @for($i = 65; $i <= 99; $i++)
                                     <option value="{{ $i }}">{{ $i }}.0%</option>
                                 @endfor
@@ -378,7 +378,7 @@
                 </button>
 
                 <button @click="restartWorkers()"
-                        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                        class="px-4 py-2 bg-orca-black text-white rounded-lg hover:bg-orca-black-hover">
                     <i class="fas fa-power-off mr-2"></i>Restart Workers
                 </button>
             </div>

@@ -5,7 +5,7 @@
 @section('content')
 <div class="max-w-7xl mx-auto" x-data="assetEditor()">
     <div class="mb-6">
-        <a href="{{ route('assets.show', $asset) }}" class="inline-flex items-center text-blue-600 hover:text-blue-700">
+        <a href="{{ route('assets.show', $asset) }}" class="inline-flex items-center text-orca-black hover:text-orca-black-hover">
             <i class="fas fa-arrow-left mr-2"></i> Back to Asset
         </a>
     </div>
@@ -44,7 +44,7 @@
                     <input type="text"
                            value="{{ $asset->filename }}"
                            readonly
-                           class="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg">
+                           class="w-full px-4 py-2 focus:ring-2 focus:ring-orca-black bg-gray-50 border border-gray-300 rounded-lg">
                 </div>
 
                 <!-- Preview -->
@@ -88,7 +88,7 @@
                            name="alt_text"
                            value="{{ old('alt_text', $asset->alt_text) }}"
                            maxlength="500"
-                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orca-black focus:border-transparent"
                            placeholder="Brief description of the image">
                     @error('alt_text')
                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -104,7 +104,7 @@
                               name="caption"
                               rows="3"
                               maxlength="1000"
-                              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orca-black focus:border-transparent"
                               placeholder="Optional caption or description">{{ old('caption', $asset->caption) }}</textarea>
                     @error('caption')
                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -118,7 +118,7 @@
                     </label>
                     <select id="license_type"
                             name="license_type"
-                            class="w-full px-4 py-2 pr-dropdown border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            class="w-full px-4 py-2 pr-dropdown border border-gray-300 rounded-lg focus:ring-2 focus:ring-orca-black focus:border-transparent">
                         <option value="">Select a license...</option>
                         <option value="public_domain" {{ old('license_type', $asset->license_type) == 'public_domain' ? 'selected' : '' }}>Public Domain</option>
                         <option value="cc0" {{ old('license_type', $asset->license_type) == 'cc0' ? 'selected' : '' }}>CC0 (No Rights Reserved)</option>
@@ -147,7 +147,7 @@
                            id="license_expiry_date"
                            name="license_expiry_date"
                            value="{{ old('license_expiry_date', $asset->license_expiry_date?->format('Y-m-d')) }}"
-                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orca-black focus:border-transparent">
                     @error('license_expiry_date')
                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
@@ -163,7 +163,7 @@
                            name="copyright"
                            value="{{ old('copyright', $asset->copyright) }}"
                            maxlength="500"
-                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orca-black focus:border-transparent"
                            placeholder="e.g., © 2024 Company Name, or copyright holder information">
                     @error('copyright')
                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -181,7 +181,7 @@
                            name="copyright_source"
                            value="{{ old('copyright_source', $asset->copyright_source) }}"
                            maxlength="500"
-                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orca-black focus:border-transparent"
                            placeholder="e.g., https://example.com/license or original source reference">
                     @error('copyright_source')
                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -209,7 +209,7 @@
                                    @keydown.escape="hideSuggestions"
                                    @blur="hideSuggestions"
                                    placeholder="Add a tag..."
-                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orca-black focus:border-transparent">
 
                             <!-- Autocomplete suggestions -->
                             <div x-show="showSuggestions && suggestions.length > 0"
@@ -227,7 +227,7 @@
                         </div>
                         <button type="button"
                                 @click="addTag"
-                                class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                                class="px-4 py-2 bg-orca-black text-white rounded-lg hover:bg-orca-black-hover">
                             <i class="fas fa-plus mr-2"></i> Add
                         </button>
                     </div>
@@ -261,7 +261,7 @@
                     Cancel
                 </a>
                 <button type="submit" 
-                        class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                        class="px-6 py-2 bg-orca-black text-white rounded-lg hover:bg-orca-black-hover">
                     <i class="fas fa-save mr-2"></i> Save Changes
                 </button>
             </div>

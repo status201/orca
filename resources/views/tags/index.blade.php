@@ -19,7 +19,7 @@
                     <input type="text"
                            x-model="searchQuery"
                            placeholder="Search tags..."
-                           class="w-full sm:w-64 pl-10 pr-10 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                           class="w-full sm:w-64 pl-10 pr-10 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orca-black focus:border-transparent">
                     <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
                     <button x-show="searchQuery.length > 0"
                             x-cloak
@@ -142,7 +142,7 @@
                            x-model="editingTagName"
                            required
                            maxlength="50"
-                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orca-black focus:border-transparent">
                 </div>
 
                 <div class="flex justify-end space-x-3">
@@ -152,7 +152,7 @@
                         Cancel
                     </button>
                     <button type="submit"
-                            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                            class="px-4 py-2 bg-orca-black text-white rounded-lg hover:bg-orca-black-hover">
                         <i class="fas fa-save mr-2"></i> Save
                     </button>
                 </div>

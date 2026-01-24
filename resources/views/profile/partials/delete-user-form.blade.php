@@ -34,7 +34,7 @@
                     id="password"
                     name="password"
                     type="password"
-                    class="mt-1 block w-3/4"
+                    class="mt-1 block w-3/4 focus:ring-2 focus:ring-orca-black focus:border-transparent"
                     placeholder="{{ __('Password') }}"
                 />
 

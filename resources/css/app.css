@@ -13,36 +13,36 @@
         padding-right: 2rem !important;
     }
 
-    /* Orca theme button overrides - replace blue with black */
-    .bg-blue-600 {
-        background-color: #1a1a1a !important;
-    }
-    .bg-blue-700,
-    .hover\:bg-blue-700:hover {
-        background-color: #2d2d2d !important;
-    }
-    .hover\:bg-blue-50:hover {
-        background-color: #f3f4f6 !important;
-    }
-    .text-blue-600 {
-        color: #1a1a1a !important;
-    }
-    .border-blue-500 {
-        border-color: #1a1a1a !important;
-    }
-    .ring-blue-500 {
-        --tw-ring-color: #1a1a1a !important;
-    }
-    .focus\:ring-blue-500:focus {
-        --tw-ring-color: #1a1a1a !important;
-    }
-}
-
-.tagline span {
-    display: inline-block;
-    &::first-letter {
-        color: #0a0a0a;
-        font-weight: bold;
+    /* grayscale filter */
+    .bg-blue-500,
+    .bg-green-500,
+    .bg-purple-500,
+    .bg-red-500,
+    .bg-pink-500,
+    .bg-teal-500,
+    .bg-yellow-500,
+    .bg-blue-600,
+    .bg-green-600,
+    .bg-purple-600,
+    .bg-red-600,
+    .bg-pink-600,
+    .bg-teal-600,
+    .bg-yellow-600,
+    .text-blue-600,
+    .text-green-600,
+    .text-purple-600,
+    .text-red-600,
+    .text-pink-600,
+    .text-teal-600,
+    .text-yellow-600,
+    .text-blue-800,
+    .text-green-800,
+    .text-purple-800,
+    .text-red-800,
+    .text-pink-800,
+    .text-teal-800,
+    .text-yellow-800    {
+        filter: grayscale(0.7);
     }
 }
 

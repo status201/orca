@@ -156,7 +156,7 @@
                 
                 <button @click="uploadFiles"
                         :disabled="uploading || selectedFiles.length === 0"
-                        class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center">
+                        class="px-6 py-2 bg-orca-black text-white rounded-lg hover:bg-orca-black-hover disabled:opacity-50 disabled:cursor-not-allowed flex items-center">
                     <template x-if="!uploading">
                         <span><i class="fas fa-upload mr-2"></i> Upload <span x-text="selectedFiles.length"></span> File(s)</span>
                     </template>

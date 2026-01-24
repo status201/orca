@@ -6,7 +6,7 @@
 <div class="max-w-7xl mx-auto" x-data="assetDetail()">
     <!-- Back button -->
     <div class="mb-6">
-        <a href="{{ route('assets.index') }}" class="inline-flex items-center text-blue-600 hover:text-blue-700">
+        <a href="{{ route('assets.index') }}" class="inline-flex items-center text-orca-black hover:text-orca-black-hover">
             <i class="fas fa-arrow-left mr-2"></i> Back to Assets
         </a>
     </div>
@@ -78,7 +78,7 @@
                            readonly
                            class="flex-1 px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg text-sm font-mono">
                     <button @click="copyUrl('{{ $asset->url }}', 'main')"
-                            :class="copiedStates.main ? 'bg-green-600 hover:bg-green-700' : 'bg-blue-600 hover:bg-blue-700'"
+                            :class="copiedStates.main ? 'bg-green-600 hover:bg-green-700' : 'bg-orca-black hover:bg-orca-black-hover'"
                             class="px-4 py-2 text-white rounded-lg whitespace-nowrap transition-all duration-300">
                         <i :class="copiedStates.main ? 'fas fa-check' : 'fas fa-copy'" class="mr-2"></i>
                         <span x-text="copiedStates.main ? 'Copied!' : 'Copy'"></span>
@@ -277,7 +277,7 @@
                 <div class="space-y-3">
                     @can('update', $asset)
                     <a href="{{ route('assets.edit', $asset) }}" 
-                       class="block w-full px-4 py-2 bg-blue-600 text-white text-center rounded-lg hover:bg-blue-700">
+                       class="block w-full px-4 py-2 bg-orca-black text-white text-center rounded-lg hover:bg-orca-black-hover">
                         <i class="fas fa-edit mr-2"></i> Edit Asset
                     </a>
                     @endcan
