@@ -1045,7 +1045,33 @@ function systemAdmin() {
         },
         expandedSuites: [],
 
+        validTabs: ['overview', 'settings', 'queue', 'logs', 'commands', 'diagnostics', 'documentation', 'tests'],
+
         init() {
+            // Set active tab from URL hash
+            const hash = window.location.hash.substring(1);
+            if (hash && this.validTabs.includes(hash)) {
+                this.activeTab = hash;
+            }
+
+            // Update hash when tab changes
+            this.$watch('activeTab', (tab) => {
+                const newHash = '#' + tab;
+                if (window.location.hash !== newHash) {
+                    history.pushState(null, '', newHash);
+                }
+            });
+
+            // Handle browser back/forward
+            window.addEventListener('popstate', () => {
+                const hash = window.location.hash.substring(1);
+                if (hash && this.validTabs.includes(hash)) {
+                    this.activeTab = hash;
+                } else {
+                    this.activeTab = 'overview';
+                }
+            });
+
             // Initial load
             this.refreshQueueStatus();
             this.refreshSupervisorStatus();
