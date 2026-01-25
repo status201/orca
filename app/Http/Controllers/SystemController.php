@@ -470,9 +470,10 @@ class SystemController extends Controller
             'README.md',
             'RTE_INTEGRATION.md',
             'SETUP_GUIDE.md',
+            'USER_MANUAL.md',
         ];
 
-        $file = $request->input('file', 'README.md');
+        $file = $request->input('file', 'USER_MANUAL.md');
 
         if (! in_array($file, $allowedFiles)) {
             return response()->json([

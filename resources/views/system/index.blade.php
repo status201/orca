@@ -750,10 +750,11 @@
                     <select x-model="selectedDoc"
                             @change="loadDocumentation()"
                             class="rounded-md border-gray-300 text-sm">
-                        <option value="README.md">README.md</option>
+                        <option value="USER_MANUAL.md">USER_MANUAL.md</option>
                         <option value="CLAUDE.md">CLAUDE.md</option>
                         <option value="DEPLOYMENT.md">DEPLOYMENT.md</option>
                         <option value="QUICK_REFERENCE.md">QUICK_REFERENCE.md</option>
+                        <option value="README.md">README.md</option>
                         <option value="RTE_INTEGRATION.md">RTE_INTEGRATION.md</option>
                         <option value="SETUP_GUIDE.md">SETUP_GUIDE.md</option>
                     </select>
@@ -1023,7 +1024,7 @@ function systemAdmin() {
         savingSettings: false,
 
         // Documentation
-        selectedDoc: 'README.md',
+        selectedDoc: 'USER_MANUAL.md',
         docContent: '',
         docError: '',
         loadingDoc: false,
