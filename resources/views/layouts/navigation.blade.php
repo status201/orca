@@ -68,6 +68,9 @@
                             <x-dropdown-link :href="route('system.index')">
                                 <i class="fas fa-cog mr-2"></i>{{ __('System') }}
                             </x-dropdown-link>
+                            <x-dropdown-link :href="route('api.index')">
+                                <i class="fas fa-code mr-2"></i>{{ __('API') }}
+                            </x-dropdown-link>
                         @endcan
 
                         <!-- Authentication -->
@@ -145,6 +148,9 @@
                 @can('access', App\Http\Controllers\SystemController::class)
                     <x-responsive-nav-link :href="route('system.index')">
                         <i class="fas fa-cog mr-2"></i>{{ __('System') }}
+                    </x-responsive-nav-link>
+                    <x-responsive-nav-link :href="route('api.index')">
+                        <i class="fas fa-code mr-2"></i>{{ __('API') }}
                     </x-responsive-nav-link>
                 @endcan
 

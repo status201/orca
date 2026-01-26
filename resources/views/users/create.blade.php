@@ -38,6 +38,7 @@
                         class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orca-black focus:border-transparent @error('role') border-red-500 @enderror">
                     <option value="editor" {{ old('role') === 'editor' ? 'selected' : '' }}>Editor</option>
                     <option value="admin" {{ old('role') === 'admin' ? 'selected' : '' }}>Admin</option>
+                    <option value="api" {{ old('role') === 'api' ? 'selected' : '' }}>Api</option>
                 </select>
                 @error('role')
                     <p class="text-red-500 text-sm mt-1">{{ $message }}</p>

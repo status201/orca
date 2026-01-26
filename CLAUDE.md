@@ -69,6 +69,25 @@ php artisan uploads:cleanup              # Default: 24 hours
 php artisan uploads:cleanup --hours=48   # Custom threshold
 ```
 
+### API Token Management
+```bash
+# List all API tokens
+php artisan token:list                   # Show all tokens with user info
+php artisan token:list --user=email      # Filter by user email
+php artisan token:list --role=api        # Filter by user role
+
+# Create a new API token
+php artisan token:create                 # Interactive: prompts for user/name
+php artisan token:create user@email.com  # Create token for existing user
+php artisan token:create --new           # Create new API user and token
+php artisan token:create --name="My App" # Specify token name
+
+# Revoke tokens
+php artisan token:revoke 5               # Revoke token with ID 5
+php artisan token:revoke --user=email    # Revoke all tokens for a user
+php artisan token:revoke 5 --force       # Skip confirmation prompt
+```
+
 ## Architecture
 
 ### Core Services Pattern
@@ -121,6 +140,7 @@ Uses Laravel Policies for fine-grained access control:
 **User Roles** (stored in `users.role` column):
 - `editor`: Can upload and manage all assets (view, edit, soft delete)
 - `admin`: Full access including trash management, discovery, export, and user management
+- `api`: API-only access for external integrations (view, create, update assets; no delete, no admin features)
 
 ### Model Relationships
 
@@ -648,6 +668,15 @@ ORCA DAM includes a comprehensive admin-only System page accessible via the user
 - System configuration overview
 - PHP settings display
 - S3 connection test
+
+**API Tokens Tab:**
+- Manage Laravel Sanctum API tokens for external integrations
+- Create tokens for existing users or new API users
+- View all tokens with user info, creation date, last used timestamp
+- Revoke individual tokens
+- Copy new tokens to clipboard (shown only once)
+- API users have limited permissions (view, create, update; no delete/admin features)
+- Routes: `GET/POST/DELETE /system/tokens`
 
 **Tests Tab:**
 - Web-based test runner for automated tests

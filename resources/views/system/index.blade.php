@@ -1526,7 +1526,7 @@ function systemAdmin() {
                 window.showToast('Failed to copy output', 'error');
             }
             textArea.remove();
-        },
+        }
     };
 }
 </script>

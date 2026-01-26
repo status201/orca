@@ -38,13 +38,15 @@
                         class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orca-black focus:border-transparent @error('role') border-red-500 @enderror">
                     <option value="editor" {{ old('role', $user->role) === 'editor' ? 'selected' : '' }}>Editor</option>
                     <option value="admin" {{ old('role', $user->role) === 'admin' ? 'selected' : '' }}>Admin</option>
+                    <option value="api" {{ old('role', $user->role) === 'api' ? 'selected' : '' }}>Api</option>
                 </select>
                 @error('role')
                     <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                 @enderror
                 <p class="text-sm text-gray-500 mt-1">
                     <strong>Editor:</strong> Can manage assets and tags<br>
-                    <strong>Admin:</strong> Can manage assets, tags, users, and discover new files
+                    <strong>Admin:</strong> Can manage assets, tags, users, and discover new files<br>
+                    <strong>Api:</strong> Cannot login to ORCA! Can view and upload assets
                 </p>
             </div>
 

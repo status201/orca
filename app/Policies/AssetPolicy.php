@@ -45,14 +45,19 @@ class AssetPolicy
      */
     public function delete(User $user, Asset $asset): bool
     {
-        // All authenticated users can delete any asset
+        // API users cannot delete assets
+        if ($user->isApiUser()) {
+            return false;
+        }
+
+        // All other authenticated users can delete any asset
         return true;
     }
 
     /**
      * Determine whether the user can restore the asset.
      */
-    public function restore(User $user, ?Asset $asset = null): bool
+    public function restore(User $user, Asset|string|null $asset = null): bool
     {
         return $user->isAdmin();
     }
@@ -60,7 +65,7 @@ class AssetPolicy
     /**
      * Determine whether the user can permanently delete the asset.
      */
-    public function forceDelete(User $user, ?Asset $asset = null): bool
+    public function forceDelete(User $user, Asset|string|null $asset = null): bool
     {
         return $user->isAdmin();
     }

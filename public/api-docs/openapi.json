@@ -1,0 +1,1261 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "ORCA DAM API",
+    "description": "Digital Asset Management API for ORCA DAM. Provides endpoints for managing assets, tags, and chunked file uploads.\n\n## Authentication\n\nAll endpoints except `/api/assets/meta` require authentication via Bearer token (Laravel Sanctum).\n\nInclude the token in the Authorization header:\n```\nAuthorization: Bearer YOUR_TOKEN_HERE\n```\n\n## Rate Limiting\n\nChunked upload endpoints are rate-limited to 100 requests per minute.",
+    "version": "1.0.0",
+    "contact": {
+      "name": "ORCA DAM"
+    }
+  },
+  "servers": [
+    {
+      "url": "/",
+      "description": "Current Server"
+    }
+  ],
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ],
+  "tags": [
+    {
+      "name": "Assets",
+      "description": "Asset management endpoints"
+    },
+    {
+      "name": "Tags",
+      "description": "Tag management endpoints"
+    },
+    {
+      "name": "Chunked Upload",
+      "description": "Large file upload endpoints (files >= 10MB)"
+    }
+  ],
+  "paths": {
+    "/api/assets": {
+      "get": {
+        "tags": ["Assets"],
+        "summary": "List assets",
+        "description": "Get a paginated list of assets with optional filtering",
+        "operationId": "listAssets",
+        "parameters": [
+          {
+            "name": "search",
+            "in": "query",
+            "description": "Search by filename",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "tags",
+            "in": "query",
+            "description": "Filter by tag IDs (comma-separated)",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "description": "Filter by file type",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": ["images", "videos", "documents"]
+            }
+          },
+          {
+            "name": "user",
+            "in": "query",
+            "description": "Filter by user ID (admin only)",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "per_page",
+            "in": "query",
+            "description": "Number of items per page (max 100)",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 24,
+              "maximum": 100
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Paginated list of assets",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedAssets"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      },
+      "post": {
+        "tags": ["Assets"],
+        "summary": "Upload assets",
+        "description": "Upload one or more files (max 500MB each). For files >= 10MB, use the chunked upload endpoints instead.",
+        "operationId": "uploadAssets",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "files[]": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "format": "binary"
+                    },
+                    "description": "Files to upload (max 500MB each)"
+                  },
+                  "folder": {
+                    "type": "string",
+                    "description": "Target folder path (e.g., 'assets/marketing')"
+                  }
+                },
+                "required": ["files[]"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Files uploaded successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "2 file(s) uploaded successfully"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Asset"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          }
+        }
+      }
+    },
+    "/api/assets/search": {
+      "get": {
+        "tags": ["Assets"],
+        "summary": "Search assets",
+        "description": "Search assets by query, tags, and type. Optimized for asset picker integrations.",
+        "operationId": "searchAssets",
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "description": "Search query (filename)",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "tags",
+            "in": "query",
+            "description": "Filter by tag IDs (comma-separated)",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "description": "Filter by file type",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": ["images", "videos", "documents"]
+            }
+          },
+          {
+            "name": "per_page",
+            "in": "query",
+            "description": "Number of items per page (max 100)",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 24,
+              "maximum": 100
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Paginated search results",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedAssets"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+    "/api/assets/meta": {
+      "get": {
+        "tags": ["Assets"],
+        "summary": "Get asset metadata by URL",
+        "description": "Retrieve asset metadata using its public S3 URL. This endpoint is public and does not require authentication.",
+        "operationId": "getAssetMeta",
+        "security": [],
+        "parameters": [
+          {
+            "name": "url",
+            "in": "query",
+            "description": "Public S3 URL of the asset",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uri"
+            },
+            "example": "https://bucket.s3.amazonaws.com/assets/abc123.jpg"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Asset metadata",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssetMeta"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "URL does not match configured S3 bucket",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Asset not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/assets/{id}": {
+      "get": {
+        "tags": ["Assets"],
+        "summary": "Get asset details",
+        "description": "Retrieve a single asset with its tags and user information",
+        "operationId": "getAsset",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Asset ID",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Asset details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Asset"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      },
+      "patch": {
+        "tags": ["Assets"],
+        "summary": "Update asset metadata",
+        "description": "Update an asset's metadata including alt text, caption, license, copyright, and tags",
+        "operationId": "updateAsset",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Asset ID",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "alt_text": {
+                    "type": "string",
+                    "maxLength": 500,
+                    "nullable": true,
+                    "description": "Alternative text for accessibility"
+                  },
+                  "caption": {
+                    "type": "string",
+                    "maxLength": 1000,
+                    "nullable": true,
+                    "description": "Caption or description"
+                  },
+                  "license_type": {
+                    "type": "string",
+                    "maxLength": 255,
+                    "nullable": true,
+                    "description": "License type",
+                    "enum": ["public_domain", "cc_by", "cc_by_sa", "cc_by_nd", "cc_by_nc", "cc_by_nc_sa", "cc_by_nc_nd", "fair_use", "all_rights_reserved"]
+                  },
+                  "copyright": {
+                    "type": "string",
+                    "maxLength": 500,
+                    "nullable": true,
+                    "description": "Copyright notice or holder"
+                  },
+                  "tags": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "maxLength": 50
+                    },
+                    "description": "Array of tag names (replaces existing user tags, preserves AI tags)"
+                  }
+                }
+              },
+              "example": {
+                "alt_text": "A beautiful sunset over the ocean",
+                "caption": "Sunset at Malibu Beach",
+                "license_type": "cc_by",
+                "copyright": "John Doe",
+                "tags": ["sunset", "beach", "nature"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Asset updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Asset updated successfully"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Asset"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Assets"],
+        "summary": "Delete asset",
+        "description": "Delete an asset and its associated S3 files (thumbnail and original)",
+        "operationId": "deleteAsset",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Asset ID",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Asset deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Asset deleted successfully"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/api/tags": {
+      "get": {
+        "tags": ["Tags"],
+        "summary": "List tags",
+        "description": "Get all tags with optional type filtering",
+        "operationId": "listTags",
+        "parameters": [
+          {
+            "name": "type",
+            "in": "query",
+            "description": "Filter by tag type",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": ["user", "ai"]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of tags",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Tag"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+    "/api/tags/search": {
+      "get": {
+        "tags": ["Tags"],
+        "summary": "Search tags",
+        "description": "Search tags by name",
+        "operationId": "searchTags",
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "description": "Search query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "description": "Filter by tag type",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": ["user", "ai"]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Matching tags",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Tag"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+    "/api/chunked-upload/init": {
+      "post": {
+        "tags": ["Chunked Upload"],
+        "summary": "Initialize chunked upload",
+        "description": "Initialize a multipart upload session for large files (>= 10MB). Returns a session token for subsequent chunk uploads.",
+        "operationId": "initChunkedUpload",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "filename": {
+                    "type": "string",
+                    "maxLength": 255,
+                    "description": "Original filename"
+                  },
+                  "mime_type": {
+                    "type": "string",
+                    "description": "File MIME type"
+                  },
+                  "file_size": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 524288000,
+                    "description": "Total file size in bytes (max 500MB)"
+                  },
+                  "folder": {
+                    "type": "string",
+                    "maxLength": 255,
+                    "description": "Target folder path (optional)"
+                  }
+                },
+                "required": ["filename", "mime_type", "file_size"]
+              },
+              "example": {
+                "filename": "large-video.mp4",
+                "mime_type": "video/mp4",
+                "file_size": 104857600,
+                "folder": "assets/videos"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Upload session created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChunkedUploadSession"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "500": {
+            "description": "Failed to initialize upload",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/chunked-upload/chunk": {
+      "post": {
+        "tags": ["Chunked Upload"],
+        "summary": "Upload chunk",
+        "description": "Upload a single chunk of the file. Chunks should be 10MB each (except the last chunk). Rate limited to 100 requests per minute.",
+        "operationId": "uploadChunk",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "session_token": {
+                    "type": "string",
+                    "description": "Session token from init response"
+                  },
+                  "chunk_number": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "description": "Chunk number (1-indexed)"
+                  },
+                  "chunk": {
+                    "type": "string",
+                    "format": "binary",
+                    "description": "Chunk data (max 15MB)"
+                  }
+                },
+                "required": ["session_token", "chunk_number", "chunk"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Chunk uploaded successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChunkUploadResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "429": {
+            "description": "Rate limit exceeded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Chunk upload failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/chunked-upload/complete": {
+      "post": {
+        "tags": ["Chunked Upload"],
+        "summary": "Complete chunked upload",
+        "description": "Finalize the multipart upload after all chunks have been uploaded. Creates the Asset record and triggers thumbnail generation and AI tagging.",
+        "operationId": "completeChunkedUpload",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "session_token": {
+                    "type": "string",
+                    "description": "Session token from init response"
+                  }
+                },
+                "required": ["session_token"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Upload completed successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Upload completed successfully"
+                    },
+                    "asset": {
+                      "$ref": "#/components/schemas/Asset"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "500": {
+            "description": "Upload completion failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/chunked-upload/abort": {
+      "post": {
+        "tags": ["Chunked Upload"],
+        "summary": "Abort chunked upload",
+        "description": "Cancel an in-progress chunked upload and clean up uploaded chunks",
+        "operationId": "abortChunkedUpload",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "session_token": {
+                    "type": "string",
+                    "description": "Session token from init response"
+                  }
+                },
+                "required": ["session_token"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Upload aborted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Upload aborted successfully"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "500": {
+            "description": "Failed to abort upload",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "description": "Laravel Sanctum API token"
+      }
+    },
+    "schemas": {
+      "Asset": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1
+          },
+          "s3_key": {
+            "type": "string",
+            "example": "assets/abc123-uuid.jpg"
+          },
+          "filename": {
+            "type": "string",
+            "example": "beach-sunset.jpg"
+          },
+          "mime_type": {
+            "type": "string",
+            "example": "image/jpeg"
+          },
+          "size": {
+            "type": "integer",
+            "example": 1048576,
+            "description": "File size in bytes"
+          },
+          "width": {
+            "type": "integer",
+            "nullable": true,
+            "example": 1920
+          },
+          "height": {
+            "type": "integer",
+            "nullable": true,
+            "example": 1080
+          },
+          "thumbnail_s3_key": {
+            "type": "string",
+            "nullable": true,
+            "example": "thumbnails/abc123-uuid_thumb.jpg"
+          },
+          "alt_text": {
+            "type": "string",
+            "nullable": true,
+            "example": "Beautiful sunset over the ocean"
+          },
+          "caption": {
+            "type": "string",
+            "nullable": true,
+            "example": "Sunset at Malibu Beach"
+          },
+          "license_type": {
+            "type": "string",
+            "nullable": true,
+            "example": "cc_by"
+          },
+          "license_expiry_date": {
+            "type": "string",
+            "format": "date",
+            "nullable": true
+          },
+          "copyright": {
+            "type": "string",
+            "nullable": true,
+            "example": "John Doe"
+          },
+          "copyright_source": {
+            "type": "string",
+            "nullable": true
+          },
+          "user_id": {
+            "type": "integer",
+            "example": 1
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "url": {
+            "type": "string",
+            "format": "uri",
+            "description": "Public S3 URL for the asset"
+          },
+          "thumbnail_url": {
+            "type": "string",
+            "format": "uri",
+            "nullable": true,
+            "description": "Public S3 URL for the thumbnail"
+          },
+          "formatted_size": {
+            "type": "string",
+            "example": "1.0 MB",
+            "description": "Human-readable file size"
+          },
+          "folder": {
+            "type": "string",
+            "example": "assets",
+            "description": "S3 folder path"
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Tag"
+            }
+          },
+          "user": {
+            "$ref": "#/components/schemas/User"
+          }
+        }
+      },
+      "AssetMeta": {
+        "type": "object",
+        "properties": {
+          "alt_text": {
+            "type": "string",
+            "nullable": true
+          },
+          "caption": {
+            "type": "string",
+            "nullable": true
+          },
+          "license_type": {
+            "type": "string",
+            "nullable": true
+          },
+          "copyright": {
+            "type": "string",
+            "nullable": true
+          },
+          "filename": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string",
+            "format": "uri"
+          }
+        }
+      },
+      "Tag": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1
+          },
+          "name": {
+            "type": "string",
+            "example": "sunset"
+          },
+          "type": {
+            "type": "string",
+            "enum": ["user", "ai"],
+            "example": "user"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "User": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1
+          },
+          "name": {
+            "type": "string",
+            "example": "John Doe"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "example": "john@example.com"
+          },
+          "role": {
+            "type": "string",
+            "enum": ["editor", "admin", "api"],
+            "example": "editor"
+          }
+        }
+      },
+      "PaginatedAssets": {
+        "type": "object",
+        "properties": {
+          "current_page": {
+            "type": "integer",
+            "example": 1
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Asset"
+            }
+          },
+          "first_page_url": {
+            "type": "string",
+            "format": "uri"
+          },
+          "from": {
+            "type": "integer",
+            "nullable": true
+          },
+          "last_page": {
+            "type": "integer"
+          },
+          "last_page_url": {
+            "type": "string",
+            "format": "uri"
+          },
+          "links": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "url": {
+                  "type": "string",
+                  "format": "uri",
+                  "nullable": true
+                },
+                "label": {
+                  "type": "string"
+                },
+                "active": {
+                  "type": "boolean"
+                }
+              }
+            }
+          },
+          "next_page_url": {
+            "type": "string",
+            "format": "uri",
+            "nullable": true
+          },
+          "path": {
+            "type": "string",
+            "format": "uri"
+          },
+          "per_page": {
+            "type": "integer",
+            "example": 24
+          },
+          "prev_page_url": {
+            "type": "string",
+            "format": "uri",
+            "nullable": true
+          },
+          "to": {
+            "type": "integer",
+            "nullable": true
+          },
+          "total": {
+            "type": "integer",
+            "example": 100
+          }
+        }
+      },
+      "ChunkedUploadSession": {
+        "type": "object",
+        "properties": {
+          "session_token": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Unique session identifier for subsequent requests"
+          },
+          "upload_id": {
+            "type": "string",
+            "description": "S3 multipart upload ID"
+          },
+          "chunk_size": {
+            "type": "integer",
+            "example": 10485760,
+            "description": "Size of each chunk in bytes (10MB)"
+          },
+          "total_chunks": {
+            "type": "integer",
+            "example": 10,
+            "description": "Total number of chunks to upload"
+          }
+        }
+      },
+      "ChunkUploadResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "Chunk uploaded successfully"
+          },
+          "part_number": {
+            "type": "integer",
+            "example": 1
+          },
+          "etag": {
+            "type": "string",
+            "description": "S3 ETag for the uploaded part"
+          },
+          "uploaded_chunks": {
+            "type": "integer",
+            "example": 5
+          },
+          "total_chunks": {
+            "type": "integer",
+            "example": 10
+          }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "Error message"
+          }
+        }
+      },
+      "ValidationError": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "The given data was invalid."
+          },
+          "errors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "example": {
+              "filename": ["The filename field is required."]
+            }
+          }
+        }
+      }
+    },
+    "responses": {
+      "Unauthorized": {
+        "description": "Authentication required",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string",
+                  "example": "Unauthenticated."
+                }
+              }
+            }
+          }
+        }
+      },
+      "Forbidden": {
+        "description": "Access denied",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string",
+                  "example": "Unauthorized"
+                }
+              }
+            }
+          }
+        }
+      },
+      "NotFound": {
+        "description": "Resource not found",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string",
+                  "example": "No query results for model [App\\Models\\Asset] 1"
+                }
+              }
+            }
+          }
+        }
+      },
+      "ValidationError": {
+        "description": "Validation error",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ValidationError"
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -72,6 +72,14 @@ class User extends Authenticatable
     }
 
     /**
+     * Check if user is an API user
+     */
+    public function isApiUser(): bool
+    {
+        return $this->role === 'api';
+    }
+
+    /**
      * Check if user can manage all assets
      */
     public function canManageAllAssets(): bool
