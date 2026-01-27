@@ -1262,6 +1262,11 @@ function systemAdmin() {
                     this.settingsSaved = true;
                     window.showToast('Setting saved', 'success');
                     setTimeout(() => { this.settingsSaved = false; }, 3000);
+
+                    // When root folder changes, refresh the folder hierarchy from S3
+                    if (key === 's3_root_folder') {
+                        await this.refreshFolderHierarchy();
+                    }
                 } else {
                     this.settingsError = result.error || 'Failed to save setting';
                     window.showToast(this.settingsError, 'error');
@@ -1272,6 +1277,26 @@ function systemAdmin() {
                 window.showToast('Failed to save setting', 'error');
             } finally {
                 this.savingSettings = false;
+            }
+        },
+
+        async refreshFolderHierarchy() {
+            try {
+                const response = await fetch('{{ route('folders.scan') }}', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    },
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to refresh folders');
+                }
+
+                window.showToast('Folder hierarchy refreshed from S3', 'success');
+            } catch (error) {
+                console.error('Failed to refresh folder hierarchy:', error);
+                window.showToast('Failed to refresh folder hierarchy', 'error');
             }
         },
 
