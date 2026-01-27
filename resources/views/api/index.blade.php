@@ -373,7 +373,7 @@ function apiDocs() {
                 }
 
                 const config = {
-                    url: '/api-docs/openapi.json',
+                    url: '/swagger/openapi.json',
                     dom_id: '#swagger-ui',
                     deepLinking: true,
                     persistAuthorization: true,
