@@ -28,6 +28,7 @@ class Asset extends Model
         'copyright',
         'copyright_source',
         'user_id',
+        'last_modified_by',
     ];
 
     protected $casts = [
@@ -50,6 +51,22 @@ class Asset extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Get the user who last modified this asset
+     */
+    public function modifier(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'last_modified_by');
+    }
+
+    /**
+     * Check if the asset has been modified after creation
+     */
+    public function wasModified(): bool
+    {
+        return $this->updated_at->gt($this->created_at);
     }
 
     /**

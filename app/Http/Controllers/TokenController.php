@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Laravel\Sanctum\PersonalAccessToken;
@@ -97,7 +96,7 @@ class TokenController extends Controller
         } catch (\Illuminate\Auth\Access\AuthorizationException $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Authorization failed: ' . $e->getMessage(),
+                'message' => 'Authorization failed: '.$e->getMessage(),
                 'debug' => [
                     'user' => auth()->user()?->email,
                     'role' => auth()->user()?->role,
@@ -106,7 +105,7 @@ class TokenController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Error: ' . $e->getMessage(),
+                'message' => 'Error: '.$e->getMessage(),
                 'type' => get_class($e),
             ], 500);
         }

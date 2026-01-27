@@ -39,7 +39,7 @@ class ExportController extends Controller
         if (empty($folders) && $rootFolder !== '') {
             $folders = [$rootFolder];
         }
-        if ($rootFolder === '' && !in_array('', $folders)) {
+        if ($rootFolder === '' && ! in_array('', $folders)) {
             array_unshift($folders, '');
         }
 
@@ -66,7 +66,7 @@ class ExportController extends Controller
         ]);
 
         // Build query with filters
-        $query = Asset::with(['user', 'tags']);
+        $query = Asset::with(['user', 'tags', 'modifier']);
 
         // Filter by folder if specified
         if ($request->filled('folder')) {
@@ -117,6 +117,8 @@ class ExportController extends Controller
                 'user_id',
                 'user_name',
                 'user_email',
+                'last_modified_by_id',
+                'last_modified_by_name',
                 'user_tags',
                 'ai_tags',
                 'url',
@@ -150,6 +152,8 @@ class ExportController extends Controller
                     $asset->user_id,
                     $asset->user->name ?? '',
                     $asset->user->email ?? '',
+                    $asset->last_modified_by,
+                    $asset->modifier->name ?? '',
                     $userTagNames,
                     $aiTagNames,
                     $asset->url,

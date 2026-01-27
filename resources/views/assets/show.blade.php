@@ -185,8 +185,19 @@
                     
                     <div>
                         <dt class="text-gray-500">Uploaded</dt>
-                        <dd class="font-medium">{{ $asset->created_at->format('M d, Y') }}</dd>
+                        <dd class="font-medium" title="{{ $asset->created_at->format('M d, Y H:i:s') }}">{{ $asset->created_at->format('M d, Y') }}</dd>
                     </div>
+
+                    @if($asset->wasModified())
+                    <div>
+                        <dt class="text-gray-500">Last Modified By</dt>
+                        <dd class="font-medium">{{ $asset->modifier?->name ?? 'Unknown' }}</dd>
+                    </div>
+                    <div>
+                        <dt class="text-gray-500">Last Modified</dt>
+                        <dd class="font-medium" title="{{ $asset->updated_at->format('M d, Y H:i:s') }}">{{ $asset->updated_at->format('M d, Y') }}</dd>
+                    </div>
+                    @endif
                 </dl>
                 
                 @if($asset->alt_text)

@@ -126,7 +126,10 @@ class AssetApiController extends Controller
             'tags.*' => 'string|max:50',
         ]);
 
-        $asset->update($request->only(['alt_text', 'caption', 'license_type', 'copyright']));
+        $asset->update(array_merge(
+            $request->only(['alt_text', 'caption', 'license_type', 'copyright']),
+            ['last_modified_by' => Auth::id()]
+        ));
 
         // Handle tags - always sync, even if empty (to allow removing all tags)
         $tagIds = [];

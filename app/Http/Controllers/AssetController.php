@@ -103,7 +103,7 @@ class AssetController extends Controller
         if (empty($folders) && $rootFolder !== '') {
             $folders = [$rootFolder];
         }
-        if ($rootFolder === '' && !in_array('', $folders)) {
+        if ($rootFolder === '' && ! in_array('', $folders)) {
             array_unshift($folders, '');
         }
 
@@ -122,7 +122,7 @@ class AssetController extends Controller
         if (empty($folders) && $rootFolder !== '') {
             $folders = [$rootFolder];
         }
-        if ($rootFolder === '' && !in_array('', $folders)) {
+        if ($rootFolder === '' && ! in_array('', $folders)) {
             array_unshift($folders, '');
         }
 
@@ -268,7 +268,10 @@ class AssetController extends Controller
         ]);
 
         // Update metadata
-        $asset->update($request->only(['alt_text', 'caption', 'license_type', 'license_expiry_date', 'copyright', 'copyright_source']));
+        $asset->update(array_merge(
+            $request->only(['alt_text', 'caption', 'license_type', 'license_expiry_date', 'copyright', 'copyright_source']),
+            ['last_modified_by' => Auth::id()]
+        ));
 
         // Handle tags - always sync, even if empty (to allow removing all tags)
         $tagIds = [];
@@ -463,6 +466,7 @@ class AssetController extends Controller
         }
 
         $asset->tags()->syncWithoutDetaching($tagIds);
+        $asset->update(['last_modified_by' => Auth::id()]);
 
         return response()->json([
             'message' => 'Tags added successfully',
@@ -478,6 +482,7 @@ class AssetController extends Controller
         $this->authorize('update', $asset);
 
         $asset->tags()->detach($tag->id);
+        $asset->update(['last_modified_by' => Auth::id()]);
 
         return response()->json([
             'message' => 'Tag removed successfully',
