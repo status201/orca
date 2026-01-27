@@ -304,7 +304,7 @@ function assetUploader() {
 
                 window.showToast('All files uploaded successfully!');
                 setTimeout(() => {
-                    window.location.href = '{{ route('assets.index') }}';
+                    window.location.href = '{{ route('assets.index') }}' + '?folder=' + encodeURIComponent(this.selectedFolder);
                 }, 1000);
 
             } catch (error) {
