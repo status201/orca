@@ -34,11 +34,24 @@ class DiscoverController extends Controller
 
         $rootFolder = S3Service::getRootFolder();
         $folders = \App\Models\Setting::get('s3_folders', $rootFolder !== '' ? [$rootFolder] : []);
+
         if (empty($folders) && $rootFolder !== '') {
             $folders = [$rootFolder];
         }
-        if ($rootFolder === '' && ! in_array('', $folders)) {
-            array_unshift($folders, '');
+
+        // When root folder is configured (not bucket root), remove any stale '' entries
+        // This prevents duplicate "/ (root)" options in the dropdown
+        if ($rootFolder !== '') {
+            $folders = array_values(array_filter($folders, fn ($f) => $f !== ''));
+            // Ensure root folder is first
+            if (! in_array($rootFolder, $folders)) {
+                array_unshift($folders, $rootFolder);
+            }
+        } else {
+            // Root is bucket root - ensure '' is in the list
+            if (! in_array('', $folders)) {
+                array_unshift($folders, '');
+            }
         }
 
         return view('discover.index', compact('folders', 'rootFolder'));
@@ -51,8 +64,17 @@ class DiscoverController extends Controller
     {
         $this->authorize('discover', Asset::class);
 
-        $folder = $request->input('folder', S3Service::getRootFolder());
-        $prefix = $folder !== '' ? $folder.'/' : null;
+        $rootFolder = S3Service::getRootFolder();
+        $selectedFolder = $request->input('folder');
+
+        // Map empty/null selection to the configured root folder
+        // This ensures "/ (root)" always scans from the configured root
+        if ($selectedFolder === null || $selectedFolder === '') {
+            $selectedFolder = $rootFolder;
+        }
+
+        // Build the S3 prefix (empty string for bucket root, folder/ for subfolders)
+        $prefix = $selectedFolder !== '' ? $selectedFolder.'/' : null;
         $unmappedObjects = $this->s3Service->findUnmappedObjects($prefix);
 
         // Enrich with metadata and check for soft-deleted assets

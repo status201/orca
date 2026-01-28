@@ -27,15 +27,17 @@ That's exactly why we built ORCA. Think of it as a friendly reception desk in fr
 │                     SPARK/STUDYFLOW                         │
 │                 (Your courses & content)                    │
 │                             │                               │
-│                             │ links to files                │
+│                             │ Search and                    │
+│                             │ link to files                 │
 │                             ▼                               │
 │  ┌──────────────────────────────────────────────────────┐   │
 │  │                                                      │   │
 │  │                      ORCA DAM                        │   │
 │  │                                                      │   │
-│  │   ✓ Search & filter        ✓ User management         │   │
-│  │   ✓ AI-powered tagging     ✓ Safe deletion           │   │
-│  │   ✓ Organized folders      ✓ Access control          │   │
+│  │   * Search & filter        * User management         │   │
+│  │   * AI-powered tagging     * Safe deletion           │   │
+│  │   * Add & edit metadata    * Access control          │   │
+│  │   * Organized folders      * Manage storage          │   │
 │  │                                                      │   │
 │  └──────────────────────────────────────────────────────┘   │
 │                             │                               │
@@ -295,7 +297,7 @@ Remember the Golden Rules? You can't rename or move files because it would break
 
 **Asset Replace solves this:**
 - The URL stays exactly the same
-- All existing links in Studyflow continue to work
+- All existing links in (published or draft) content continue to work
 - All metadata (alt text, caption, tags, license info) is preserved
 - Only the file itself changes
 
