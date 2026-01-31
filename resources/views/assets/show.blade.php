@@ -353,7 +353,7 @@
                     @can('delete', $asset)
                     <form action="{{ route('assets.destroy', $asset) }}" 
                           method="POST"
-                          onsubmit="return confirm('Are you sure you want to delete this asset? This action cannot be undone.')">
+                          onsubmit="return confirm('Are you sure you want to delete {{$asset->filename}}?')">
                         @csrf
                         @method('DELETE')
                         <button type="submit" 

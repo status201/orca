@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Setting;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -27,10 +28,14 @@ class JwtSecretController extends Controller
         // Get all users for the dropdown
         $allUsers = User::select(['id', 'name', 'email', 'role'])->get();
 
+        $jwtSettingEnabled = Setting::get('jwt_enabled_override', true);
+        $metaEndpointEnabled = Setting::get('api_meta_endpoint_enabled', true);
+
         return response()->json([
             'users_with_secrets' => $users,
             'all_users' => $allUsers,
             'jwt_enabled' => config('jwt.enabled', false),
+            'jwt_setting_enabled' => $jwtSettingEnabled,
         ]);
     }
 

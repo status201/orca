@@ -294,10 +294,10 @@
                 </div>
 
                 <!-- Status Messages -->
-                <div x-show="settingsSaved" x-transition class="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg text-green-700 text-sm">
+                <div x-show="settingsSaved" x-transition class="attention mt-4 p-3 bg-green-50 border border-green-200 rounded-lg text-green-700 text-sm">
                     <i class="fas fa-check-circle mr-2"></i>Settings saved successfully
                 </div>
-                <div x-show="settingsError" x-transition class="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+                <div x-show="settingsError" x-transition class="attention mt-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
                     <i class="fas fa-exclamation-circle mr-2"></i><span x-text="settingsError"></span>
                 </div>
             </div>

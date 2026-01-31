@@ -161,9 +161,9 @@
                     <!-- JWT Disabled by ENV notice -->
                     <div x-show="!dashboardData.jwtEnvEnabled" class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
                         <div class="flex items-start">
-                            <i class="fas fa-exclamation-triangle text-yellow-600 mt-0.5 mr-3"></i>
+                            <i class="attention fas fa-exclamation-triangle text-yellow-600 mt-0.5 mr-3"></i>
                             <div>
-                                <h4 class="text-sm font-medium text-yellow-800">JWT Disabled in Environment</h4>
+                                <h4 class="attention text-sm font-medium text-yellow-800">JWT Disabled in Environment</h4>
                                 <p class="text-sm text-yellow-700 mt-1">
                                     JWT authentication is disabled via <code class="bg-yellow-100 px-1 rounded">JWT_ENABLED=false</code> in your .env file.
                                     To enable JWT, set <code class="bg-yellow-100 px-1 rounded">JWT_ENABLED=true</code> and restart the application.
@@ -531,11 +531,14 @@
                 <i :class="jwtEnabled ? 'fa-check-circle text-green-600' : 'fa-exclamation-triangle text-yellow-600'"
                    class="attention fas text-xl mr-3"></i>
                 <div>
-                    <p :class="jwtEnabled ? 'text-green-800' : 'text-yellow-800'" class="font-medium">
-                        JWT Authentication is <span x-text="jwtEnabled ? 'Enabled' : 'Disabled'"></span>
+                    <p :class="jwtEnabled && jwtSettingEnabled ? 'text-green-800' : 'text-yellow-800'" class="font-medium">
+                        JWT Authentication is <span x-text="jwtEnabled && jwtSettingEnabled ? 'Enabled' : 'Disabled'"></span>
                     </p>
                     <p x-show="!jwtEnabled" class="text-xs text-yellow-700 mt-1">
                         Set <code class="bg-yellow-100 px-1 rounded">JWT_ENABLED=true</code> in your .env file to enable JWT authentication.
+                    </p>
+                    <p x-show="!jwtSettingEnabled" class="text-xs text-yellow-700 mt-1">
+                        JWT Authentication is turned off in the Dasboard Settings.
                     </p>
                 </div>
             </div>
@@ -791,6 +794,7 @@ function apiDocs() {
 
         // JWT Secrets state
         jwtEnabled: false,
+        jwtSettingEnabled: false,
         jwtUsersWithSecrets: [],
         jwtAllUsers: [],
         jwtSecretCount: 0,
@@ -899,6 +903,7 @@ function apiDocs() {
                     // Update local state
                     if (key === 'jwt_enabled_override') {
                         this.dashboardData.jwtSettingEnabled = value;
+                        this.jwtSettingEnabled = value;
                     } else if (key === 'api_meta_endpoint_enabled') {
                         this.dashboardData.metaEndpointEnabled = value;
                     }
@@ -1160,6 +1165,7 @@ function apiDocs() {
                 this.jwtAllUsers = data.all_users;
                 this.jwtSecretCount = data.users_with_secrets.length;
                 this.jwtEnabled = data.jwt_enabled;
+                this.jwtSettingEnabled = data.jwt_setting_enabled;
                 this.jwtLoaded = true;
             } catch (error) {
                 console.error('Failed to load JWT secrets:', error);
