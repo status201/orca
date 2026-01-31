@@ -100,6 +100,8 @@ Route::middleware(['auth'])->group(function () {
 
         // API Documentation page
         Route::get('api-docs', [ApiDocsController::class, 'index'])->name('api.index');
+        Route::get('api-docs/dashboard', [ApiDocsController::class, 'dashboard'])->name('api.dashboard');
+        Route::post('api-docs/settings', [ApiDocsController::class, 'updateSettings'])->name('api.settings.update');
 
         // API Token management (moved from system to api-docs)
         Route::get('api-docs/tokens', [TokenController::class, 'index'])->name('api.tokens');

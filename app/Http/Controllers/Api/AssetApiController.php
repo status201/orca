@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Jobs\GenerateAiTags;
 use App\Models\Asset;
+use App\Models\Setting;
 use App\Models\Tag;
 use App\Services\RekognitionService;
 use App\Services\S3Service;
@@ -206,6 +207,11 @@ class AssetApiController extends Controller
      */
     public function getMeta(Request $request)
     {
+        // Check if meta endpoint is enabled
+        if (! Setting::get('api_meta_endpoint_enabled', true)) {
+            return response()->json(['message' => 'This endpoint is disabled.'], 403);
+        }
+
         $request->validate([
             'url' => 'required|string|url',
         ]);

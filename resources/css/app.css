@@ -2,6 +2,22 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Default: force light color scheme to prevent Swagger auto-dark-mode */
+html {
+    color-scheme: light;
+}
+
+/* Explicit dark mode */
+html.dark-mode {
+    color-scheme: light;
+}
+
+/* Explicit light mode - same as default but explicit */
+html.light-mode {
+    color-scheme: only light;
+}
+
+
 /* Alpine.js x-cloak - hide elements until Alpine is ready */
 [x-cloak] {
     display: none !important;
@@ -172,4 +188,7 @@ html.dark-mode img,
 html.dark-mode video,
 html.dark-mode svg {
     filter: invert(1);
+}
+html.dark-mode .swagger-ui-container {
+    background-color: #1c2022; /* #e3dfdd inverted */
 }
