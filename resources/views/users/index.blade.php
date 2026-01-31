@@ -56,7 +56,7 @@
                         {{ ucfirst($user->role) }}
                     </span>
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                <td class="actions-icons px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <a href="{{ route('users.edit', $user) }}" class="text-orca-black hover:text-orca-black-hover mr-3">
                         <i class="fas fa-edit"></i> Edit
                     </a>

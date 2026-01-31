@@ -112,7 +112,7 @@
                 </button>
 
                 <button type="submit"
-                        class="px-6 py-3 text-sm bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center">
+                        class="download-export px-6 py-3 text-sm bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center">
                     <i class="fas fa-download mr-2"></i>Download CSV Export
                 </button>
             </div>

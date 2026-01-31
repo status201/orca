@@ -74,12 +74,12 @@
                 @endif
 
                 <!-- Trash badge -->
-                <div class="absolute top-2 right-2 bg-red-600 text-white px-2 py-1 rounded-full text-xs">
+                <div class="warning absolute top-2 right-2 bg-red-600 text-white px-2 py-1 rounded-full text-xs">
                     <i class="fas fa-trash-alt mr-1"></i>Deleted
                 </div>
 
                 <!-- Overlay with actions -->
-                <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 transition-all flex items-center justify-center opacity-0 group-hover:opacity-100">
+                <div class="actions absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 transition-all flex items-center justify-center opacity-0 group-hover:opacity-100">
                     <button @click="restoreAsset({{ $asset->id }})"
                             class="bg-green-600 text-white px-3 py-2 rounded-lg hover:bg-green-700 transition-colors mr-2"
                             title="Restore">

@@ -33,7 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
 // Toast notification system
 window.showToast = function(message, type = 'success') {
     const toast = document.createElement('div');
-    toast.className = `fixed top-4 right-4 px-6 py-4 rounded-lg shadow-lg text-white z-50 transition-opacity duration-300 ${
+    toast.className = `toast fixed top-4 right-4 px-6 py-4 rounded-lg shadow-lg text-white z-50 transition-opacity duration-300 ${
         type === 'error' ? 'bg-red-600' : 'bg-green-600'
     }`;
     toast.textContent = message;

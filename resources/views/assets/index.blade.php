@@ -331,7 +331,7 @@
                         </td>
 
                         <!-- Actions -->
-                        <td class="px-4 py-3">
+                        <td class="actions-icons px-4 py-3">
                             <div class="flex gap-3">
                                 <a href="{{ route('assets.show', $asset) }}"
                                    class="text-blue-600 hover:text-blue-800"

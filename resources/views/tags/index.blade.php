@@ -87,7 +87,7 @@
 
                     <!-- Delete button (for all tags) -->
                     <button @click="deleteTag({{ $tag->id }}, '{{ addslashes($tag->name) }}', '{{ $tag->type }}')"
-                            class="text-gray-500 hover:text-red-600 p-1.5 hover:bg-red-50 rounded transition"
+                            class="delete text-gray-500 hover:text-red-600 p-1.5 hover:bg-red-50 rounded transition"
                             title="Delete tag">
                         <i class="fas fa-trash text-sm"></i>
                     </button>

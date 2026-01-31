@@ -60,7 +60,7 @@
         </div>
 
         <!-- Swagger UI Container -->
-        <div class="bg-white dark:bg-orca-black-hover rounded-lg shadow">
+        <div class="swagger-ui-container bg-white dark:bg-orca-black-hover rounded-lg shadow">
             <div x-show="!swaggerLoaded && !swaggerError" class="p-12 text-center">
                 <i class="fas fa-spinner fa-spin text-4xl text-gray-400 mb-4"></i>
                 <p class="text-gray-600">Loading Swagger UI...</p>
@@ -266,7 +266,7 @@
                                 <td class="px-6 py-4 text-sm">
                                     <button @click="revokeToken(token.id, token.name)"
                                             class="text-red-600 hover:text-red-900">
-                                        <i class="fas fa-trash mr-1"></i>Revoke
+                                        <i class="attention fas fa-trash mr-1"></i>Revoke
                                     </button>
                                 </td>
                             </tr>
@@ -311,7 +311,7 @@
 
         <!-- JWT Status Banner -->
         <div :class="jwtEnabled ? 'bg-green-50 border-green-200' : 'bg-yellow-50 border-yellow-200'"
-             class="border rounded-lg p-4">
+             class="attention border rounded-lg p-4">
             <div class="flex items-center">
                 <i :class="jwtEnabled ? 'fa-check-circle text-green-600' : 'fa-exclamation-triangle text-yellow-600'"
                    class="fas text-xl mr-3"></i>
@@ -496,7 +496,7 @@ const token = jwt.sign(
                                     </button>
                                     <button @click="revokeJwtSecret(user.id, user.name)"
                                             class="text-red-600 hover:text-red-900">
-                                        <i class="fas fa-trash mr-1"></i>Revoke
+                                        <i class="attention fas fa-trash mr-1"></i>Revoke
                                     </button>
                                 </td>
                             </tr>
@@ -623,7 +623,7 @@ function apiDocs() {
                 await this.loadScript('https://unpkg.com/swagger-ui-dist@5/swagger-ui-standalone-preset.js');
 
                 // Wait a tick for scripts to fully initialize
-                await new Promise(resolve => setTimeout(resolve, 200));
+                await new Promise(resolve => setTimeout(resolve, 300));
 
                 // Initialize Swagger UI with proper checks
                 const SwaggerUIBundle = window.SwaggerUIBundle;
@@ -641,12 +641,13 @@ function apiDocs() {
                     tryItOutEnabled: true,
                     filter: true,
                     validatorUrl: null,
-                    defaultModelsExpandDepth: 1,
-                    defaultModelExpandDepth: 1,
+                    defaultModelsExpandDepth: 2,
+                    defaultModelExpandDepth: 2,
                     displayRequestDuration: true,
                     showExtensions: true,
                     showCommonExtensions: true
                 };
+                config.theme = { defaultMode: 'light' };
 
                 // Add presets if available
                 if (SwaggerUIBundle.presets && SwaggerUIBundle.presets.apis) {

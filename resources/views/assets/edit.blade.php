@@ -320,7 +320,7 @@
 
             
             <!-- Submit buttons -->
-            <div class="flex justify-end space-x-3">
+            <div class="actions flex justify-end space-x-3">
                 <a href="{{ route('assets.show', $asset) }}" 
                    class="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
                     Cancel

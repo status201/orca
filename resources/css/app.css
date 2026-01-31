@@ -151,10 +151,23 @@
 html.dark-mode {
     filter: invert(1);
 }
-html.dark-mode body {
+html.dark-mode body{
     background: white;
 }
-html.dark-mode #swagger-ui,
+button.btn.authorize {
+    color: white;
+}
+html.dark-mode .warning,
+html.dark-mode .attention,
+html.dark-mode .actions button,
+html.dark-mode .actions-card button,
+html.dark-mode .actions-icons .fas.fa-trash,
+html.dark-mode .toast,
+html.dark-mode button.import,
+html.dark-mode button.test,
+html.dark-mode button.delete:hover .fa-trash,
+html.dark-mode button.download-export,
+html.dark-mode .swagger-ui-container,
 html.dark-mode img,
 html.dark-mode video,
 html.dark-mode svg {

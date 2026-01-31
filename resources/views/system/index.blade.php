@@ -324,7 +324,7 @@
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-sm font-medium text-gray-500">Pending Jobs</p>
-                        <p class="text-3xl font-bold text-blue-600" x-text="queueStats.pending"></p>
+                        <p class="attention text-3xl font-bold text-blue-600" x-text="queueStats.pending"></p>
                     </div>
                     <i class="fas fa-clock text-4xl text-blue-200"></i>
                 </div>
@@ -334,7 +334,7 @@
                 <div class="flex items-center justify-between">
                     <div>
                         <p class="text-sm font-medium text-gray-500">Failed Jobs</p>
-                        <p class="text-3xl font-bold text-red-600" x-text="queueStats.failed"></p>
+                        <p class="attention text-3xl font-bold text-red-600" x-text="queueStats.failed"></p>
                     </div>
                     <i class="fas fa-exclamation-triangle text-4xl text-red-200"></i>
                 </div>
@@ -364,7 +364,7 @@
             <h3 class="text-lg font-semibold text-gray-900 mb-4">
                 <i class="fas fa-sliders-h mr-2"></i>Queue Controls
             </h3>
-            <div class="flex flex-wrap gap-3">
+            <div class="actions flex flex-wrap gap-3">
                 <button @click="retryAllFailedJobs()"
                         class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50"
                         :disabled="queueStats.failed === 0">
@@ -654,13 +654,13 @@
                     </div>
                     <div class="flex justify-between py-2 border-b border-gray-200">
                         <span class="text-sm text-gray-600">Debug Mode:</span>
-                        <span class="text-sm font-semibold {{ $systemInfo['debug_mode'] ? 'text-red-600' : 'text-green-600' }}">
+                        <span class="attention text-sm font-semibold {{ $systemInfo['debug_mode'] ? 'text-red-600' : 'text-green-600' }}">
                             {{ $systemInfo['debug_mode'] ? 'Enabled' : 'Disabled' }}
                         </span>
                     </div>
                     <div class="flex justify-between py-2 border-b border-gray-200">
                         <span class="text-sm text-gray-600">Rekognition:</span>
-                        <span class="text-sm font-semibold {{ $systemInfo['rekognition_enabled'] ? 'text-green-600' : 'text-gray-400' }}">
+                        <span class="attention text-sm font-semibold {{ $systemInfo['rekognition_enabled'] ? 'text-green-600' : 'text-gray-400' }}">
                             {{ $systemInfo['rekognition_enabled'] ? 'Enabled' : 'Disabled' }}
                         </span>
                     </div>
@@ -696,13 +696,13 @@
                 </div>
                 <div class="flex justify-between py-2 border-b border-gray-200">
                     <span class="text-sm text-gray-600">GD Extension:</span>
-                    <span class="text-sm font-semibold {{ $systemInfo['gd_enabled'] ? 'text-green-600' : 'text-red-600' }}">
+                    <span class="attention text-sm font-semibold {{ $systemInfo['gd_enabled'] ? 'text-green-600' : 'text-red-600' }}">
                         {{ $systemInfo['gd_enabled'] ? 'Enabled' : 'Not Available' }}
                     </span>
                 </div>
                 <div class="flex justify-between py-2 border-b border-gray-200">
                     <span class="text-sm text-gray-600">Imagick Extension:</span>
-                    <span class="text-sm font-semibold {{ $systemInfo['imagick_enabled'] ? 'text-green-600' : 'text-gray-500' }}">
+                    <span class="attention text-sm font-semibold {{ $systemInfo['imagick_enabled'] ? 'text-green-600' : 'text-gray-500' }}">
                         {{ $systemInfo['imagick_enabled'] ? 'Enabled' : 'Not Available' }}
                     </span>
                 </div>
@@ -722,14 +722,14 @@
                     </div>
                     <button @click="testS3Connection()"
                             :disabled="testingS3"
-                            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50">
+                            class="test px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50">
                         <i class="fas mr-2" :class="testingS3 ? 'fa-spinner fa-spin' : 'fa-vial'"></i>
                         Test
                     </button>
                 </div>
                 <div x-show="s3TestResult" class="p-3 rounded-lg"
                      :class="s3TestSuccess ? 'bg-green-50' : 'bg-red-50'">
-                    <p class="text-sm" :class="s3TestSuccess ? 'text-green-800' : 'text-red-800'"
+                    <p class="attention text-sm" :class="s3TestSuccess ? 'text-green-800' : 'text-red-800'"
                        x-text="s3TestMessage"></p>
                 </div>
             </div>
@@ -808,7 +808,7 @@
                            class="rounded-lg border-gray-300 text-sm px-3 py-2">
                     <button @click="runTests()"
                             :disabled="runningTests"
-                            class="px-4 py-2 text-sm bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 flex items-center justify-center">
+                            class="test px-4 py-2 text-sm bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 flex items-center justify-center">
                         <i class="fas mr-2" :class="runningTests ? 'fa-spinner fa-spin' : 'fa-play'"></i>
                         <span x-text="runningTests ? 'Running...' : 'Run Tests'"></span>
                     </button>

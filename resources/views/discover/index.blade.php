@@ -74,7 +74,7 @@
                     
                     <button @click="importSelected"
                             :disabled="selectedObjects.length === 0 || importing"
-                            class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed">
+                            class="import px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed">
                         <template x-if="!importing">
                             <span>
                                 <i class="fas fa-file-import mr-2"></i> 

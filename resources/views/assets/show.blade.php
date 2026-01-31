@@ -61,19 +61,19 @@
     </div>
 
     @if(session('success'))
-    <div class="mb-6 p-4 bg-green-50 border border-green-200 text-green-800 rounded-lg">
+    <div class="attention mb-6 p-4 bg-green-50 border border-green-200 text-green-800 rounded-lg">
         <i class="fas fa-check-circle mr-2"></i>{{ session('success') }}
     </div>
     @endif
 
     @if(session('error'))
-    <div class="mb-6 p-4 bg-red-50 border border-red-200 text-red-800 rounded-lg">
+    <div class="attention mb-6 p-4 bg-red-50 border border-red-200 text-red-800 rounded-lg">
         <i class="fas fa-exclamation-circle mr-2"></i>{{ session('error') }}
     </div>
     @endif
 
     @if(session('warning'))
-    <div class="mb-6 p-4 bg-yellow-50 border border-yellow-200 text-yellow-800 rounded-lg">
+    <div class="attention mb-6 p-4 bg-yellow-50 border border-yellow-200 text-yellow-800 rounded-lg">
         <i class="fas fa-exclamation-triangle mr-2"></i>{{ session('warning') }}
     </div>
     @endif
@@ -331,7 +331,7 @@
             </div>
             
             <!-- Actions card -->
-            <div class="bg-white rounded-lg shadow-lg p-6">
+            <div class="actions-card bg-white rounded-lg shadow-lg p-6">
                 <h3 class="text-lg font-semibold mb-4">Actions</h3>
                 
                 <div class="space-y-3">

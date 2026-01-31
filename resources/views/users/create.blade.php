@@ -65,7 +65,7 @@
                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orca-black focus:border-transparent">
             </div>
 
-            <div class="flex justify-end space-x-3">
+            <div class="actions flex justify-end space-x-3">
                 <a href="{{ route('users.index') }}" class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
                     Cancel
                 </a>
