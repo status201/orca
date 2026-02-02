@@ -370,16 +370,44 @@ class SystemService
 
         try {
             // Get ALL supervisor processes and filter for queue workers
-            // This is more reliable than using wildcard patterns which may not expand correctly
+            // Try multiple methods to run supervisorctl (permissions vary by setup)
             $output = [];
+            $returnCode = -1;
+            $commandUsed = '';
+
+            // Method 1: Direct supervisorctl
             exec('supervisorctl status 2>&1', $output, $returnCode);
+            $commandUsed = 'supervisorctl status';
+
+            // Method 2: If that failed, try with full path
+            if (empty($output) || $returnCode !== 0) {
+                $output = [];
+                exec('/usr/bin/supervisorctl status 2>&1', $output, $returnCode);
+                $commandUsed = '/usr/bin/supervisorctl status';
+            }
+
+            // Method 3: Try with sudo (for setups where web user has passwordless sudo)
+            if (empty($output) || $returnCode !== 0) {
+                $output = [];
+                exec('sudo /usr/bin/supervisorctl status 2>&1', $output, $returnCode);
+                $commandUsed = 'sudo /usr/bin/supervisorctl status';
+            }
+
+            // Debug: Log what we received
+            Log::info('Supervisor status check', [
+                'command' => $commandUsed,
+                'output' => $output,
+                'returnCode' => $returnCode,
+                'outputCount' => count($output),
+            ]);
 
             // If supervisor returned an error or no output
-            if (empty($output) || $returnCode !== 0) {
+            if (empty($output)) {
                 return [
                     'available' => true,
                     'message' => 'No queue worker processes found in supervisor. For manual setup see DEPLOYMENT.md, or use Laravel Forge for automatic configuration.',
                     'workers' => [],
+                    'debug' => ['reason' => 'empty output', 'returnCode' => $returnCode, 'command' => $commandUsed],
                 ];
             }
 
@@ -438,6 +466,11 @@ class SystemService
                     'available' => true,
                     'message' => 'No queue worker processes found in supervisor. For manual setup see DEPLOYMENT.md, or use Laravel Forge for automatic configuration.',
                     'workers' => [],
+                    'debug' => [
+                        'reason' => 'no matching workers',
+                        'rawOutput' => $output,
+                        'returnCode' => $returnCode,
+                    ],
                 ];
             }
 
