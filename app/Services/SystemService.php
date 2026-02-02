@@ -369,14 +369,28 @@ class SystemService
         }
 
         try {
-            // Run supervisorctl status for orca-queue-worker processes
+            // Try ORCA workers first (manual setup per DEPLOYMENT.md)
             exec('supervisorctl status orca-queue-worker:* 2>&1', $output, $returnCode);
+            $workerSource = 'orca';
 
-            // If no processes are configured, output will be empty or contain error
-            if (empty($output) || $returnCode !== 0) {
+            // If no ORCA workers found, try Forge workers
+            // Forge uses naming convention: worker-{id}:worker-{id}_00
+            if (empty($output) || $returnCode !== 0 || $this->isNoProcessError($output)) {
+                $forgeOutput = [];
+                exec('supervisorctl status worker-*:* 2>&1', $forgeOutput, $forgeReturnCode);
+
+                if (! empty($forgeOutput) && $forgeReturnCode === 0 && ! $this->isNoProcessError($forgeOutput)) {
+                    $output = $forgeOutput;
+                    $returnCode = $forgeReturnCode;
+                    $workerSource = 'forge';
+                }
+            }
+
+            // If still no processes found
+            if (empty($output) || $returnCode !== 0 || $this->isNoProcessError($output)) {
                 return [
                     'available' => true,
-                    'message' => 'No orca-queue-worker processes configured in supervisor. See DEPLOYMENT.md for setup instructions.',
+                    'message' => 'No queue worker processes found in supervisor. For manual setup see DEPLOYMENT.md, or use Laravel Forge for automatic configuration.',
                     'workers' => [],
                 ];
             }
@@ -384,7 +398,9 @@ class SystemService
             // Parse supervisor output
             $workers = [];
             foreach ($output as $line) {
-                // Example line: "orca-queue-worker:orca-queue-worker_00   RUNNING   pid 12345, uptime 0:05:23"
+                // Match both ORCA and Forge naming patterns:
+                // ORCA: "orca-queue-worker:orca-queue-worker_00   RUNNING   pid 12345, uptime 0:05:23"
+                // Forge: "worker-670782:worker-670782_00          RUNNING   pid 269178, uptime 3:03:15"
                 if (preg_match('/^([\w:-]+)\s+(STOPPED|STARTING|RUNNING|BACKOFF|STOPPING|EXITED|FATAL|UNKNOWN)\s+(.*)$/', $line, $matches)) {
                     $name = $matches[1];
                     $status = $matches[2];
@@ -411,12 +427,21 @@ class SystemService
                 }
             }
 
+            // Build appropriate message based on worker source
+            $message = 'No workers found';
+            if (count($workers) > 0) {
+                $message = $workerSource === 'forge'
+                    ? 'Laravel Forge is managing queue workers'
+                    : 'Supervisor is managing queue workers';
+            }
+
             return [
                 'available' => true,
-                'message' => count($workers) > 0 ? 'Supervisor is managing queue workers' : 'No workers found',
+                'message' => $message,
                 'workers' => $workers,
                 'total' => count($workers),
                 'running' => count(array_filter($workers, fn ($w) => $w['is_running'])),
+                'source' => $workerSource,
             ];
 
         } catch (\Exception $e) {
@@ -428,6 +453,23 @@ class SystemService
                 'workers' => [],
             ];
         }
+    }
+
+    /**
+     * Check if supervisorctl output indicates no matching processes
+     */
+    private function isNoProcessError(array $output): bool
+    {
+        if (empty($output)) {
+            return true;
+        }
+
+        $firstLine = $output[0] ?? '';
+
+        // Common error messages when no processes match the pattern
+        return str_contains($firstLine, 'no such process')
+            || str_contains($firstLine, 'ERROR')
+            || str_contains($firstLine, 'error:');
     }
 
     /**
