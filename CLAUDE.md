@@ -228,14 +228,28 @@ The API supports two authentication methods:
 JWT authentication is disabled by default. Enable with `JWT_ENABLED=true` in `.env`.
 
 **Endpoints** (`routes/api.php`):
-- `GET /api/assets` - List assets with pagination, search, filters
+- `GET /api/assets` - List assets with pagination, search, filters, sorting
 - `POST /api/assets` - Multi-file upload (direct upload for files <10MB)
 - `GET /api/assets/{id}` - Get single asset
 - `PATCH /api/assets/{id}` - Update metadata (alt_text, caption, tags, license_type, copyright)
 - `DELETE /api/assets/{id}` - Delete asset
-- `GET /api/assets/search` - Search with query params
+- `GET /api/assets/search` - Search with query params and sorting
 - `GET /api/assets/meta` - Get asset metadata by URL (public, no auth required)
 - `GET /api/tags` - List tags (with optional type filter)
+
+**API Sort Parameter** (for `GET /api/assets` and `GET /api/assets/search`):
+| Value | Description | Column |
+|-------|-------------|--------|
+| `date_desc` | Newest First (default) | `updated_at` DESC |
+| `date_asc` | Oldest First | `updated_at` ASC |
+| `upload_desc` | Newest Uploads | `created_at` DESC |
+| `upload_asc` | Oldest Uploads | `created_at` ASC |
+| `size_desc` | Largest First | `size` DESC |
+| `size_asc` | Smallest First | `size` ASC |
+| `name_asc` | Name A-Z | `filename` ASC |
+| `name_desc` | Name Z-A | `filename` DESC |
+| `s3key_asc` | S3 Key A-Z | `s3_key` ASC |
+| `s3key_desc` | S3 Key Z-A | `s3_key` DESC |
 
 **Chunked Upload Endpoints** (for large files ≥10MB):
 - `POST /api/chunked-upload/init` - Initialize multipart upload session
@@ -321,7 +335,7 @@ All API endpoints require `auth:sanctum` middleware except `/api/assets/meta` wh
   - Filter by file type (images, videos, documents)
   - Filter by folder (dropdown of S3 folder prefixes, defaults to root folder)
   - Filter by tags (multi-select with checkboxes)
-  - Sort options: date, size, name, S3 key (ascending/descending)
+  - Sort options: date modified, upload date, size, name, S3 key (ascending/descending)
   - Results per page selector (12-96), stored in localStorage per user
   - Pagination (default from Settings, user preference overrides)
 
@@ -580,22 +594,28 @@ For Herd: Edit `~/.config/herd/bin/php84/php.ini` (Windows: `C:\Users\<username>
 
 ORCA DAM includes a comprehensive test suite built with **Pest PHP** (a testing framework on top of PHPUnit). Tests use an in-memory SQLite database for isolation.
 
-**Test Statistics:** ~100 tests covering models, controllers, API, and authorization.
+**Test Statistics:** ~195 tests covering models, controllers, API, authorization, and system settings.
 
 ### Test Structure
 
 ```
 tests/
 ├── Feature/
-│   ├── AssetTest.php       # Asset CRUD, filtering, permissions
+│   ├── AssetTest.php       # Asset CRUD, filtering, sorting, permissions
 │   ├── TagTest.php         # Tag management, asset tagging
 │   ├── ExportTest.php      # CSV export functionality
-│   ├── ApiTest.php         # API endpoints, authentication
+│   ├── ApiTest.php         # API endpoints, authentication, sorting
+│   ├── SystemTest.php      # System admin settings, access control
+│   ├── JwtAuthTest.php     # JWT authentication
+│   ├── JwtSecretManagementTest.php  # JWT secret management
+│   ├── ProfileTest.php     # User profile and preferences
 │   └── Auth/               # Authentication tests (Laravel Breeze)
 ├── Unit/
 │   ├── AssetTest.php       # Asset model relationships, scopes, attributes
 │   ├── TagTest.php         # Tag model relationships
-│   └── SettingTest.php     # Setting model get/set, caching, type casting
+│   ├── SettingTest.php     # Setting model get/set, caching, type casting
+│   ├── UserPreferencesTest.php  # User preferences helpers
+│   └── JwtGuardTest.php    # JWT guard unit tests
 └── Pest.php                # Pest configuration with RefreshDatabase
 ```
 

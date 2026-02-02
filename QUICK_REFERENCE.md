@@ -101,10 +101,12 @@ orca-dam/
 │   └── api.php                       # API routes
 ├── tests/
 │   ├── Feature/                      # Feature tests
-│   │   ├── AssetTest.php
+│   │   ├── AssetTest.php             # Asset CRUD, sorting
 │   │   ├── TagTest.php
 │   │   ├── ExportTest.php
-│   │   └── ApiTest.php
+│   │   ├── ApiTest.php               # API endpoints, sorting
+│   │   ├── SystemTest.php            # System settings
+│   │   └── JwtAuthTest.php           # JWT authentication
 │   └── Unit/                         # Unit tests
 │       ├── AssetTest.php
 │       ├── TagTest.php
@@ -142,9 +144,9 @@ GET  /api-docs/jwt-secrets     # Manage JWT secrets (admin)
 ### API Routes
 Authentication: Sanctum token OR JWT bearer token (if JWT_ENABLED=true)
 ```
-GET    /api/assets             # List assets
+GET    /api/assets             # List assets (supports ?sort=)
 POST   /api/assets             # Upload assets
-GET    /api/assets/search      # Search assets
+GET    /api/assets/search      # Search assets (supports ?sort=)
 GET    /api/assets/meta        # Get metadata by URL (PUBLIC, no auth)
 GET    /api/assets/{id}        # Get asset
 PATCH  /api/assets/{id}        # Update asset
@@ -157,6 +159,13 @@ POST   /api/chunked-upload/chunk     # Upload chunk
 POST   /api/chunked-upload/complete  # Complete upload
 POST   /api/chunked-upload/abort     # Cancel upload
 ```
+
+**API Sort Options** (`?sort=`):
+- `date_desc` (default), `date_asc` - Sort by last modified
+- `upload_desc`, `upload_asc` - Sort by upload date
+- `size_desc`, `size_asc` - Sort by file size
+- `name_asc`, `name_desc` - Sort by filename
+- `s3key_asc`, `s3key_desc` - Sort by S3 key
 
 ---
 

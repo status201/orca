@@ -146,3 +146,137 @@ test('api asset meta returns error for unknown url', function () {
 
     $response->assertStatus(400);
 });
+
+test('api assets index can sort by date ascending', function () {
+    $user = User::factory()->create();
+    Sanctum::actingAs($user);
+
+    $older = Asset::factory()->create(['updated_at' => now()->subDays(2)]);
+    $newer = Asset::factory()->create(['updated_at' => now()]);
+
+    $response = $this->getJson('/api/assets?sort=date_asc');
+
+    $response->assertOk();
+    $data = $response->json('data');
+    expect($data[0]['id'])->toBe($older->id);
+    expect($data[1]['id'])->toBe($newer->id);
+});
+
+test('api assets index can sort by date descending', function () {
+    $user = User::factory()->create();
+    Sanctum::actingAs($user);
+
+    $older = Asset::factory()->create(['updated_at' => now()->subDays(2)]);
+    $newer = Asset::factory()->create(['updated_at' => now()]);
+
+    $response = $this->getJson('/api/assets?sort=date_desc');
+
+    $response->assertOk();
+    $data = $response->json('data');
+    expect($data[0]['id'])->toBe($newer->id);
+    expect($data[1]['id'])->toBe($older->id);
+});
+
+test('api assets index can sort by upload date ascending', function () {
+    $user = User::factory()->create();
+    Sanctum::actingAs($user);
+
+    $older = Asset::factory()->create(['created_at' => now()->subDays(2)]);
+    $newer = Asset::factory()->create(['created_at' => now()]);
+
+    $response = $this->getJson('/api/assets?sort=upload_asc');
+
+    $response->assertOk();
+    $data = $response->json('data');
+    expect($data[0]['id'])->toBe($older->id);
+    expect($data[1]['id'])->toBe($newer->id);
+});
+
+test('api assets index can sort by upload date descending', function () {
+    $user = User::factory()->create();
+    Sanctum::actingAs($user);
+
+    $older = Asset::factory()->create(['created_at' => now()->subDays(2)]);
+    $newer = Asset::factory()->create(['created_at' => now()]);
+
+    $response = $this->getJson('/api/assets?sort=upload_desc');
+
+    $response->assertOk();
+    $data = $response->json('data');
+    expect($data[0]['id'])->toBe($newer->id);
+    expect($data[1]['id'])->toBe($older->id);
+});
+
+test('api assets index can sort by size', function () {
+    $user = User::factory()->create();
+    Sanctum::actingAs($user);
+
+    $small = Asset::factory()->create(['size' => 1000]);
+    $large = Asset::factory()->create(['size' => 10000]);
+
+    $response = $this->getJson('/api/assets?sort=size_asc');
+
+    $response->assertOk();
+    $data = $response->json('data');
+    expect($data[0]['id'])->toBe($small->id);
+    expect($data[1]['id'])->toBe($large->id);
+
+    $response = $this->getJson('/api/assets?sort=size_desc');
+
+    $response->assertOk();
+    $data = $response->json('data');
+    expect($data[0]['id'])->toBe($large->id);
+    expect($data[1]['id'])->toBe($small->id);
+});
+
+test('api assets index can sort by name', function () {
+    $user = User::factory()->create();
+    Sanctum::actingAs($user);
+
+    $alpha = Asset::factory()->create(['filename' => 'alpha.jpg']);
+    $zeta = Asset::factory()->create(['filename' => 'zeta.jpg']);
+
+    $response = $this->getJson('/api/assets?sort=name_asc');
+
+    $response->assertOk();
+    $data = $response->json('data');
+    expect($data[0]['filename'])->toBe('alpha.jpg');
+    expect($data[1]['filename'])->toBe('zeta.jpg');
+
+    $response = $this->getJson('/api/assets?sort=name_desc');
+
+    $response->assertOk();
+    $data = $response->json('data');
+    expect($data[0]['filename'])->toBe('zeta.jpg');
+    expect($data[1]['filename'])->toBe('alpha.jpg');
+});
+
+test('api assets search can sort results', function () {
+    $user = User::factory()->create();
+    Sanctum::actingAs($user);
+
+    $older = Asset::factory()->create(['filename' => 'test-old.jpg', 'created_at' => now()->subDays(2)]);
+    $newer = Asset::factory()->create(['filename' => 'test-new.jpg', 'created_at' => now()]);
+
+    $response = $this->getJson('/api/assets/search?q=test&sort=upload_asc');
+
+    $response->assertOk();
+    $data = $response->json('data');
+    expect($data[0]['id'])->toBe($older->id);
+    expect($data[1]['id'])->toBe($newer->id);
+});
+
+test('api assets index defaults to newest first when no sort specified', function () {
+    $user = User::factory()->create();
+    Sanctum::actingAs($user);
+
+    $older = Asset::factory()->create(['updated_at' => now()->subDays(2)]);
+    $newer = Asset::factory()->create(['updated_at' => now()]);
+
+    $response = $this->getJson('/api/assets');
+
+    $response->assertOk();
+    $data = $response->json('data');
+    expect($data[0]['id'])->toBe($newer->id);
+    expect($data[1]['id'])->toBe($older->id);
+});

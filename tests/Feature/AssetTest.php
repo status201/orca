@@ -442,3 +442,107 @@ test('assets index falls back to global setting when no user preference', functi
     $response->assertStatus(200);
     expect($response['assets']->perPage())->toBe(36);
 });
+
+test('assets index can sort by date descending', function () {
+    $user = User::factory()->create();
+    Setting::set('s3_root_folder', '', 'string', 'aws');
+
+    $older = Asset::factory()->create(['filename' => 'older.jpg', 'updated_at' => now()->subDays(2)]);
+    $newer = Asset::factory()->create(['filename' => 'newer.jpg', 'updated_at' => now()]);
+
+    $response = $this->actingAs($user)->get(route('assets.index', ['sort' => 'date_desc']));
+
+    $response->assertStatus(200);
+    $assets = $response['assets']->items();
+    expect($assets[0]->id)->toBe($newer->id);
+    expect($assets[1]->id)->toBe($older->id);
+});
+
+test('assets index can sort by date ascending', function () {
+    $user = User::factory()->create();
+    Setting::set('s3_root_folder', '', 'string', 'aws');
+
+    $older = Asset::factory()->create(['filename' => 'older.jpg', 'updated_at' => now()->subDays(2)]);
+    $newer = Asset::factory()->create(['filename' => 'newer.jpg', 'updated_at' => now()]);
+
+    $response = $this->actingAs($user)->get(route('assets.index', ['sort' => 'date_asc']));
+
+    $response->assertStatus(200);
+    $assets = $response['assets']->items();
+    expect($assets[0]->id)->toBe($older->id);
+    expect($assets[1]->id)->toBe($newer->id);
+});
+
+test('assets index can sort by upload date descending', function () {
+    $user = User::factory()->create();
+    Setting::set('s3_root_folder', '', 'string', 'aws');
+
+    $older = Asset::factory()->create(['filename' => 'older.jpg', 'created_at' => now()->subDays(2)]);
+    $newer = Asset::factory()->create(['filename' => 'newer.jpg', 'created_at' => now()]);
+
+    $response = $this->actingAs($user)->get(route('assets.index', ['sort' => 'upload_desc']));
+
+    $response->assertStatus(200);
+    $assets = $response['assets']->items();
+    expect($assets[0]->id)->toBe($newer->id);
+    expect($assets[1]->id)->toBe($older->id);
+});
+
+test('assets index can sort by upload date ascending', function () {
+    $user = User::factory()->create();
+    Setting::set('s3_root_folder', '', 'string', 'aws');
+
+    $older = Asset::factory()->create(['filename' => 'older.jpg', 'created_at' => now()->subDays(2)]);
+    $newer = Asset::factory()->create(['filename' => 'newer.jpg', 'created_at' => now()]);
+
+    $response = $this->actingAs($user)->get(route('assets.index', ['sort' => 'upload_asc']));
+
+    $response->assertStatus(200);
+    $assets = $response['assets']->items();
+    expect($assets[0]->id)->toBe($older->id);
+    expect($assets[1]->id)->toBe($newer->id);
+});
+
+test('assets index can sort by size', function () {
+    $user = User::factory()->create();
+    Setting::set('s3_root_folder', '', 'string', 'aws');
+
+    $small = Asset::factory()->create(['filename' => 'small.jpg', 'size' => 1000]);
+    $large = Asset::factory()->create(['filename' => 'large.jpg', 'size' => 10000]);
+
+    $response = $this->actingAs($user)->get(route('assets.index', ['sort' => 'size_asc']));
+
+    $response->assertStatus(200);
+    $assets = $response['assets']->items();
+    expect($assets[0]->id)->toBe($small->id);
+    expect($assets[1]->id)->toBe($large->id);
+
+    $response = $this->actingAs($user)->get(route('assets.index', ['sort' => 'size_desc']));
+
+    $response->assertStatus(200);
+    $assets = $response['assets']->items();
+    expect($assets[0]->id)->toBe($large->id);
+    expect($assets[1]->id)->toBe($small->id);
+});
+
+test('assets index can sort by name', function () {
+    $user = User::factory()->create();
+    Setting::set('s3_root_folder', '', 'string', 'aws');
+
+    $alpha = Asset::factory()->create(['filename' => 'alpha.jpg']);
+    $zeta = Asset::factory()->create(['filename' => 'zeta.jpg']);
+
+    $response = $this->actingAs($user)->get(route('assets.index', ['sort' => 'name_asc']));
+
+    $response->assertStatus(200);
+    $assets = $response['assets']->items();
+    expect($assets[0]->filename)->toBe('alpha.jpg');
+    expect($assets[1]->filename)->toBe('zeta.jpg');
+
+    $response = $this->actingAs($user)->get(route('assets.index', ['sort' => 'name_desc']));
+
+    $response->assertStatus(200);
+    $assets = $response['assets']->items();
+    expect($assets[0]->filename)->toBe('zeta.jpg');
+    expect($assets[1]->filename)->toBe('alpha.jpg');
+});

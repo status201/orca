@@ -319,11 +319,11 @@ async function getOrcaToken() {
 }
 
 // Use JWT for ORCA API calls
-async function fetchOrcaAssets(search = '') {
+async function fetchOrcaAssets(search = '', sort = 'date_desc') {
     const token = await getOrcaToken();
 
     const response = await fetch(
-        `https://your-orca-dam.com/api/assets?search=${search}`,
+        `https://your-orca-dam.com/api/assets?search=${search}&sort=${sort}`,
         {
             headers: {
                 'Authorization': `Bearer ${token}`,
@@ -859,6 +859,43 @@ return [
     'supports_credentials' => true,
 ];
 ```
+
+---
+
+## API Quick Reference
+
+### Endpoints
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/api/assets` | List assets with pagination, search, filters, sorting |
+| `GET` | `/api/assets/search` | Search assets (optimized for picker) |
+| `GET` | `/api/assets/{id}` | Get single asset details |
+| `GET` | `/api/assets/meta?url=` | Get metadata by URL (public, no auth) |
+| `POST` | `/api/assets` | Upload files |
+| `PATCH` | `/api/assets/{id}` | Update asset metadata |
+| `GET` | `/api/tags` | List all tags |
+
+### Common Query Parameters
+| Parameter | Description | Example |
+|-----------|-------------|---------|
+| `search` / `q` | Filter by filename | `?search=logo` |
+| `type` | Filter by file type | `?type=image` |
+| `tags` | Filter by tag IDs | `?tags=1,2,3` |
+| `per_page` | Results per page (max 100) | `?per_page=24` |
+| `page` | Page number | `?page=2` |
+| `sort` | Sort order | `?sort=upload_desc` |
+
+### Sort Options
+| Value | Description |
+|-------|-------------|
+| `date_desc` | Newest modified first (default) |
+| `date_asc` | Oldest modified first |
+| `upload_desc` | Newest uploads first |
+| `upload_asc` | Oldest uploads first |
+| `size_desc` | Largest first |
+| `size_asc` | Smallest first |
+| `name_asc` | Name A-Z |
+| `name_desc` | Name Z-A |
 
 ---
 
