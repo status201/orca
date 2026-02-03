@@ -468,7 +468,7 @@
                     <i class="fas fa-server mr-2"></i>Supervisor Status
                 </h3>
                 <button @click="refreshSupervisorStatus()"
-                        class="px-3 py-1 text-sm bg-gray-600 text-white rounded-lg hover:bg-gray-700">
+                        class="attention px-3 py-1 text-sm bg-gray-600 text-white rounded-lg hover:bg-gray-700">
                     <i class="fas fa-sync-alt mr-1" :class="{'fa-spin': loadingSupervisor}"></i>Refresh
                 </button>
             </div>
@@ -489,7 +489,7 @@
                     </div>
                     <div class="flex items-center">
                         <span class="font-semibold text-gray-700">Running:</span>
-                        <span class="ml-2 px-2 py-0.5 bg-green-100 text-green-700 rounded-full text-xs font-semibold" x-text="supervisorStatus.running"></span>
+                        <span class="attention ml-2 px-2 py-0.5 bg-green-100 text-green-700 rounded-full text-xs font-semibold" x-text="supervisorStatus.running"></span>
                     </div>
                 </div>
 
@@ -508,7 +508,7 @@
                                 <tr>
                                     <td class="px-4 py-3 text-sm font-mono text-gray-900" x-text="worker.name"></td>
                                     <td class="px-4 py-3 text-sm">
-                                        <span class="px-2 py-1 text-xs font-semibold rounded-full"
+                                        <span class="attention px-2 py-1 text-xs font-semibold rounded-full"
                                               :class="{
                                                   'bg-green-100 text-green-800': worker.status === 'RUNNING',
                                                   'bg-red-100 text-red-800': worker.status === 'STOPPED' || worker.status === 'FATAL' || worker.status === 'EXITED',
