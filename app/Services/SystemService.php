@@ -432,8 +432,8 @@ class SystemService
                     if (preg_match('/pid (\d+)/', $details, $pidMatch)) {
                         $pid = (int) $pidMatch[1];
                     }
-                    if (preg_match('/uptime ([\d:]+)/', $details, $uptimeMatch)) {
-                        $uptime = $this->formatUptime($uptimeMatch[1]);
+                    if (preg_match('/uptime (?:(\d+) days?, )?(\d+:\d+:\d+)/', $details, $uptimeMatch)) {
+                        $uptime = $this->formatUptime($uptimeMatch[2], (int) ($uptimeMatch[1] ?? 0));
                     }
 
                     $workers[] = [
@@ -482,21 +482,20 @@ class SystemService
     }
 
     /**
-     * Format supervisor uptime string (H:MM:SS) into human-readable format.
+     * Format supervisor uptime into human-readable format.
+     *
+     * Supervisor outputs uptime as either "H:MM:SS" or "N day(s), H:MM:SS".
      */
-    protected function formatUptime(string $raw): string
+    protected function formatUptime(string $time, int $days = 0): string
     {
-        $parts = explode(':', $raw);
+        $parts = explode(':', $time);
         if (count($parts) !== 3) {
-            return $raw;
+            return $time;
         }
 
-        $totalHours = (int) $parts[0];
+        $hours = (int) $parts[0];
         $minutes = (int) $parts[1];
         $seconds = (int) $parts[2];
-
-        $days = intdiv($totalHours, 24);
-        $hours = $totalHours % 24;
 
         $segments = [];
         if ($days > 0) {
