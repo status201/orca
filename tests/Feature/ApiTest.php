@@ -94,7 +94,7 @@ test('api can delete asset', function () {
     $response = $this->deleteJson("/api/assets/{$assetId}");
 
     $response->assertOk();
-    expect(Asset::find($assetId))->toBeNull();
+    $this->assertSoftDeleted('assets', ['id' => $assetId]);
 });
 
 test('api tags index requires authentication', function () {

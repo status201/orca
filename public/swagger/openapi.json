@@ -468,8 +468,8 @@
       },
       "delete": {
         "tags": ["Assets"],
-        "summary": "Delete asset",
-        "description": "Delete an asset and its associated S3 files (thumbnail and original)",
+        "summary": "Soft delete asset",
+        "description": "Soft delete an asset (moves to trash). S3 files are preserved for potential restoration.",
         "operationId": "deleteAsset",
         "parameters": [
           {
@@ -484,7 +484,7 @@
         ],
         "responses": {
           "200": {
-            "description": "Asset deleted successfully",
+            "description": "Asset moved to trash successfully",
             "content": {
               "application/json": {
                 "schema": {
@@ -492,7 +492,7 @@
                   "properties": {
                     "message": {
                       "type": "string",
-                      "example": "Asset deleted successfully"
+                      "example": "Asset moved to trash successfully"
                     }
                   }
                 }

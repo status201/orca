@@ -190,7 +190,7 @@ class AssetApiController extends Controller
     }
 
     /**
-     * Delete asset
+     * Soft delete asset (move to trash)
      */
     public function destroy(Asset $asset)
     {
@@ -198,16 +198,10 @@ class AssetApiController extends Controller
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
-        $this->s3Service->deleteFile($asset->s3_key);
-
-        if ($asset->thumbnail_s3_key) {
-            $this->s3Service->deleteFile($asset->thumbnail_s3_key);
-        }
-
         $asset->delete();
 
         return response()->json([
-            'message' => 'Asset deleted successfully',
+            'message' => 'Asset moved to trash successfully',
         ]);
     }
 
