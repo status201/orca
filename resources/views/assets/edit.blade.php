@@ -301,7 +301,7 @@
                 <!-- Current tags -->
                 <div class="flex flex-wrap gap-2 mb-3">
                     <template x-for="(tag, index) in userTags" :key="index">
-                        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-700">
+                        <span class="tag attention inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-700">
                             <span x-text="tag"></span>
                             <button type="button"
                                     @click="removeTag(index)"
@@ -354,7 +354,7 @@
                 @if($asset->aiTags->count() > 0)
                     <div class="flex flex-wrap gap-2" x-data="aiTagManager()">
                         @foreach($asset->aiTags as $tag)
-                            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-purple-100 text-purple-700">
+                            <span class="tag attention inline-flex items-center px-3 py-1 rounded-full text-sm bg-purple-100 text-purple-700">
                     {{ $tag->name }}
                     <button type="button"
                             @click="removeAiTag({{ $tag->id }}, '{{ addslashes($tag->name) }}')"

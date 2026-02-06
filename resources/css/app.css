@@ -210,3 +210,9 @@ html.dark-mode .tab-navigation-container,
 html.dark-mode .invert-scrollbar-colors {
     scrollbar-color: #FFF #CCC; /* inverted */
 }
+html.dark-mode .tag.attention.bg-purple-100 {
+    background-color: rgba(126, 34, 206, 0.2);
+}
+html.dark-mode .tag.attention.bg-blue-100 {
+    background-color: rgba(29, 78, 216, 0.2);
+}

@@ -69,7 +69,7 @@
                     <h3 class="text-lg font-semibold text-gray-900 hover:text-blue-600 truncate">{{ $tag->name }}</h3>
                 </a>
                 <div class="flex items-center gap-2 flex-shrink-0">
-                    <span class="px-2 py-1 text-xs font-semibold rounded-full whitespace-nowrap {{ $tag->type === 'ai' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700' }}">
+                    <span class="tag attention px-2 py-1 text-xs font-semibold rounded-full whitespace-nowrap {{ $tag->type === 'ai' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700' }}">
                         {{ $tag->type }}
                         @if($tag->type === 'ai')
                         <i class="fas fa-robot ml-1"></i>
