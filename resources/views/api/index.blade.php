@@ -348,11 +348,11 @@
                         <div class="space-y-3">
                             <div class="flex items-center gap-4">
                                 <label class="flex items-center">
-                                    <input type="radio" x-model="newToken.createNew" :value="false" class="text-orca-black focus:ring-orca-black">
+                                    <input type="radio" name="userTypeToggle" :checked="!newToken.createNew" @click="newToken.createNew = false" class="text-orca-black focus:ring-orca-black">
                                     <span class="ml-2 text-sm text-gray-700">Existing user</span>
                                 </label>
                                 <label class="flex items-center">
-                                    <input type="radio" x-model="newToken.createNew" :value="true" class="text-orca-black focus:ring-orca-black">
+                                    <input type="radio" name="userTypeToggle" :checked="newToken.createNew" @click="newToken.createNew = true" class="text-orca-black focus:ring-orca-black">
                                     <span class="ml-2 text-sm text-gray-700">Create new API user</span>
                                 </label>
                             </div>
