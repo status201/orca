@@ -11,7 +11,7 @@
     </div>
 
     <!-- Tab Navigation -->
-    <div class="mb-6 border-b border-gray-200 w-full overflow-x-scroll sm:overflow-x-hidden overflow-y-hidden">
+    <div class="tab-navigation-container mb-6 border-b border-gray-200 w-full overflow-y-hidden overflow-x-auto">
         <nav class="-mb-px flex space-x-8">
             <button @click="activeTab = 'dashboard'; if (!dashboardLoaded) loadDashboard();"
                     :class="activeTab === 'dashboard' ? 'border-orca-black text-orca-black' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
@@ -480,8 +480,8 @@
                                 <td class="px-6 py-4 text-sm text-gray-600" x-text="token.last_used_at || 'Never'"></td>
                                 <td class="px-6 py-4 text-sm">
                                     <button @click="revokeToken(token.id, token.name)"
-                                            class="text-red-600 hover:text-red-900">
-                                        <i class="attention fas fa-trash mr-1"></i>Revoke
+                                            class="attention text-red-600 hover:text-red-900">
+                                        <i class="fas fa-trash mr-1"></i>Revoke
                                     </button>
                                 </td>
                             </tr>
@@ -696,8 +696,8 @@ const token = jwt.sign(
                                         <i class="fas fa-redo mr-1"></i>Regenerate
                                     </button>
                                     <button @click="revokeJwtSecret(user.id, user.name)"
-                                            class="text-red-600 hover:text-red-900:text-red-300">
-                                        <i class="attention fas fa-trash mr-1"></i>Revoke
+                                            class="attention text-red-600 hover:text-red-900:text-red-300">
+                                        <i class="fas fa-trash mr-1"></i>Revoke
                                     </button>
                                 </td>
                             </tr>

@@ -91,7 +91,7 @@
         
         <!-- Object list -->
         <div x-show="unmappedObjects.length > 0" class="bg-white rounded-lg shadow-lg overflow-hidden">
-            <div class="overflow-x-auto">
+            <div class="overflow-x-auto invert-scrollbar-colors">
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50">
                         <tr>

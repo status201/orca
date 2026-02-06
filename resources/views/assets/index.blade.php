@@ -122,7 +122,7 @@
                     </div>
                 </div>
             </div>
-            <div class="max-h-96 overflow-y-auto">
+            <div class="max-h-96 overflow-y-auto invert-scrollbar-colors">
                 <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-8 gap-2">
                     <template x-for="tag in allTagsData" :key="tag.id">
                         <label x-show="shouldShowTag(tag)"
@@ -134,7 +134,7 @@
                             <div class="flex flex-col gap-1 min-w-0 flex-1">
                                 <span class="text-sm font-medium truncate" x-text="tag.name"></span>
                                 <span :class="tag.type === 'ai' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700'"
-                                      class="text-xs px-2 py-0.5 rounded-full inline-block w-fit"
+                                      class="tag attention text-xs px-2 py-0.5 rounded-full inline-block w-fit"
                                       x-text="tag.type"></span>
                             </div>
                         </label>
@@ -239,7 +239,7 @@
                 @if($asset->tags->count() > 0)
                 <div class="flex flex-wrap gap-1 mt-2">
                     @foreach($asset->tags->take(2) as $tag)
-                    <span class="text-xs px-2 py-0.5 rounded-full {{ $tag->type === 'ai' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700' }}">
+                    <span class="tag attention text-xs px-2 py-0.5 rounded-full {{ $tag->type === 'ai' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700' }}">
                         {{ $tag->name }}
                     </span>
                     @endforeach
@@ -258,7 +258,7 @@
 
     <!-- List/Table View -->
     <div x-show="viewMode === 'list'" x-cloak class="bg-white rounded-lg shadow overflow-hidden">
-        <div class="overflow-x-auto">
+        <div class="overflow-x-auto invert-scrollbar-colors">
             <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
                     <tr>
@@ -326,9 +326,9 @@
                         <td class="px-4 py-3">
                             <div class="text-sm font-medium text-gray-900">{{ $asset->filename }}</div>
                             <div class="text-xs text-gray-500 mt-1">
-                                <span title="{{ $asset->updated_at }}">{{ $asset->updated_at->diffForHumans() }}</span>
+                                <span title="Last modified {{ $asset->updated_at }}">{{ $asset->updated_at->diffForHumans() }}</span>
                                 <span class="mx-1">•</span>
-                                <span title="{{ $asset->user->name }}">{{ $asset->user->name }}</span>
+                                <span title="Uploaded by {{ $asset->user->email }}">{{ $asset->user->name }}</span>
                             </div>
                         </td>
 
@@ -375,7 +375,7 @@
                                 <!-- Existing Tags -->
                                 <template x-for="(tag, index) in tags" :key="tag.id">
                                     <span :class="tag.type === 'ai' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700'"
-                                          class="inline-flex items-center px-2 py-1 rounded text-xs font-medium">
+                                          class="tag attention inline-flex items-center px-2 py-1 rounded text-xs font-medium">
                                         <span x-text="tag.name"></span>
                                         <button @click="removeTag(tag)"
                                                 :disabled="loading"
