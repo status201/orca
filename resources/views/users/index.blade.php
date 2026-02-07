@@ -15,7 +15,7 @@
     </div>
 </div>
 
-<div class="bg-white rounded-lg shadow overflow-hidden">
+<div class="bg-white rounded-lg shadow overflow-x-auto invert-scrollbar-colors">
     <table class="min-w-full divide-y divide-gray-200">
         <thead class="bg-gray-50">
             <tr>
@@ -27,6 +27,9 @@
                 </th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Role
+                </th>
+                <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    2FA
                 </th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Actions
@@ -55,6 +58,13 @@
                     <span class="px-2 py-1 text-xs font-semibold rounded-full @if($user->isAdmin()) bg-purple-100 text-purple-700 @elseif($user->isApiUser()) bg-red-100 text-red-700 @else bg-blue-100 text-blue-700 @endif">
                         {{ ucfirst($user->role) }}
                     </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-center">
+                    @if($user->hasTwoFactorEnabled())
+                        <i class="attention fas fa-check-circle text-green-500" title="{{ $user->two_factor_confirmed_at->format('M j, Y') }}"></i>
+                    @else
+                        <i class="attention fas fa-times-circle text-red-400"></i>
+                    @endif
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <a href="{{ route('users.edit', $user) }}" class="text-orca-black hover:text-orca-black-hover mr-3">

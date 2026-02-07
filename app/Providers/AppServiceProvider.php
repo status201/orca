@@ -24,6 +24,17 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Apply timezone from database setting
+        try {
+            $timezone = \App\Models\Setting::get('timezone', config('app.timezone'));
+            if (in_array($timezone, timezone_identifiers_list())) {
+                date_default_timezone_set($timezone);
+                config(['app.timezone' => $timezone]);
+            }
+        } catch (\Throwable $e) {
+            // Fall back to config default if database is unavailable
+        }
+
         // Register SystemController policy
         Gate::policy(SystemController::class, SystemPolicy::class);
 

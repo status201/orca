@@ -127,6 +127,31 @@ test('s3_root_folder allows empty string', function () {
     expect(Setting::get('s3_root_folder'))->toBe('');
 });
 
+test('admin can update timezone setting', function () {
+    $admin = User::factory()->create(['role' => 'admin']);
+
+    $response = $this->actingAs($admin)->postJson(route('system.update-setting'), [
+        'key' => 'timezone',
+        'value' => 'Europe/Amsterdam',
+    ]);
+
+    $response->assertOk();
+    $response->assertJson(['success' => true]);
+    expect(Setting::get('timezone'))->toBe('Europe/Amsterdam');
+});
+
+test('timezone rejects invalid values', function () {
+    $admin = User::factory()->create(['role' => 'admin']);
+
+    $response = $this->actingAs($admin)->postJson(route('system.update-setting'), [
+        'key' => 'timezone',
+        'value' => 'Invalid/Timezone',
+    ]);
+
+    $response->assertStatus(422);
+    $response->assertJson(['success' => false]);
+});
+
 test('items_per_page rejects invalid values', function () {
     $admin = User::factory()->create(['role' => 'admin']);
 

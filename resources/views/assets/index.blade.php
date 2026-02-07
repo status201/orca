@@ -346,13 +346,18 @@
                                     <i :class="copied ? 'fas fa-check' : 'fas fa-copy'"></i>
                                 </button>
                                 <a href="{{ route('assets.edit', $asset) }}"
-                                   class="text-yellow-600 hover:text-yellow-800"
+                                   class="attention text-yellow-600 hover:text-yellow-800"
                                    title="Edit asset">
                                     <i class="fas fa-edit"></i>
                                 </a>
+                                <a href="{{ route('assets.replace', $asset) }}"
+                                   class="attention text-amber-600 hover:text-amber-800"
+                                   title="Replace asset">
+                                    <i class="fas fa-sync-alt"></i>
+                                </a>
                                 <button @click="deleteAsset()"
                                         :disabled="loading"
-                                        class="text-red-600 hover:text-red-800 disabled:opacity-50"
+                                        class="text-red-800 hover:text-red-900 disabled:opacity-50"
                                         title="Delete asset">
                                     <i class="fas fa-trash"></i>
                                 </button>

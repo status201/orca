@@ -304,6 +304,33 @@
                             </select>
                             <p class="text-xs text-gray-500 mt-1">Number of assets displayed per page in the asset grid</p>
                         </div>
+
+                        <!-- Timezone -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                Timezone
+                            </label>
+                            <select x-model="settings.timezone"
+                                    @change="updateSetting('timezone', settings.timezone)"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orca-black focus:border-transparent">
+                                @php
+                                    $groupedTimezones = [];
+                                    foreach ($availableTimezones as $tz) {
+                                        $parts = explode('/', $tz, 2);
+                                        $region = count($parts) > 1 ? $parts[0] : 'Other';
+                                        $groupedTimezones[$region][] = $tz;
+                                    }
+                                @endphp
+                                @foreach($groupedTimezones as $region => $timezones)
+                                    <optgroup label="{{ $region }}">
+                                        @foreach($timezones as $tz)
+                                            <option value="{{ $tz }}">{{ $tz }}</option>
+                                        @endforeach
+                                    </optgroup>
+                                @endforeach
+                            </select>
+                            <p class="text-xs text-gray-500 mt-1">Application timezone for displaying dates and timestamps</p>
+                        </div>
                     </div>
                 </div>
 
@@ -1080,6 +1107,7 @@ function systemAdmin() {
         // Settings
         settings: {
             items_per_page: '{{ collect($settings)->firstWhere('key', 'items_per_page')['value'] ?? '24' }}',
+            timezone: '{{ collect($settings)->firstWhere('key', 'timezone')['value'] ?? 'UTC' }}',
             s3_root_folder: '{{ collect($settings)->firstWhere('key', 's3_root_folder')['value'] ?? 'assets' }}',
             rekognition_max_labels: '{{ collect($settings)->firstWhere('key', 'rekognition_max_labels')['value'] ?? '5' }}',
             rekognition_language: '{{ collect($settings)->firstWhere('key', 'rekognition_language')['value'] ?? 'en' }}',
