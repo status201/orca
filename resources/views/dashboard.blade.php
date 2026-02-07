@@ -1,4 +1,4 @@
-<x-app-layout title="Dashboard">
+<x-app-layout title="{{ __('Dashboard') }}">
     <div class="py-6">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <!-- Welcome Section -->
@@ -10,7 +10,7 @@
                     </div>
                 </div>
                 <h1 class="text-4xl font-bold text-gray-900 mb-3">ORCA DAM</h1>
-                <p class="text-xl text-gray-600 pb-8"><span>ORCA</span> <span>Retrieves</span> <span>Cloud</span> <span>Assets</span></p>
+                <p class="text-xl text-gray-600 pb-8"><span>ORCA</span> <span>{{ __('Retrieves') }}</span> <span>{{ __('Cloud') }}</span> <span>{{ __('Assets') }}</span></p>
             </div>
 
             <!-- Two Column Grid -->
@@ -22,9 +22,9 @@
                     <div class="grid grid-cols-1 gap-4 mb-6">
                         <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                             <div class="p-6 h-full">
-                                Hi <strong>{{ Auth::user()->name }}</strong>!<br />
-                                You're logged in with <strong>{{ Auth::user()->email }}</strong>
-                                as an <strong>{{ Auth::user()->role }}</strong>
+                                {{ __('Hi') }} <strong>{{ Auth::user()->name }}</strong>!<br />
+                                {{ __('You\'re logged in with') }} <strong>{{ Auth::user()->email }}</strong>
+                                {{ __('as an') }} <strong>{{ Auth::user()->role }}</strong>
                             </div>
                         </div>
                     </div>
@@ -41,7 +41,7 @@
                                     </div>
                                     <div class="ml-5 w-0 flex-1">
                                         <dl>
-                                            <dt class="text-sm font-medium text-gray-500 truncate">Total Assets</dt>
+                                            <dt class="text-sm font-medium text-gray-500 truncate">{{ __('Total Assets') }}</dt>
                                             <dd class="text-3xl font-semibold text-gray-900">{{ number_format($stats['total_assets']) }}</dd>
                                         </dl>
                                     </div>
@@ -61,7 +61,7 @@
                                     </div>
                                     <div class="ml-5 w-0 flex-1">
                                         <dl>
-                                            <dt class="text-sm font-medium text-gray-500 truncate">My Assets</dt>
+                                            <dt class="text-sm font-medium text-gray-500 truncate">{{ __('My Assets') }}</dt>
                                             <dd class="text-3xl font-semibold text-gray-900">{{ number_format($stats['my_assets']) }}</dd>
                                         </dl>
                                     </div>
@@ -78,10 +78,10 @@
                                     </div>
                                     <div class="ml-5 w-0 flex-1">
                                         <dl>
-                                            <dt class="text-sm font-medium text-gray-500 truncate">Total Tags</dt>
+                                            <dt class="text-sm font-medium text-gray-500 truncate">{{ __('Total Tags') }}</dt>
                                             <dd class="text-3xl font-semibold text-gray-900">{{ number_format($stats['total_tags']) }}</dd>
                                             <dd class="text-xs text-gray-500 mt-1">
-                                                {{ number_format($stats['user_tags']) }} user • {{ number_format($stats['ai_tags']) }} AI
+                                                {{ __(':count user', ['count' => number_format($stats['user_tags'])]) }} • {{ __(':count AI', ['count' => number_format($stats['ai_tags'])]) }}
                                             </dd>
                                         </dl>
                                     </div>
@@ -101,7 +101,7 @@
                                     </div>
                                     <div class="ml-5 w-0 flex-1">
                                         <dl>
-                                            <dt class="text-sm font-medium text-gray-500 truncate">Total Storage</dt>
+                                            <dt class="text-sm font-medium text-gray-500 truncate">{{ __('Total Storage') }}</dt>
                                             <dd class="text-3xl font-semibold text-gray-900">{{ $stats['total_storage'] }}</dd>
                                         </dl>
                                     </div>
@@ -119,7 +119,7 @@
                                         </div>
                                         <div class="ml-5 w-0 flex-1">
                                             <dl>
-                                                <dt class="text-sm font-medium text-gray-500 truncate">Total Users</dt>
+                                                <dt class="text-sm font-medium text-gray-500 truncate">{{ __('Total Users') }}</dt>
                                                 <dd class="text-3xl font-semibold text-gray-900">{{ number_format($stats['total_users']) }}</dd>
                                             </dl>
                                         </div>
@@ -138,7 +138,7 @@
                                         </div>
                                         <div class="ml-5 w-0 flex-1">
                                             <dl>
-                                                <dt class="text-sm font-medium text-gray-500 truncate">Trashed Assets</dt>
+                                                <dt class="text-sm font-medium text-gray-500 truncate">{{ __('Trashed Assets') }}</dt>
                                                 <dd class="text-3xl font-semibold text-gray-900">{{ number_format($stats['trashed_assets']) }}</dd>
                                             </dl>
                                         </div>
@@ -228,7 +228,7 @@
                                 </span>
                                 <button @click="toggleAutoPlay()"
                                         class="text-gray-400 hover:text-gray-600 transition-colors"
-                                        :title="isPlaying ? 'Pause auto-play' : 'Resume auto-play'">
+                                        :title="isPlaying ? '{{ __('Pause auto-play') }}' : '{{ __('Resume auto-play') }}'">
                                     <i :class="isPlaying ? 'fas fa-pause' : 'fas fa-play'"></i>
                                 </button>
                             </div>
@@ -252,74 +252,74 @@
                     icon: 'fas fa-cloud-upload-alt',
                     bgColor: 'bg-blue-500',
                     btnColor: 'bg-blue-600 hover:bg-blue-700',
-                    title: 'Upload Assets',
-                    description: 'Upload files up to 500MB with drag & drop. Large files are automatically chunked for reliable uploads.',
+                    title: @js(__('Upload Assets')),
+                    description: @js(__('Upload files up to 500MB with drag & drop. Large files are automatically chunked for reliable uploads.')),
                     link: '{{ route('assets.create') }}',
-                    btnText: 'Upload Now'
+                    btnText: @js(__('Upload Now'))
                 },
                 {
                     icon: 'fas fa-search',
                     bgColor: 'bg-green-500',
                     btnColor: 'bg-green-600 hover:bg-green-700',
-                    title: 'Search & Filter',
-                    description: 'Find assets quickly using search, tags, and file type filters. Save time with powerful filtering options.',
+                    title: @js(__('Search & Filter')),
+                    description: @js(__('Find assets quickly using search, tags, and file type filters. Save time with powerful filtering options.')),
                     link: '{{ route('assets.index') }}',
-                    btnText: 'Browse Assets'
+                    btnText: @js(__('Browse Assets'))
                 },
                 {
                     icon: 'fas fa-tags',
                     bgColor: 'bg-purple-500',
                     btnColor: 'bg-purple-600 hover:bg-purple-700',
-                    title: 'Smart Tagging',
-                    description: 'Organize with manual tags or let AI automatically tag your images using AWS Rekognition.',
+                    title: @js(__('Smart Tagging')),
+                    description: @js(__('Organize with manual tags or let AI automatically tag your images using AWS Rekognition.')),
                     link: '{{ route('tags.index') }}',
-                    btnText: 'Manage Tags'
+                    btnText: @js(__('Manage Tags'))
                 },
                 {
                     icon: 'fas fa-copy',
                     bgColor: 'bg-yellow-500',
                     btnColor: 'bg-yellow-600 hover:bg-yellow-700',
-                    title: 'Share Assets',
-                    description: 'Copy public URLs instantly. All assets are accessible via permanent S3 URLs for easy integration.',
+                    title: @js(__('Share Assets')),
+                    description: @js(__('Copy public URLs instantly. All assets are accessible via permanent S3 URLs for easy integration.')),
                     link: '{{ route('assets.index') }}',
-                    btnText: 'View Assets'
+                    btnText: @js(__('View Assets'))
                 },
                 ...(isAdmin ? [
                     {
                         icon: 'fas fa-search-plus',
                         bgColor: 'bg-indigo-500',
                         btnColor: 'bg-indigo-600 hover:bg-indigo-700',
-                        title: 'Discover Assets',
-                        description: 'Scan your S3 bucket for unmapped objects and import them with automatic metadata extraction.',
+                        title: @js(__('Discover Assets')),
+                        description: @js(__('Scan your S3 bucket for unmapped objects and import them with automatic metadata extraction.')),
                         link: '{{ route('discover.index') }}',
-                        btnText: 'Scan Bucket'
+                        btnText: @js(__('Scan Bucket'))
                     },
                     {
                         icon: 'fas fa-trash-restore',
                         bgColor: 'bg-red-500',
                         btnColor: 'bg-red-600 hover:bg-red-700',
-                        title: 'Trash & Restore',
-                        description: 'Deleted assets are moved to trash. Restore them anytime or permanently delete to free up space.',
+                        title: @js(__('Trash & Restore')),
+                        description: @js(__('Deleted assets are moved to trash. Restore them anytime or permanently delete to free up space.')),
                         link: '{{ route('assets.trash') }}',
-                        btnText: 'View Trash'
+                        btnText: @js(__('View Trash'))
                     },
                     {
                         icon: 'fas fa-download',
                         bgColor: 'bg-teal-500',
                         btnColor: 'bg-teal-600 hover:bg-teal-700',
-                        title: 'Export Data',
-                        description: 'Export asset metadata to CSV with separate columns for user and AI tags. Perfect for reporting.',
+                        title: @js(__('Export Data')),
+                        description: @js(__('Export asset metadata to CSV with separate columns for user and AI tags. Perfect for reporting.')),
                         link: '{{ route('export.index') }}',
-                        btnText: 'Export CSV'
+                        btnText: @js(__('Export CSV'))
                     },
                     {
                         icon: 'fas fa-users',
                         bgColor: 'bg-pink-500',
                         btnColor: 'bg-pink-600 hover:bg-pink-700',
-                        title: 'Manage Users',
-                        description: 'Add editors and admins. Control who can upload, edit, and manage assets in your organization.',
+                        title: @js(__('Manage Users')),
+                        description: @js(__('Add editors and admins. Control who can upload, edit, and manage assets in your organization.')),
                         link: '{{ route('users.index') }}',
-                        btnText: 'Manage Users'
+                        btnText: @js(__('Manage Users'))
                     }
                 ] : [])
             ],

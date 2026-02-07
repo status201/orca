@@ -156,6 +156,7 @@ Hover over any asset to see action buttons:
 - **👁 View** — See full details
 - **📋 Copy URL** — Copy the public link to your clipboard (for pasting into Studyflow)
 - **✏️ Edit** — Modify asset details
+- **⇄ Replace** — Replace an asset
 - **🗑 Delete** — Send to Trash
 
 In List View, you can also edit tags and license info directly inline — no need to open the full edit page!
@@ -401,30 +402,6 @@ The export includes:
 
 ---
 
-## Tips & Tricks
-
-### Keyboard Shortcuts
-
-- **Enter** — Confirm tag input
-- **Escape** — Cancel current action
-
-### Best Practices
-
-1. **Name files clearly before uploading** — You can't rename them later!
-2. **Use tags generously** — They make searching so much easier
-3. **Fill in alt text** — It's good for accessibility and helps you remember what's in the image
-4. **Choose folders wisely** — Think of the folder structure as permanent
-5. **Check the Trash before asking "where did my file go?"** — Someone might have deleted it
-
-### Getting Help
-
-Stuck? Here's what to do:
-- Check this manual first (you're already here!)
-- Ask your admin for help with permissions or restoring files
-- For technical issues, contact your system administrator
-
----
-
 ## User Preferences
 
 You can customize ORCA to work the way you prefer. Access your preferences via the **Profile** page (click your name in the top-right menu).
@@ -476,6 +453,23 @@ You'll see a "Saved" confirmation when successful.
 
 ---
 
+## Tips & Tricks
+
+### Keyboard Shortcuts
+
+- **Enter** — Confirm tag input
+- **Escape** — Cancel current action
+
+### Best Practices
+
+1. **Name files clearly before uploading** — You can't rename them later!
+2. **Use tags generously** — They make searching so much easier
+3. **Fill in alt text** — It's good for accessibility and helps you remember what's in the image
+4. **Choose folders wisely** — Think of the folder structure as permanent
+5. **Check the Trash before asking "where did my file go?"** — Someone might have deleted it
+
+---
+
 ## Glossary
 
 | Term | Meaning |
@@ -492,9 +486,16 @@ You'll see a "Saved" confirmation when successful.
 | **Rekognition** | Amazon's AI service that analyzes images and suggests tags |
 | **Replace** | Uploading a new file to overwrite an existing asset while keeping the same URL |
 
+### Getting Help
+
+Stuck? Here's what to do:
+- Check this manual first (you're already here!)
+- Ask your admin for help with permissions or restoring files
+- For technical issues, contact your system administrator
+
 ---
 
-## Need More Help?
+### Need More Help?
 
 If you're an admin looking for technical documentation, check out:
 - `README.md` — General project overview

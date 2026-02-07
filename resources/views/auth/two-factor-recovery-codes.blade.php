@@ -72,7 +72,7 @@
                 // Show success state
                 copyIcon.classList.add('hidden');
                 checkIcon.classList.remove('hidden');
-                copyText.textContent = 'Copied!';
+                copyText.textContent = @js(__('Copied!'));
                 button.classList.remove('bg-gray-800', 'hover:bg-gray-700');
                 button.classList.add('bg-green-600', 'hover:bg-green-500');
 
@@ -80,15 +80,15 @@
                 setTimeout(() => {
                     copyIcon.classList.remove('hidden');
                     checkIcon.classList.add('hidden');
-                    copyText.textContent = 'Copy Codes';
+                    copyText.textContent = @js(__('Copy Codes'));
                     button.classList.remove('bg-green-600', 'hover:bg-green-500');
                     button.classList.add('bg-gray-800', 'hover:bg-gray-700');
                 }, 2000);
             }).catch(err => {
                 console.error('Failed to copy codes:', err);
-                copyText.textContent = 'Copy failed';
+                copyText.textContent = @js(__('Copy failed'));
                 setTimeout(() => {
-                    copyText.textContent = 'Copy Codes';
+                    copyText.textContent = @js(__('Copy Codes'));
                 }, 2000);
             });
         }

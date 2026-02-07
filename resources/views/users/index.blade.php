@@ -1,16 +1,16 @@
 @extends('layouts.app')
 
-@section('title', 'Users')
+@section('title', __('Users'))
 
 @section('content')
 <div class="mb-6">
     <div class="flex items-center justify-between">
         <div>
-            <h1 class="text-3xl font-bold text-gray-900">Users</h1>
-            <p class="text-gray-600 mt-2">Manage system users and their roles</p>
+            <h1 class="text-3xl font-bold text-gray-900">{{ __('Users') }}</h1>
+            <p class="text-gray-600 mt-2">{{ __('Manage system users and their roles') }}</p>
         </div>
         <a href="{{ route('users.create') }}" class="px-4 py-2 text-sm bg-orca-black text-white rounded-lg hover:bg-orca-black-hover flex items-center">
-            <i class="fas fa-plus mr-2"></i> Add User
+            <i class="fas fa-plus mr-2"></i> {{ __('Add User') }}
         </a>
     </div>
 </div>
@@ -20,19 +20,19 @@
         <thead class="bg-gray-50">
             <tr>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Name
+                    {{ __('Name') }}
                 </th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Email
+                    {{ __('Email') }}
                 </th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Role
+                    {{ __('Role') }}
                 </th>
                 <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    2FA
+                    {{ __('2FA') }}
                 </th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Actions
+                    {{ __('Actions') }}
                 </th>
             </tr>
         </thead>
@@ -45,7 +45,7 @@
                             <div class="text-sm font-medium text-gray-900">
                                 {{ $user->name }}
                                 @if($user->id === auth()->id())
-                                    <span class="ml-2 text-xs text-gray-500">(You)</span>
+                                    <span class="ml-2 text-xs text-gray-500">({{ __('You') }})</span>
                                 @endif
                             </div>
                         </div>
@@ -68,15 +68,15 @@
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <a href="{{ route('users.edit', $user) }}" class="text-orca-black hover:text-orca-black-hover mr-3">
-                        <i class="fas fa-edit"></i> Edit
+                        <i class="fas fa-edit"></i> {{ __('Edit') }}
                     </a>
                     @if($user->id !== auth()->id())
                         <form action="{{ route('users.destroy', $user) }}" method="POST" class="inline"
-                              onsubmit="return confirm('Are you sure you want to delete this user?');">
+                              onsubmit="return confirm('{{ __('Are you sure you want to delete this user?') }}');">
                             @csrf
                             @method('DELETE')
                             <button type="submit" class="warning text-red-600 hover:text-red-900">
-                                <i class="fas fa-trash"></i> Delete
+                                <i class="fas fa-trash"></i> {{ __('Delete') }}
                             </button>
                         </form>
                     @endif

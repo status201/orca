@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Edit Asset')
+@section('title', __('Edit Asset'))
 
 @section('content')
 <div class="max-w-7xl mx-auto" x-data="assetEditor()">
@@ -28,7 +28,7 @@
     <!-- Back button and breadcrumb -->
     <div class="mb-6 flex items-center justify-between">
         <a href="{{ route('assets.show', $asset) }}" class="inline-flex items-center text-orca-black hover:text-orca-black-hover">
-            <i class="fas fa-arrow-left mr-2"></i> Back to Asset
+            <i class="fas fa-arrow-left mr-2"></i> {{ __('Back to Asset') }}
         </a>
 
         @if(count($breadcrumbSegments) > 0)
@@ -59,9 +59,9 @@
         </nav>
         @endif
     </div>
-    
+
     <div class="bg-white rounded-lg shadow-lg p-6">
-        <h1 class="text-3xl font-bold mb-6">Edit Asset</h1>
+        <h1 class="text-3xl font-bold mb-6">{{ __('Edit Asset') }}</h1>
 
         @if(session('success'))
         <div class="attention mb-6 p-4 bg-green-50 border border-green-200 text-green-800 rounded-lg">
@@ -84,9 +84,8 @@
         @if(request()->has('replaced'))
         <div class="attention mb-6 p-4 bg-blue-50 border border-blue-200 text-blue-800 rounded-lg">
             <i class="fas fa-info-circle mr-2"></i>
-            <strong>Asset replaced successfully.</strong>
-            The new thumbnail may take a moment to generate. If you still see the old image,
-            try refreshing the page or clearing your browser cache.
+            <strong>{{ __('Asset replaced successfully.') }}</strong>
+            {{ __('The new thumbnail may take a moment to generate. If you still see the old image, try refreshing the page or clearing your browser cache.') }}
         </div>
         @endif
 
@@ -98,7 +97,7 @@
                 <!-- Filename (read-only) -->
                 <div class="mb-4">
                     <label class="block text-sm font-medium text-gray-700 mb-2">
-                        Filename
+                        {{ __('Filename') }}
                     </label>
                     <input type="text"
                            value="{{ $asset->filename }}"
@@ -108,7 +107,7 @@
 
                 <!-- Preview -->
                 <div class="mb-4 md:row-span-3 md:justify-self-center">
-                    <label class="block text-sm font-medium md:text-center text-gray-700 mb-2">Preview</label>
+                    <label class="block text-sm font-medium md:text-center text-gray-700 mb-2">{{ __('Preview') }}</label>
                     @if($asset->isImage())
                         <img src="{{ ($asset->thumbnail_url ?? $asset->url) . '?v=' . $asset->updated_at->timestamp }}"
                              alt="{{ $asset->filename }}"
@@ -137,7 +136,7 @@
                     <div class="mt-3 text-center">
                         <a href="{{ route('assets.replace', $asset) }}"
                            class="attention inline-flex items-center px-4 py-2 bg-amber-600 text-white text-sm font-medium rounded-lg hover:bg-amber-700 transition-colors">
-                            <i class="fas fa-shuffle mr-2"></i> Replace File
+                            <i class="fas fa-shuffle mr-2"></i> {{ __('Replace File') }}
                         </a>
                     </div>
                 </div>
@@ -145,8 +144,8 @@
                 <!-- Alt Text -->
                 <div class="mb-4">
                     <label for="alt_text" class="block text-sm font-medium text-gray-700 mb-2">
-                        Alt Text
-                        <span class="text-gray-500 font-normal">(for accessibility)</span>
+                        {{ __('Alt Text') }}
+                        <span class="text-gray-500 font-normal">{{ __('(for accessibility)') }}</span>
                     </label>
                     <input type="text"
                            id="alt_text"
@@ -154,7 +153,7 @@
                            value="{{ old('alt_text', $asset->alt_text) }}"
                            maxlength="500"
                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orca-black focus:border-transparent"
-                           placeholder="Brief description of the image">
+                           placeholder="{{ __('Brief description of the image') }}">
                     @error('alt_text')
                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
@@ -163,14 +162,14 @@
                 <!-- Caption -->
                 <div class="mb-4">
                     <label for="caption" class="block text-sm font-medium text-gray-700 mb-2">
-                        Caption
+                        {{ __('Caption') }}
                     </label>
                     <textarea id="caption"
                               name="caption"
                               rows="3"
                               maxlength="1000"
                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orca-black focus:border-transparent"
-                              placeholder="Optional caption or description">{{ old('caption', $asset->caption) }}</textarea>
+                              placeholder="{{ __('Optional caption or description') }}">{{ old('caption', $asset->caption) }}</textarea>
                     @error('caption')
                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
@@ -179,23 +178,23 @@
                 <!-- License Type -->
                 <div class="mb-4">
                     <label for="license_type" class="block text-sm font-medium text-gray-700 mb-2">
-                        License Type
+                        {{ __('License Type') }}
                     </label>
                     <select id="license_type"
                             name="license_type"
                             class="w-full px-4 py-2 pr-dropdown border border-gray-300 rounded-lg focus:ring-2 focus:ring-orca-black focus:border-transparent">
-                        <option value="">Select a license...</option>
-                        <option value="public_domain" {{ old('license_type', $asset->license_type) == 'public_domain' ? 'selected' : '' }}>Public Domain</option>
-                        <option value="cc0" {{ old('license_type', $asset->license_type) == 'cc0' ? 'selected' : '' }}>CC0 (No Rights Reserved)</option>
-                        <option value="cc_by" {{ old('license_type', $asset->license_type) == 'cc_by' ? 'selected' : '' }}>CC BY (Attribution)</option>
-                        <option value="cc_by_sa" {{ old('license_type', $asset->license_type) == 'cc_by_sa' ? 'selected' : '' }}>CC BY-SA (Attribution-ShareAlike)</option>
-                        <option value="cc_by_nd" {{ old('license_type', $asset->license_type) == 'cc_by_nd' ? 'selected' : '' }}>CC BY-ND (Attribution-NoDerivs)</option>
-                        <option value="cc_by_nc" {{ old('license_type', $asset->license_type) == 'cc_by_nc' ? 'selected' : '' }}>CC BY-NC (Attribution-NonCommercial)</option>
-                        <option value="cc_by_nc_sa" {{ old('license_type', $asset->license_type) == 'cc_by_nc_sa' ? 'selected' : '' }}>CC BY-NC-SA (Attribution-NonCommercial-ShareAlike)</option>
-                        <option value="cc_by_nc_nd" {{ old('license_type', $asset->license_type) == 'cc_by_nc_nd' ? 'selected' : '' }}>CC BY-NC-ND (Attribution-NonCommercial-NoDerivs)</option>
-                        <option value="fair_use" {{ old('license_type', $asset->license_type) == 'fair_use' ? 'selected' : '' }}>Fair Use</option>
-                        <option value="all_rights_reserved" {{ old('license_type', $asset->license_type) == 'all_rights_reserved' ? 'selected' : '' }}>All Rights Reserved</option>
-                        <option value="other" {{ old('license_type', $asset->license_type) == 'other' ? 'selected' : '' }}>Other</option>
+                        <option value="">{{ __('Select a license...') }}</option>
+                        <option value="public_domain" {{ old('license_type', $asset->license_type) == 'public_domain' ? 'selected' : '' }}>{{ __('Public Domain') }}</option>
+                        <option value="cc0" {{ old('license_type', $asset->license_type) == 'cc0' ? 'selected' : '' }}>{{ __('CC0 (No Rights Reserved)') }}</option>
+                        <option value="cc_by" {{ old('license_type', $asset->license_type) == 'cc_by' ? 'selected' : '' }}>{{ __('CC BY (Attribution)') }}</option>
+                        <option value="cc_by_sa" {{ old('license_type', $asset->license_type) == 'cc_by_sa' ? 'selected' : '' }}>{{ __('CC BY-SA (Attribution-ShareAlike)') }}</option>
+                        <option value="cc_by_nd" {{ old('license_type', $asset->license_type) == 'cc_by_nd' ? 'selected' : '' }}>{{ __('CC BY-ND (Attribution-NoDerivs)') }}</option>
+                        <option value="cc_by_nc" {{ old('license_type', $asset->license_type) == 'cc_by_nc' ? 'selected' : '' }}>{{ __('CC BY-NC (Attribution-NonCommercial)') }}</option>
+                        <option value="cc_by_nc_sa" {{ old('license_type', $asset->license_type) == 'cc_by_nc_sa' ? 'selected' : '' }}>{{ __('CC BY-NC-SA (Attribution-NonCommercial-ShareAlike)') }}</option>
+                        <option value="cc_by_nc_nd" {{ old('license_type', $asset->license_type) == 'cc_by_nc_nd' ? 'selected' : '' }}>{{ __('CC BY-NC-ND (Attribution-NonCommercial-NoDerivs)') }}</option>
+                        <option value="fair_use" {{ old('license_type', $asset->license_type) == 'fair_use' ? 'selected' : '' }}>{{ __('Fair Use') }}</option>
+                        <option value="all_rights_reserved" {{ old('license_type', $asset->license_type) == 'all_rights_reserved' ? 'selected' : '' }}>{{ __('All Rights Reserved') }}</option>
+                        <option value="other" {{ old('license_type', $asset->license_type) == 'other' ? 'selected' : '' }}>{{ __('Other') }}</option>
                     </select>
                     @error('license_type')
                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -205,8 +204,8 @@
                 <!-- License Expiry Date -->
                 <div class="mb-4">
                     <label for="license_expiry_date" class="block text-sm font-medium text-gray-700 mb-2">
-                        License Expiry Date
-                        <span class="text-gray-500 font-normal">(optional)</span>
+                        {{ __('License Expiry Date') }}
+                        <span class="text-gray-500 font-normal">{{ __('(optional)') }}</span>
                     </label>
                     <input type="date"
                            id="license_expiry_date"
@@ -221,7 +220,7 @@
                 <!-- Copyright -->
                 <div class="mb-4">
                     <label for="copyright" class="block text-sm font-medium text-gray-700 mb-2">
-                        Copyright Information
+                        {{ __('Copyright Information') }}
                     </label>
                     <input type="text"
                            id="copyright"
@@ -229,7 +228,7 @@
                            value="{{ old('copyright', $asset->copyright) }}"
                            maxlength="500"
                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orca-black focus:border-transparent"
-                           placeholder="e.g., © 2024 Company Name, or copyright holder information">
+                           placeholder="{{ __('e.g., © 2024 Company Name, or copyright holder information') }}">
                     @error('copyright')
                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
@@ -238,8 +237,8 @@
                 <!-- Copyright Source -->
                 <div class="mb-4">
                     <label for="copyright_source" class="block text-sm font-medium text-gray-700 mb-2">
-                        Copyright Source
-                        <span class="text-gray-500 font-normal">(URL or reference)</span>
+                        {{ __('Copyright Source') }}
+                        <span class="text-gray-500 font-normal">{{ __('(URL or reference)') }}</span>
                     </label>
                     <input type="text"
                            id="copyright_source"
@@ -247,7 +246,7 @@
                            value="{{ old('copyright_source', $asset->copyright_source) }}"
                            maxlength="500"
                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orca-black focus:border-transparent"
-                           placeholder="e.g., https://example.com/license or original source reference">
+                           placeholder="{{ __('e.g., https://example.com/license or original source reference') }}">
                     @error('copyright_source')
                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
@@ -257,8 +256,8 @@
             <!-- Tags -->
             <div class="mb-4 mt-6">
                 <label class="block text-sm font-medium text-gray-700 mb-2">
-                    User Tags
-                    <span class="text-gray-500 font-normal">(AI tags are preserved automatically)</span>
+                    {{ __('User Tags') }}
+                    <span class="text-gray-500 font-normal">{{ __('(AI tags are preserved automatically)') }}</span>
                 </label>
 
                 <!-- Tag input with autocomplete -->
@@ -273,7 +272,7 @@
                                    @keydown.up.prevent="navigateUp"
                                    @keydown.escape="hideSuggestions"
                                    @blur="hideSuggestions"
-                                   placeholder="Add a tag..."
+                                   placeholder="{{ __('Add a tag...') }}"
                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orca-black focus:border-transparent">
 
                             <!-- Autocomplete suggestions -->
@@ -285,7 +284,7 @@
                                          :class="{'bg-blue-50': index === selectedIndex}"
                                          class="px-4 py-2 cursor-pointer hover:bg-blue-50 flex items-center justify-between">
                                         <span x-text="suggestion.name"></span>
-                                        <span class="text-xs px-2 py-0.5 rounded-full bg-blue-100 text-blue-700">user</span>
+                                        <span class="text-xs px-2 py-0.5 rounded-full bg-blue-100 text-blue-700">{{ __('user') }}</span>
                                     </div>
                                 </template>
                             </div>
@@ -293,7 +292,7 @@
                         <button type="button"
                                 @click="addTag"
                                 class="px-4 py-2 bg-orca-black text-white rounded-lg hover:bg-orca-black-hover">
-                            <i class="fas fa-plus mr-2"></i> Add
+                            <i class="fas fa-plus mr-2"></i> {{ __('Add') }}
                         </button>
                     </div>
                 </div>
@@ -318,16 +317,16 @@
                 @enderror
             </div>
 
-            
+
             <!-- Submit buttons -->
             <div class="actions flex justify-end space-x-3">
-                <a href="{{ route('assets.show', $asset) }}" 
+                <a href="{{ route('assets.show', $asset) }}"
                    class="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
-                    Cancel
+                    {{ __('Cancel') }}
                 </a>
-                <button type="submit" 
+                <button type="submit"
                         class="px-6 py-2 bg-orca-black text-white rounded-lg hover:bg-orca-black-hover">
-                    <i class="fas fa-save mr-2"></i> Save Changes
+                    <i class="fas fa-save mr-2"></i> {{ __('Save Changes') }}
                 </button>
             </div>
         </form>
@@ -337,7 +336,7 @@
             <div class="mb-6 p-4 bg-purple-50 border border-purple-200 rounded-lg">
                 <div class="flex items-center justify-between mb-3">
                     <h3 class="text-sm font-semibold text-gray-700">
-                        <i class="fas fa-robot mr-2"></i>AI-Generated Tags
+                        <i class="fas fa-robot mr-2"></i>{{ __('AI-Generated Tags') }}
                     </h3>
                     <form action="{{ route('assets.ai-tag', $asset) }}" method="POST" x-data="{ generating: false }" @submit="generating = true">
                         @csrf
@@ -346,7 +345,7 @@
                                 :class="generating ? 'bg-purple-400 cursor-not-allowed' : 'bg-purple-600 hover:bg-purple-700'"
                                 class="text-sm px-3 py-1 text-white rounded-lg transition">
                             <i :class="generating ? 'fas fa-spinner fa-spin' : 'fas fa-wand-magic-sparkles'" class="mr-1"></i>
-                            <span x-text="generating ? 'Generating...' : 'Generate AI Tags'"></span>
+                            <span x-text="generating ? @js(__('Generating...')) : @js(__('Generate AI Tags'))"></span>
                         </button>
                     </form>
                 </div>
@@ -359,14 +358,14 @@
                     <button type="button"
                             @click="removeAiTag({{ $tag->id }}, '{{ addslashes($tag->name) }}')"
                             class="ml-2 hover:text-purple-900"
-                            title="Remove this AI tag">
+                            title="{{ __('Remove this AI tag') }}">
                         <i class="fas fa-times text-xs"></i>
                     </button>
                 </span>
                         @endforeach
                     </div>
                 @else
-                    <p class="text-sm text-gray-600 italic">No AI tags yet. Click "Generate AI Tags" to analyze this image.</p>
+                    <p class="text-sm text-gray-600 italic">{{ __('No AI tags yet. Click "Generate AI Tags" to analyze this image.') }}</p>
                 @endif
             </div>
         @endif
@@ -391,7 +390,7 @@ function assetEditor() {
             if (!tag) return;
 
             if (this.userTags.includes(tag)) {
-                window.showToast('Tag already exists', 'error');
+                window.showToast(@js(__('Tag already exists')), 'error');
                 return;
             }
 
@@ -468,7 +467,7 @@ function assetEditor() {
 function aiTagManager() {
     return {
         async removeAiTag(tagId, tagName) {
-            if (!confirm(`Are you sure you want to remove the AI tag "${tagName}" from this asset?`)) {
+            if (!confirm(@js(__('Are you sure you want to remove the AI tag')) + ` "${tagName}" ` + @js(__('from this asset?')))) {
                 return;
             }
 
@@ -484,14 +483,14 @@ function aiTagManager() {
                 const data = await response.json();
 
                 if (response.ok) {
-                    window.showToast('AI tag removed successfully');
+                    window.showToast(@js(__('AI tag removed successfully')));
                     window.location.reload();
                 } else {
-                    window.showToast(data.message || 'Failed to remove AI tag', 'error');
+                    window.showToast(data.message || @js(__('Failed to remove AI tag')), 'error');
                 }
             } catch (error) {
                 console.error('Remove AI tag error:', error);
-                window.showToast('Failed to remove AI tag', 'error');
+                window.showToast(@js(__('Failed to remove AI tag')), 'error');
             }
         }
     };

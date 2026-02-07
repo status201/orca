@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Assets')
+@section('title', __('Assets'))
 
 @section('content')
 <div x-data="assetGrid()">
@@ -8,8 +8,8 @@
     <div class="mb-6">
         <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
             <div>
-                <h1 class="text-3xl font-bold text-gray-900">Assets</h1>
-                <p class="text-gray-600 mt-2">Browse and manage your digital assets</p>
+                <h1 class="text-3xl font-bold text-gray-900">{{ __('Assets') }}</h1>
+                <p class="text-gray-600 mt-2">{{ __('Browse and manage your digital assets') }}</p>
             </div>
 
             <div class="flex flex-col gap-3">
@@ -18,7 +18,7 @@
                     <input type="text"
                            x-model="search"
                            @keyup.enter="applyFilters"
-                           placeholder="Search assets..."
+                           placeholder="{{ __('Search assets...') }}"
                            class="w-full pl-10 pr-4 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orca-black focus:border-transparent">
                     <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
                 </div>
@@ -30,7 +30,7 @@
                         <input type="text"
                                x-model="search"
                                @keyup.enter="applyFilters"
-                               placeholder="Search assets..."
+                               placeholder="{{ __('Search assets...') }}"
                                class="w-64 pl-10 pr-4 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orca-black focus:border-transparent">
                         <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
                     </div>
@@ -54,57 +54,57 @@
                     <select x-model="sort"
                             @change="applyFilters"
                             class="pr-dropdown px-4 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orca-black focus:border-transparent">
-                        <option value="date_desc">Newest First</option>
-                        <option value="date_asc">Oldest First</option>
-                        <option value="upload_desc">Newest Uploads</option>
-                        <option value="upload_asc">Oldest Uploads</option>
-                        <option value="size_desc">Largest First</option>
-                        <option value="size_asc">Smallest First</option>
-                        <option value="name_asc">Name A-Z</option>
-                        <option value="name_desc">Name Z-A</option>
-                        <option value="s3key_asc">S3 Key A-Z</option>
-                        <option value="s3key_desc">S3 Key Z-A</option>
+                        <option value="date_desc">{{ __('Newest First') }}</option>
+                        <option value="date_asc">{{ __('Oldest First') }}</option>
+                        <option value="upload_desc">{{ __('Newest Uploads') }}</option>
+                        <option value="upload_asc">{{ __('Oldest Uploads') }}</option>
+                        <option value="size_desc">{{ __('Largest First') }}</option>
+                        <option value="size_asc">{{ __('Smallest First') }}</option>
+                        <option value="name_asc">{{ __('Name A-Z') }}</option>
+                        <option value="name_desc">{{ __('Name Z-A') }}</option>
+                        <option value="s3key_asc">{{ __('S3 Key A-Z') }}</option>
+                        <option value="s3key_desc">{{ __('S3 Key Z-A') }}</option>
                     </select>
 
                     <!-- Type filter -->
                     <select x-model="type"
                             @change="applyFilters"
                             class="pr-dropdown px-4 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orca-black focus:border-transparent">
-                        <option value="">All Types</option>
-                        <option value="image">Images</option>
-                        <option value="video">Videos</option>
-                        <option value="application">Documents</option>
+                        <option value="">{{ __('All Types') }}</option>
+                        <option value="image">{{ __('Images') }}</option>
+                        <option value="video">{{ __('Videos') }}</option>
+                        <option value="application">{{ __('Documents') }}</option>
                     </select>
 
                     <!-- Tag filter -->
                     <button @click="showTagFilter = !showTagFilter"
                             class="px-4 py-2 bg-white text-sm border border-gray-300 rounded-lg hover:bg-gray-50 flex items-center justify-center">
                         <i class="fas fa-filter mr-2"></i>
-                        <span x-text="selectedTags.length > 0 ? `Tags (${selectedTags.length})` : 'Filter Tags'"></span>
+                        <span x-text="selectedTags.length > 0 ? @js(__('Tags')) + ` (${selectedTags.length})` : @js(__('Filter Tags'))"></span>
                     </button>
 
                     <!-- Upload button -->
                     <a :href="`{{ route('assets.create') }}${folder ? '?folder=' + encodeURIComponent(folder) : ''}`"
                        class="px-4 py-2 text-sm bg-orca-black text-white rounded-lg hover:bg-orca-black-hover flex items-center justify-center whitespace-nowrap">
-                        <i class="fas fa-upload mr-2"></i> Upload
+                        <i class="fas fa-upload mr-2"></i> {{ __('Upload') }}
                     </a>
                 </div>
             </div>
         </div>
-        
+
         <!-- Tag filter dropdown -->
         <div x-show="showTagFilter"
              x-cloak
              @click.away="if (selectedTags.length === 0) showTagFilter = false"
              class="mt-4 bg-white border text-sm border-gray-200 rounded-lg shadow-lg p-4">
             <div class="flex items-center justify-between mb-3">
-                <h3 class="font-semibold">Filter by Tags</h3>
+                <h3 class="font-semibold">{{ __('Filter by Tags') }}</h3>
                 <div class="flex items-center gap-3">
                     <!-- Tag search input -->
                     <div class="relative">
                         <input type="text"
                                x-model="tagSearch"
-                               placeholder="Search tags..."
+                               placeholder="{{ __('Search tags...') }}"
                                class="text-sm pl-8 pr-3 py-1 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orca-black focus:border-transparent w-40">
                         <i class="fas fa-search absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
                     </div>
@@ -112,12 +112,12 @@
                         <button @click="applyFilters()"
                                 x-show="tagsChanged()"
                                 class="text-sm px-4 py-1 bg-orca-black text-white hover:bg-orca-black-hover rounded-lg transition">
-                            <i class="fas fa-check mr-1"></i> Apply
+                            <i class="fas fa-check mr-1"></i> {{ __('Apply') }}
                         </button>
                         <button @click="selectedTags = []; tagSearch = ''"
                                 x-show="selectedTags.length > 0"
                                 class="text-sm px-3 py-1 text-red-600 hover:bg-red-50 rounded-lg transition">
-                            <i class="fas fa-times mr-1"></i> Clear All
+                            <i class="fas fa-times mr-1"></i> {{ __('Clear All') }}
                         </button>
                     </div>
                 </div>
@@ -143,7 +143,7 @@
             </div>
 
             @if(count($tags) === 0)
-            <p class="text-gray-500 text-sm">No tags available yet.</p>
+            <p class="text-gray-500 text-sm">{{ __('No tags available yet.') }}</p>
             @endif
         </div>
     </div>
@@ -154,12 +154,12 @@
             <button @click="viewMode = 'grid'; saveViewMode()"
                     :class="viewMode === 'grid' ? 'bg-orca-black text-white' : 'bg-white text-gray-700 hover:bg-gray-50'"
                     class="px-4 py-2 text-xs font-medium border border-gray-300 rounded-l-lg transition-colors">
-                <i class="fas fa-th mr-2"></i> Grid
+                <i class="fas fa-th mr-2"></i> {{ __('Grid') }}
             </button>
             <button @click="viewMode = 'list'; saveViewMode()"
                     :class="viewMode === 'list' ? 'bg-orca-black text-white' : 'bg-white text-gray-700 hover:bg-gray-50'"
                     class="px-4 py-2 text-xs font-medium border border-gray-300 rounded-r-lg transition-colors">
-                <i class="fas fa-list mr-2"></i> List
+                <i class="fas fa-list mr-2"></i> {{ __('List') }}
             </button>
         </div>
     </div>
@@ -206,25 +206,25 @@
                     <button @click.stop="downloadAsset('{{ route('assets.download', $asset) }}')"
                             :disabled="downloading"
                             :class="downloading ? 'bg-green-600' : 'bg-white hover:bg-gray-100'"
-                            :title="downloading ? 'Downloading...' : 'Download'"
+                            :title="downloading ? @js(__('Downloading...')) : @js(__('Download'))"
                             class="text-gray-900 px-3 py-2 rounded-lg transition-all duration-300 mr-2">
                         <i :class="downloading ? 'fas fa-spinner fa-spin text-white' : 'fas fa-download'"></i>
                     </button>
                     <button @click.stop="copyAssetUrl('{{ $asset->url }}')"
                             :class="copied ? 'bg-green-600' : 'bg-white hover:bg-gray-100'"
-                            :title="copied ? 'Copied!' : 'Copy URL'"
+                            :title="copied ? @js(__('Copied!')) : @js(__('Copy URL'))"
                             class="text-gray-900 px-3 py-2 rounded-lg transition-all duration-300 mr-2">
                         <i :class="copied ? 'fas fa-check text-white' : 'fas fa-copy'"></i>
                     </button>
                     <a href="{{ route('assets.edit', $asset) }}"
                        @click.stop
                        class="bg-white text-gray-900 px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors"
-                       title="Edit">
+                       title="{{ __('Edit') }}">
                         <i class="fas fa-edit"></i>
                     </a>
                 </div>
             </div>
-            
+
             <!-- Info -->
             <div class="p-3">
                 <p class="text-sm font-medium text-gray-900 truncate" title="{{ $asset->filename }}">
@@ -263,25 +263,25 @@
                 <thead class="bg-gray-50">
                     <tr>
                         <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-20">
-                            Thumbnail
+                            {{ __('Thumbnail') }}
                         </th>
                         <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[200px]">
-                            Filename
+                            {{ __('Filename') }}
                         </th>
                         <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-40">
-                            Actions
+                            {{ __('Actions') }}
                         </th>
                         <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[250px]">
-                            S3 Key
+                            {{ __('S3 Key') }}
                         </th>
                         <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-24">
-                            Size
+                            {{ __('Size') }}
                         </th>
                         <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[300px]">
-                            Tags
+                            {{ __('Tags') }}
                         </th>
                         <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider min-w-[180px]">
-                            License
+                            {{ __('License') }}
                         </th>
                     </tr>
                 </thead>
@@ -326,9 +326,9 @@
                         <td class="px-4 py-3">
                             <div class="text-sm font-medium text-gray-900">{{ $asset->filename }}</div>
                             <div class="text-xs text-gray-500 mt-1">
-                                <span title="Last modified {{ $asset->updated_at }}">{{ $asset->updated_at->diffForHumans() }}</span>
+                                <span title="{{ __('Last modified') }} {{ $asset->updated_at }}">{{ $asset->updated_at->diffForHumans() }}</span>
                                 <span class="mx-1">•</span>
-                                <span title="Uploaded by {{ $asset->user->email }}">{{ $asset->user->name }}</span>
+                                <span title="{{ __('Uploaded by') }} {{ $asset->user->email }}">{{ $asset->user->name }}</span>
                             </div>
                         </td>
 
@@ -337,28 +337,28 @@
                             <div class="flex gap-3">
                                 <a href="{{ route('assets.show', $asset) }}"
                                    class="text-blue-600 hover:text-blue-800"
-                                   title="View asset">
+                                   title="{{ __('View asset') }}">
                                     <i class="fas fa-eye"></i>
                                 </a>
                                 <button @click="copyUrl()"
                                         :class="copied ? 'text-green-600' : 'text-gray-600 hover:text-gray-800'"
-                                        :title="copied ? 'Copied!' : 'Copy URL'">
+                                        :title="copied ? @js(__('Copied!')) : @js(__('Copy URL'))">
                                     <i :class="copied ? 'fas fa-check' : 'fas fa-copy'"></i>
                                 </button>
                                 <a href="{{ route('assets.edit', $asset) }}"
                                    class="attention text-yellow-600 hover:text-yellow-800"
-                                   title="Edit asset">
+                                   title="{{ __('Edit asset') }}">
                                     <i class="fas fa-edit"></i>
                                 </a>
                                 <a href="{{ route('assets.replace', $asset) }}"
                                    class="attention text-amber-600 hover:text-amber-800"
-                                   title="Replace asset">
+                                   title="{{ __('Replace asset') }}">
                                     <i class="fas fa-shuffle"></i>
                                 </a>
                                 <button @click="deleteAsset()"
                                         :disabled="loading"
                                         class="text-red-800 hover:text-red-900 disabled:opacity-50"
-                                        title="Delete asset">
+                                        title="{{ __('Delete asset') }}">
                                     <i class="fas fa-trash"></i>
                                 </button>
                             </div>
@@ -385,7 +385,7 @@
                                         <button @click="removeTag(tag)"
                                                 :disabled="loading"
                                                 class="ml-1 hover:text-red-600 disabled:opacity-50"
-                                                title="Remove tag">
+                                                title="{{ __('Remove tag') }}">
                                             <i class="fas fa-times text-xs"></i>
                                         </button>
                                     </span>
@@ -396,7 +396,7 @@
                                     <button @click="showAddTagInput()"
                                             :disabled="loading"
                                             class="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-gray-100 text-gray-600 hover:bg-gray-200 disabled:opacity-50">
-                                        <i class="fas fa-plus mr-1"></i> Add
+                                        <i class="fas fa-plus mr-1"></i> {{ __('Add') }}
                                     </button>
                                 </div>
 
@@ -413,7 +413,7 @@
                                                @blur="setTimeout(() => showSuggestions = false, 200)"
                                                @focus="filterTagSuggestions()"
                                                class="px-2 py-1 text-xs border border-gray-300 rounded focus:ring-1 focus:ring-blue-500"
-                                               placeholder="Tag name"
+                                               placeholder="{{ __('Tag name') }}"
                                                style="width: 120px;">
 
                                         <!-- Autocomplete dropdown -->
@@ -434,7 +434,7 @@
                                     <button @click="addTag()"
                                             :disabled="!newTagName.trim() || loading"
                                             class="px-2 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 disabled:opacity-50">
-                                        Add
+                                        {{ __('Add') }}
                                     </button>
                                     <button @click="cancelAddTag()"
                                             class="px-2 py-1 bg-gray-200 text-gray-700 text-xs rounded hover:bg-gray-300">
@@ -450,18 +450,18 @@
                                     @change="updateLicense()"
                                     :disabled="loading"
                                     class="text-sm border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50">
-                                <option value="">Not specified</option>
-                                <option value="public_domain">Public Domain</option>
-                                <option value="cc0">CC0</option>
-                                <option value="cc_by">CC BY</option>
-                                <option value="cc_by_sa">CC BY-SA</option>
-                                <option value="cc_by_nd">CC BY-ND</option>
-                                <option value="cc_by_nc">CC BY-NC</option>
-                                <option value="cc_by_nc_sa">CC BY-NC-SA</option>
-                                <option value="cc_by_nc_nd">CC BY-NC-ND</option>
-                                <option value="fair_use">Fair Use</option>
-                                <option value="all_rights_reserved">All Rights Reserved</option>
-                                <option value="other">Other</option>
+                                <option value="">{{ __('Not specified') }}</option>
+                                <option value="public_domain">{{ __('Public Domain') }}</option>
+                                <option value="cc0">{{ __('CC0') }}</option>
+                                <option value="cc_by">{{ __('CC BY') }}</option>
+                                <option value="cc_by_sa">{{ __('CC BY-SA') }}</option>
+                                <option value="cc_by_nd">{{ __('CC BY-ND') }}</option>
+                                <option value="cc_by_nc">{{ __('CC BY-NC') }}</option>
+                                <option value="cc_by_nc_sa">{{ __('CC BY-NC-SA') }}</option>
+                                <option value="cc_by_nc_nd">{{ __('CC BY-NC-ND') }}</option>
+                                <option value="fair_use">{{ __('Fair Use') }}</option>
+                                <option value="all_rights_reserved">{{ __('All Rights Reserved') }}</option>
+                                <option value="other">{{ __('Other') }}</option>
                             </select>
                         </td>
                     </tr>
@@ -474,7 +474,7 @@
     <!-- Pagination -->
     <div class="mt-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div class="flex items-center gap-2">
-            <label for="perPageSelect" class="text-sm text-gray-600">Results per page:</label>
+            <label for="perPageSelect" class="text-sm text-gray-600">{{ __('Results per page:') }}</label>
             <select id="perPageSelect"
                     x-model="perPage"
                     @change="savePerPage(); applyFilters()"
@@ -492,21 +492,21 @@
             {{ $assets->links() }}
         </div>
     </div>
-    
+
     @else
     <div class="text-center py-12">
         <i class="fas fa-images text-6xl text-gray-300 mb-4"></i>
-        <h3 class="text-xl font-semibold text-gray-700 mb-2">No assets found</h3>
+        <h3 class="text-xl font-semibold text-gray-700 mb-2">{{ __('No assets found') }}</h3>
         <p class="text-gray-500 mb-6">
             @if(request()->has('search') || request()->has('tags') || request()->has('type'))
-                Try adjusting your filters or
-                <a href="{{ route('assets.index') }}" class="text-blue-600 hover:underline">clear all filters</a>
+                {{ __('Try adjusting your filters or') }}
+                <a href="{{ route('assets.index') }}" class="text-blue-600 hover:underline">{{ __('clear all filters') }}</a>
             @else
-                Get started by uploading your first asset
+                {{ __('Get started by uploading your first asset') }}
             @endif
         </p>
         <a :href="`{{ route('assets.create') }}${folder ? '?folder=' + encodeURIComponent(folder) : ''}`" class="inline-flex items-center px-6 py-3 bg-orca-black text-white rounded-lg hover:bg-orca-black-hover">
-            <i class="fas fa-upload mr-2"></i> Upload Assets
+            <i class="fas fa-upload mr-2"></i> {{ __('Upload Assets') }}
         </a>
     </div>
     @endif
@@ -611,7 +611,7 @@ function assetCard(assetId) {
             } catch (error) {
                 console.error('Download failed:', error);
                 this.downloading = false;
-                window.showToast('Download failed', 'error');
+                window.showToast(@js(__('Download failed')), 'error');
             }
         },
 
@@ -756,10 +756,10 @@ function assetRow(assetId, initialTags, initialLicense, assetUrl) {
 
                 // Remove tag from local array
                 this.tags = this.tags.filter(t => t.id !== tag.id);
-                this.showToast('Tag removed successfully', 'success');
+                this.showToast(@js(__('Tag removed successfully')), 'success');
             } catch (error) {
                 console.error('Failed to remove tag:', error);
-                this.showToast('Failed to remove tag', 'error');
+                this.showToast(@js(__('Failed to remove tag')), 'error');
             } finally {
                 this.loading = false;
             }
@@ -795,14 +795,14 @@ function assetRow(assetId, initialTags, initialLicense, assetUrl) {
                     }));
                 }
 
-                this.showToast('Tag added successfully', 'success');
+                this.showToast(@js(__('Tag added successfully')), 'success');
                 this.newTagName = '';
                 this.addingTag = false;
                 this.showSuggestions = false;
                 this.selectedSuggestionIndex = -1;
             } catch (error) {
                 console.error('Failed to add tag:', error);
-                this.showToast('Failed to add tag', 'error');
+                this.showToast(@js(__('Failed to add tag')), 'error');
             } finally {
                 this.loading = false;
             }
@@ -844,10 +844,10 @@ function assetRow(assetId, initialTags, initialLicense, assetUrl) {
                 const data = await response.json();
                 // Update previousLicense to the new value after successful save
                 this.previousLicense = newLicense;
-                this.showToast('License updated successfully', 'success');
+                this.showToast(@js(__('License updated successfully')), 'success');
             } catch (error) {
                 console.error('Failed to update license:', error);
-                this.showToast(error.message || 'Failed to update license', 'error');
+                this.showToast(@js(__('Failed to update license')), 'error');
                 // Revert to previous value on error
                 this.license = oldLicense;
             } finally {
@@ -858,7 +858,7 @@ function assetRow(assetId, initialTags, initialLicense, assetUrl) {
         async deleteAsset() {
             if (this.loading) return;
 
-            if (!confirm('Are you sure you want to delete this asset? It will be moved to trash.')) {
+            if (!confirm(@js(__('Are you sure you want to delete this asset? It will be moved to trash.')))) {
                 return;
             }
 
@@ -876,7 +876,7 @@ function assetRow(assetId, initialTags, initialLicense, assetUrl) {
                     throw new Error('Failed to delete asset');
                 }
 
-                this.showToast('Asset deleted successfully', 'success');
+                this.showToast(@js(__('Asset deleted successfully')), 'success');
 
                 // Reload page after short delay to show updated list
                 setTimeout(() => {
@@ -884,7 +884,7 @@ function assetRow(assetId, initialTags, initialLicense, assetUrl) {
                 }, 1000);
             } catch (error) {
                 console.error('Failed to delete asset:', error);
-                this.showToast('Failed to delete asset', 'error');
+                this.showToast(@js(__('Failed to delete asset')), 'error');
                 this.loading = false;
             }
         }

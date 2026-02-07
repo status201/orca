@@ -175,6 +175,31 @@ test('editors cannot update settings', function () {
     $response->assertForbidden();
 });
 
+test('admin can update locale setting', function () {
+    $admin = User::factory()->create(['role' => 'admin']);
+
+    $response = $this->actingAs($admin)->postJson(route('system.update-setting'), [
+        'key' => 'locale',
+        'value' => 'nl',
+    ]);
+
+    $response->assertOk();
+    $response->assertJson(['success' => true]);
+    expect(Setting::get('locale'))->toBe('nl');
+});
+
+test('locale rejects invalid values', function () {
+    $admin = User::factory()->create(['role' => 'admin']);
+
+    $response = $this->actingAs($admin)->postJson(route('system.update-setting'), [
+        'key' => 'locale',
+        'value' => 'xx',
+    ]);
+
+    $response->assertStatus(422);
+    $response->assertJson(['success' => false]);
+});
+
 test('system page loads all settings correctly', function () {
     $admin = User::factory()->create(['role' => 'admin']);
 

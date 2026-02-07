@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Replace Asset')
+@section('title', __('Replace Asset'))
 
 @section('content')
 <div class="max-w-5xl mx-auto" x-data="assetReplacer()">
@@ -30,7 +30,7 @@
     <!-- Back button and breadcrumb -->
     <div class="mb-6 flex items-center justify-between">
         <a href="{{ route('assets.edit', $asset) }}" class="inline-flex items-center text-orca-black hover:text-orca-black-hover">
-            <i class="fas fa-arrow-left mr-2"></i> Back to Edit
+            <i class="fas fa-arrow-left mr-2"></i> {{ __('Back to Edit') }}
         </a>
 
         @if(count($breadcrumbSegments) > 0)
@@ -60,13 +60,13 @@
     </div>
 
     <div class="bg-white rounded-lg shadow-lg p-6">
-        <h1 class="text-3xl font-bold mb-6">Replace Asset File</h1>
+        <h1 class="text-3xl font-bold mb-6">{{ __('Replace Asset File') }}</h1>
 
         <!-- Success Message -->
         <div x-show="success" x-cloak class="attention mb-6 p-4 bg-green-50 border border-green-200 text-green-800 rounded-lg">
             <i class="fas fa-check-circle mr-2"></i>
             <span x-text="successMessage"></span>
-            <span class="ml-2 text-green-600">Redirecting in <span x-text="redirectCountdown"></span> seconds...</span>
+            <span class="ml-2 text-green-600">{{ __('Redirecting in') }} <span x-text="redirectCountdown"></span> {{ __('seconds...') }}</span>
         </div>
 
         <!-- Error Message -->
@@ -78,7 +78,7 @@
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <!-- Left: Current Asset Preview -->
             <div>
-                <h2 class="text-lg font-semibold mb-4 text-gray-700">Current Asset</h2>
+                <h2 class="text-lg font-semibold mb-4 text-gray-700">{{ __('Current Asset') }}</h2>
                 <div class="bg-gray-50 rounded-lg p-6">
                     <!-- Preview -->
                     <div class="flex justify-center mb-4">
@@ -112,21 +112,21 @@
                     <!-- File Info -->
                     <div class="space-y-2 text-sm">
                         <div class="flex justify-between">
-                            <span class="text-gray-500">Filename:</span>
+                            <span class="text-gray-500">{{ __('Filename:') }}</span>
                             <span class="font-medium text-gray-700 truncate ml-2" title="{{ $asset->filename }}">{{ $asset->filename }}</span>
                         </div>
                         @if($asset->width && $asset->height)
                         <div class="flex justify-between">
-                            <span class="text-gray-500">Dimensions:</span>
+                            <span class="text-gray-500">{{ __('Dimensions:') }}</span>
                             <span class="font-medium text-gray-700">{{ $asset->width }} x {{ $asset->height }}px</span>
                         </div>
                         @endif
                         <div class="flex justify-between">
-                            <span class="text-gray-500">File size:</span>
+                            <span class="text-gray-500">{{ __('File size:') }}</span>
                             <span class="font-medium text-gray-700">{{ $asset->formatted_size }}</span>
                         </div>
                         <div class="flex justify-between">
-                            <span class="text-gray-500">Extension:</span>
+                            <span class="text-gray-500">{{ __('Extension:') }}</span>
                             <span class="font-medium text-gray-700 uppercase">.{{ $extension }}</span>
                         </div>
                     </div>
@@ -135,7 +135,7 @@
 
             <!-- Right: Upload Area -->
             <div>
-                <h2 class="text-lg font-semibold mb-4 text-gray-700">Upload Replacement</h2>
+                <h2 class="text-lg font-semibold mb-4 text-gray-700">{{ __('Upload Replacement') }}</h2>
 
                 <!-- Drag and Drop Area -->
                 <div @drop.prevent="handleDrop($event)"
@@ -156,17 +156,17 @@
                                :class="dragActive ? 'text-amber-500' : 'text-gray-400'"></i>
                             <div>
                                 <p class="text-lg font-medium text-gray-700">
-                                    Drop your .{{ $extension }} file here
+                                    {{ __('Drop your') }} .{{ $extension }} {{ __('file here') }}
                                 </p>
-                                <p class="text-gray-500 mt-1">or</p>
+                                <p class="text-gray-500 mt-1">{{ __('or') }}</p>
                                 <button @click="$refs.fileInput.click()"
                                         type="attention button"
                                         class="mt-2 px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors">
-                                    Browse Files
+                                    {{ __('Browse Files') }}
                                 </button>
                             </div>
                             <p class="text-sm text-gray-500">
-                                Only <span class="font-semibold uppercase">.{{ $extension }}</span> files accepted (max 500MB)
+                                {{ __('Only') }} <span class="font-semibold uppercase">.{{ $extension }}</span> {{ __('files accepted (max 500MB)') }}
                             </p>
                         </div>
                     </template>
@@ -182,12 +182,12 @@
                                 <button @click="clearSelection()"
                                         type="button"
                                         class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
-                                    <i class="fas fa-times mr-1"></i> Clear
+                                    <i class="fas fa-times mr-1"></i> {{ __('Clear') }}
                                 </button>
                                 <button @click="showConfirmation = true"
                                         type="button"
                                         class="attention px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors">
-                                    <i class="fas fa-shuffle mr-1"></i> Replace File
+                                    <i class="fas fa-shuffle mr-1"></i> {{ __('Replace File') }}
                                 </button>
                             </div>
                         </div>
@@ -197,7 +197,7 @@
                         <div class="space-y-4">
                             <i class="fas fa-spinner fa-spin text-5xl text-amber-500"></i>
                             <div>
-                                <p class="text-lg font-medium text-gray-700">Uploading...</p>
+                                <p class="text-lg font-medium text-gray-700">{{ __('Uploading...') }}</p>
                                 <div class="w-full bg-gray-200 rounded-full h-2.5 mt-3">
                                     <div class="bg-amber-600 h-2.5 rounded-full transition-all duration-300"
                                          :style="'width: ' + uploadProgress + '%'"></div>
@@ -212,7 +212,7 @@
                 <div class="flex justify-end space-x-3">
                     <a href="{{ route('assets.edit', $asset) }}"
                        class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
-                        Cancel
+                        {{ __('Cancel') }}
                     </a>
                 </div>
             </div>
@@ -221,23 +221,23 @@
         <!-- Info Box -->
         <div class="mt-8 p-6 bg-amber-50 border border-amber-200 rounded-lg">
             <h3 class="font-semibold text-amber-800 mb-3">
-                <i class="fas fa-info-circle mr-2"></i>About Asset Replacement
+                <i class="fas fa-info-circle mr-2"></i>{{ __('About Asset Replacement') }}
             </h3>
             <div class="text-sm text-amber-700 space-y-2">
                 <p>
-                    <strong>How to use:</strong> This feature allows you to replace the file while keeping the same URL.
-                    Use this to upload a draft or placeholder first, link to it in your content, then replace with the final version later.
+                    <strong>{{ __('How to use:') }}</strong> {{ __('This feature allows you to replace the file while keeping the same URL.') }}
+                    {{ __('Use this to upload a draft or placeholder first, link to it in your content, then replace with the final version later.') }}
                 </p>
                 <p>
-                    <strong>What stays the same:</strong> The S3 URL, all metadata (alt text, caption, tags, license, copyright).
+                    <strong>{{ __('What stays the same:') }}</strong> {{ __('The S3 URL, all metadata (alt text, caption, tags, license, copyright).') }}
                 </p>
                 <p>
-                    <strong>What changes:</strong> The file itself, filename, dimensions, and file size.
+                    <strong>{{ __('What changes:') }}</strong> {{ __('The file itself, filename, dimensions, and file size.') }}
                 </p>
                 <p class="pt-2 border-t border-amber-300">
                     <i class="fas fa-exclamation-triangle mr-1"></i>
-                    <strong>Warning:</strong> Whether previous versions are retained depends on your S3 bucket's versioning settings.
-                    Without versioning enabled, the previous file will be permanently deleted and cannot be recovered.
+                    <strong>{{ __('Warning:') }}</strong> {{ __('Whether previous versions are retained depends on your S3 bucket\'s versioning settings.') }}
+                    {{ __('Without versioning enabled, the previous file will be permanently deleted and cannot be recovered.') }}
                 </p>
             </div>
         </div>
@@ -279,12 +279,12 @@
                     </div>
                     <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
                         <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">
-                            Confirm File Replacement
+                            {{ __('Confirm File Replacement') }}
                         </h3>
                         <div class="mt-2">
                             <p class="text-sm text-gray-500">
-                                Are you sure you want to replace this file? The original file will be overwritten.
-                                <strong>This action cannot be undone</strong> unless S3 versioning is enabled on your bucket.
+                                {{ __('Are you sure you want to replace this file? The original file will be overwritten.') }}
+                                <strong>{{ __('This action cannot be undone') }}</strong> {{ __('unless S3 versioning is enabled on your bucket.') }}
                             </p>
                         </div>
                     </div>
@@ -293,12 +293,12 @@
                     <button @click="uploadFile()"
                             type="button"
                             class="attention w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-amber-600 text-base font-medium text-white hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 sm:ml-3 sm:w-auto sm:text-sm">
-                        <i class="fas fa-shuffle mr-2"></i> Yes, Replace
+                        <i class="fas fa-shuffle mr-2"></i> {{ __('Yes, Replace') }}
                     </button>
                     <button @click="showConfirmation = false"
                             type="button"
                             class="attention mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 sm:mt-0 sm:w-auto sm:text-sm">
-                        Cancel
+                        {{ __('Cancel') }}
                     </button>
                 </div>
             </div>
@@ -349,13 +349,13 @@ function assetReplacer() {
             // Validate extension
             const fileExtension = file.name.split('.').pop().toLowerCase();
             if (fileExtension !== this.allowedExtension) {
-                this.error = `The file must have the same extension (.${this.allowedExtension}).`;
+                this.error = @js(__('The file must have the same extension.')) + ` (.${this.allowedExtension})`;
                 return;
             }
 
             // Validate size
             if (file.size > this.maxSize) {
-                this.error = 'The file may not be greater than 500MB.';
+                this.error = @js(__('The file may not be greater than 500MB.'));
                 return;
             }
 
@@ -400,7 +400,7 @@ function assetReplacer() {
                     if (xhr.status >= 200 && xhr.status < 300) {
                         const response = JSON.parse(xhr.responseText);
                         this.success = true;
-                        this.successMessage = response.message || 'Asset replaced successfully';
+                        this.successMessage = response.message || @js(__('Asset replaced successfully'));
                         this.startRedirectCountdown();
                     } else {
                         try {
@@ -408,17 +408,17 @@ function assetReplacer() {
                             if (errorResponse.errors && errorResponse.errors.file) {
                                 this.error = errorResponse.errors.file[0];
                             } else {
-                                this.error = errorResponse.message || 'Failed to replace asset. Please try again.';
+                                this.error = errorResponse.message || @js(__('Failed to replace asset. Please try again.'));
                             }
                         } catch {
-                            this.error = 'Failed to replace asset. Please try again.';
+                            this.error = @js(__('Failed to replace asset. Please try again.'));
                         }
                     }
                 });
 
                 xhr.addEventListener('error', () => {
                     this.uploading = false;
-                    this.error = 'Network error. Please check your connection and try again.';
+                    this.error = @js(__('Network error. Please check your connection and try again.'));
                 });
 
                 xhr.open('POST', this.replaceUrl);
@@ -428,7 +428,7 @@ function assetReplacer() {
 
             } catch (err) {
                 this.uploading = false;
-                this.error = 'An unexpected error occurred. Please try again.';
+                this.error = @js(__('An unexpected error occurred. Please try again.'));
             }
         },
 

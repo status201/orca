@@ -1,17 +1,17 @@
 @extends('layouts.app')
 
-@section('title', 'Discover Unmapped Objects')
+@section('title', __('Discover Unmapped Objects'))
 
 @section('content')
 <div x-data="discoverObjects()">
     <div class="mb-6">
-        <h1 class="text-3xl font-bold text-gray-900">Discover Unmapped Objects</h1>
-        <p class="text-gray-600 mt-2">Find and import objects in your S3 bucket that aren't yet tracked in ORCA</p>
+        <h1 class="text-3xl font-bold text-gray-900">{{ __('Discover Unmapped Objects') }}</h1>
+        <p class="text-gray-600 mt-2">{{ __('Find and import objects in your S3 bucket that aren\'t yet tracked in ORCA') }}</p>
     </div>
-    
+
     <!-- Folder filter and Scan button -->
     <div class="mb-6">
-        <label class="block text-sm font-medium text-gray-700 mb-2">Scan Folder</label>
+        <label class="block text-sm font-medium text-gray-700 mb-2">{{ __('Scan Folder') }}</label>
         <div class="flex flex-col md:flex-row md:items-center gap-4">
             <select x-model="selectedFolder"
                     class="flex-1 max-w-md rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 font-mono text-sm">
@@ -31,7 +31,7 @@
                     :disabled="scanningFolders"
                     type="button"
                     class="px-3 py-2 text-sm font-medium text-gray-600 bg-gray-50 border border-gray-200 rounded-lg hover:bg-gray-100 disabled:opacity-50"
-                    title="Refresh folder list from S3">
+                    title="{{ __('Refresh folder list from S3') }}">
                 <i :class="scanningFolders ? 'fa-spinner fa-spin' : 'fa-sync'" class="fas"></i>
             </button>
 
@@ -40,15 +40,15 @@
                     :disabled="scanning"
                     class="px-6 py-3 text-sm bg-orca-black text-white rounded-lg hover:bg-orca-black-hover disabled:opacity-50 disabled:cursor-not-allowed flex items-center">
                 <template x-if="!scanning">
-                    <span><i class="fas fa-search mr-2"></i> Scan Bucket</span>
+                    <span><i class="fas fa-search mr-2"></i> {{ __('Scan Bucket') }}</span>
                 </template>
                 <template x-if="scanning">
-                    <span><i class="fas fa-spinner fa-spin mr-2"></i> Scanning...</span>
+                    <span><i class="fas fa-spinner fa-spin mr-2"></i> {{ __('Scanning...') }}</span>
                 </template>
             </button>
         </div>
     </div>
-    
+
     <!-- Results -->
     <div x-show="scanned" x-cloak>
         <!-- Summary -->
@@ -56,39 +56,39 @@
             <div class="flex items-center justify-between">
                 <div class="w-full sm:w-auto">
                     <h2 class="text-xl font-semibold pr-2">
-                        Found <span x-text="unmappedObjects.length" class="text-blue-600"></span> unmapped object(s)
+                        {{ __('Found') }} <span x-text="unmappedObjects.length" class="text-blue-600"></span> {{ __('unmapped object(s)') }}
                     </h2>
-                    <p class="text-gray-600 text-sm mt-1">Select objects to import into ORCA</p>
+                    <p class="text-gray-600 text-sm mt-1">{{ __('Select objects to import into ORCA') }}</p>
                 </div>
-                
+
                 <div class="flex space-x-3" x-show="unmappedObjects.length > 0">
                     <button @click="selectAll"
                             class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
-                        <i class="fas fa-check-double mr-2"></i><span class="hidden sm:inline"> Select All</span>
+                        <i class="fas fa-check-double mr-2"></i><span class="hidden sm:inline"> {{ __('Select All') }}</span>
                     </button>
-                    
+
                     <button @click="deselectAll"
                             class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
-                        <i class="fas fa-times mr-2"></i><span class="hidden sm:inline"> Deselect All</span>
+                        <i class="fas fa-times mr-2"></i><span class="hidden sm:inline"> {{ __('Deselect All') }}</span>
                     </button>
-                    
+
                     <button @click="importSelected"
                             :disabled="selectedObjects.length === 0 || importing"
                             class="import px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed">
                         <template x-if="!importing">
                             <span>
-                                <i class="fas fa-file-import mr-2"></i> 
-                                Import <span x-text="selectedObjects.length"></span> Selected
+                                <i class="fas fa-file-import mr-2"></i>
+                                {{ __('Import') }} <span x-text="selectedObjects.length"></span> {{ __('Selected') }}
                             </span>
                         </template>
                         <template x-if="importing">
-                            <span><i class="fas fa-spinner fa-spin mr-2"></i> Importing...</span>
+                            <span><i class="fas fa-spinner fa-spin mr-2"></i> {{ __('Importing...') }}</span>
                         </template>
                     </button>
                 </div>
             </div>
         </div>
-        
+
         <!-- Object list -->
         <div x-show="unmappedObjects.length > 0" class="bg-white rounded-lg shadow-lg overflow-hidden">
             <div class="overflow-x-auto invert-scrollbar-colors">
@@ -102,19 +102,19 @@
                                        class="rounded text-blue-600 focus:ring-blue-500">
                             </th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Preview
+                                {{ __('Preview') }}
                             </th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Filename
+                                {{ __('Filename') }}
                             </th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Type
+                                {{ __('Type') }}
                             </th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Size
+                                {{ __('Size') }}
                             </th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Last Modified
+                                {{ __('Last Modified') }}
                             </th>
                         </tr>
                     </thead>
@@ -145,7 +145,7 @@
                                         <div class="text-sm font-medium text-gray-900" x-text="object.filename"></div>
                                         <template x-if="object.is_deleted">
                                             <span class="text-xs px-2 py-0.5 bg-red-100 text-red-700 rounded-full whitespace-nowrap">
-                                                <i class="fas fa-trash-alt mr-1"></i>Deleted
+                                                <i class="fas fa-trash-alt mr-1"></i>{{ __('Deleted') }}
                                             </span>
                                         </template>
                                     </div>
@@ -153,7 +153,7 @@
                                     <template x-if="object.is_deleted">
                                         <div class="text-xs text-red-600 mt-1">
                                             <i class="fas fa-info-circle mr-1"></i>
-                                            Soft-deleted <span x-text="formatDate(object.deleted_at)"></span>
+                                            {{ __('Soft-deleted') }} <span x-text="formatDate(object.deleted_at)"></span>
                                         </div>
                                     </template>
                                 </td>
@@ -170,12 +170,12 @@
                 </table>
             </div>
         </div>
-        
+
         <!-- No results -->
         <div x-show="unmappedObjects.length === 0" class="bg-white rounded-lg shadow-lg p-12 text-center">
             <i class="fas fa-check-circle text-6xl text-green-500 mb-4"></i>
-            <h3 class="text-xl font-semibold text-gray-700 mb-2">All Clear!</h3>
-            <p class="text-gray-600">All objects in your S3 bucket are already tracked in ORCA.</p>
+            <h3 class="text-xl font-semibold text-gray-700 mb-2">{{ __('All Clear!') }}</h3>
+            <p class="text-gray-600">{{ __('All objects in your S3 bucket are already tracked in ORCA.') }}</p>
         </div>
     </div>
 </div>
@@ -207,14 +207,14 @@ function discoverObjects() {
                 });
 
                 if (!response.ok) {
-                    throw new Error('Failed to scan folders');
+                    throw new Error(@js(__('Failed to scan folders')));
                 }
 
-                window.showToast('Folders refreshed from S3');
+                window.showToast(@js(__('Folders refreshed from S3')));
                 setTimeout(() => window.location.reload(), 500);
             } catch (error) {
                 console.error('Scan folders error:', error);
-                window.showToast(error.message || 'Failed to scan folders', 'error');
+                window.showToast(error.message || @js(__('Failed to scan folders')), 'error');
             } finally {
                 this.scanningFolders = false;
             }
@@ -241,27 +241,27 @@ function discoverObjects() {
                 this.unmappedObjects = data.objects || [];
                 this.scanned = true;
 
-                window.showToast(`Found ${data.count} unmapped object(s)`);
+                window.showToast(@js(__('Found')) + ` ${data.count} ` + @js(__('unmapped object(s)')));
             } catch (error) {
                 console.error('Scan error:', error);
-                window.showToast('Failed to scan bucket', 'error');
+                window.showToast(@js(__('Failed to scan bucket')), 'error');
             } finally {
                 this.scanning = false;
             }
         },
-        
+
         selectAll() {
             this.selectedObjects = this.unmappedObjects.map(obj => obj.key);
         },
-        
+
         deselectAll() {
             this.selectedObjects = [];
         },
-        
+
         async importSelected() {
             if (this.selectedObjects.length === 0) return;
 
-            const confirmed = confirm(`Import ${this.selectedObjects.length} object(s)? Processing will continue in the background.`);
+            const confirmed = confirm(@js(__('Import')) + ` ${this.selectedObjects.length} ` + @js(__('object(s)? Processing will continue in the background.')));
             if (!confirmed) return;
 
             this.importing = true;
@@ -285,7 +285,7 @@ function discoverObjects() {
                     // Show success message with background processing info
                     let message = data.message;
                     if (data.imported > 0) {
-                        message += ' Thumbnails and AI tags will be processed in background.';
+                        message += ' ' + @js(__('Thumbnails and AI tags will be processed in background.'));
                     }
                     window.showToast(message, 'success');
 
@@ -300,30 +300,30 @@ function discoverObjects() {
                         this.scanBucket();
                     }, 2000);
                 } else {
-                    window.showToast('Import failed: ' + (data.message || 'Unknown error'), 'error');
+                    window.showToast(@js(__('Import failed:')) + ' ' + (data.message || @js(__('Unknown error'))), 'error');
                 }
 
             } catch (error) {
                 console.error('Import error:', error);
-                window.showToast('Failed to import objects: ' + error.message, 'error');
+                window.showToast(@js(__('Failed to import objects:')) + ' ' + error.message, 'error');
             } finally {
                 this.importing = false;
             }
         },
-        
+
         formatFileSize(bytes) {
             const units = ['B', 'KB', 'MB', 'GB'];
             let size = bytes;
             let unitIndex = 0;
-            
+
             while (size >= 1024 && unitIndex < units.length - 1) {
                 size /= 1024;
                 unitIndex++;
             }
-            
+
             return `${size.toFixed(2)} ${units[unitIndex]}`;
         },
-        
+
         formatDate(dateString) {
             const date = new Date(dateString);
             return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();

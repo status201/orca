@@ -613,6 +613,17 @@ class SystemService
     }
 
     /**
+     * Get available UI languages
+     */
+    public function getAvailableUiLanguages(): array
+    {
+        return [
+            'en' => 'English',
+            'nl' => 'Nederlands (Dutch)',
+        ];
+    }
+
+    /**
      * Get available languages for Rekognition
      */
     public function getAvailableLanguages(): array

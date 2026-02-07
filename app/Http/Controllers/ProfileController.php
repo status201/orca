@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\ProfileUpdateRequest;
 use App\Models\Setting;
 use App\Services\S3Service;
+use App\Services\SystemService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -34,11 +35,18 @@ class ProfileController extends Controller
 
         $globalItemsPerPage = (int) Setting::get('items_per_page', 24);
 
+        $systemService = app(SystemService::class);
+        $availableUiLanguages = $systemService->getAvailableUiLanguages();
+        $globalLocale = Setting::get('locale', 'en');
+        $globalLocaleLabel = $availableUiLanguages[$globalLocale] ?? 'English';
+
         return view('profile.edit', [
             'user' => $request->user(),
             'folders' => $folders,
             'rootFolder' => $rootFolder,
             'globalItemsPerPage' => $globalItemsPerPage,
+            'availableUiLanguages' => $availableUiLanguages,
+            'globalLocaleLabel' => $globalLocaleLabel,
         ]);
     }
 
@@ -94,6 +102,7 @@ class ProfileController extends Controller
             }],
             'items_per_page' => 'nullable|integer|in:0,12,24,36,48,60,72,96',
             'dark_mode' => 'nullable|string|in:disabled,force_dark,force_light',
+            'locale' => 'nullable|string|in:,en,nl',
         ]);
 
         $preferences = $request->user()->preferences ?? [];
@@ -119,11 +128,18 @@ class ProfileController extends Controller
             unset($preferences['dark_mode']);
         }
 
+        // Locale: empty = use global default
+        if (! empty($validated['locale'])) {
+            $preferences['locale'] = $validated['locale'];
+        } else {
+            unset($preferences['locale']);
+        }
+
         $request->user()->update(['preferences' => $preferences ?: null]);
 
         if ($request->expectsJson()) {
             return response()->json([
-                'message' => 'Preferences saved successfully',
+                'message' => __('Preferences saved successfully'),
                 'preferences' => $request->user()->fresh()->preferences,
             ]);
         }

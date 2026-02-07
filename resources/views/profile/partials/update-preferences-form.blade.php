@@ -58,6 +58,21 @@
         </div>
 
         <div>
+            <x-input-label for="locale" :value="__('Language')" />
+            <select id="locale"
+                    x-model="locale"
+                    name="locale"
+                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-2 focus:ring-orca-black focus:border-transparent">
+                <option value="">{{ __('Use default') }} ({{ $globalLocaleLabel }})</option>
+                @foreach($availableUiLanguages as $code => $label)
+                    <option value="{{ $code }}">{{ $label }}</option>
+                @endforeach
+            </select>
+            <p class="mt-1 text-xs text-gray-500">{{ __('Override the global UI language for your account.') }}</p>
+            <p x-show="errors.locale" x-text="errors.locale" class="mt-2 text-sm text-red-600"></p>
+        </div>
+
+        <div>
             <x-input-label for="dark_mode" :value="__('Dark Mode (Experimental)')" />
             <select id="dark_mode"
                     x-model="darkMode"
@@ -88,6 +103,7 @@ function preferencesForm() {
         homeFolder: @json($user->getPreference('home_folder') ?? ''),
         itemsPerPage: @json($user->getPreference('items_per_page') ?? 0),
         darkMode: @json($user->getPreference('dark_mode') ?? 'disabled'),
+        locale: @json($user->getPreference('locale') ?? ''),
         saving: false,
         refreshing: false,
         errors: {},
@@ -108,24 +124,25 @@ function preferencesForm() {
                         home_folder: this.homeFolder,
                         items_per_page: this.itemsPerPage,
                         dark_mode: this.darkMode,
+                        locale: this.locale,
                     }),
                 });
 
                 const data = await response.json();
 
                 if (response.ok) {
-                    window.showToast(data.message || 'Preferences saved successfully');
+                    window.showToast(data.message || @js(__('Preferences saved successfully')));
                 } else if (response.status === 422) {
                     // Validation errors
                     this.errors = data.errors || {};
                     const firstError = Object.values(this.errors)[0];
                     window.showToast(Array.isArray(firstError) ? firstError[0] : firstError, 'error');
                 } else {
-                    window.showToast(data.message || 'Failed to save preferences', 'error');
+                    window.showToast(data.message || @js(__('Failed to save preferences')), 'error');
                 }
             } catch (error) {
                 console.error('Save error:', error);
-                window.showToast('Failed to save preferences', 'error');
+                window.showToast(@js(__('Failed to save preferences')), 'error');
             } finally {
                 this.saving = false;
             }
@@ -133,7 +150,7 @@ function preferencesForm() {
 
         refreshFolders() {
             this.refreshing = true;
-            window.showToast('Refreshing folder list...');
+            window.showToast(@js(__('Refreshing folder list...')));
             setTimeout(() => {
                 window.location.reload();
             }, 500);

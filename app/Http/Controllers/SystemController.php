@@ -34,6 +34,7 @@ class SystemController extends Controller
             'suggestedCommands' => $this->systemService->getSuggestedCommands(),
             'settings' => $this->systemService->getSettings(),
             'availableLanguages' => $this->systemService->getAvailableLanguages(),
+            'availableUiLanguages' => $this->systemService->getAvailableUiLanguages(),
             'availableTimezones' => timezone_identifiers_list(),
         ];
 
@@ -195,6 +196,11 @@ class SystemController extends Controller
             },
             'timezone' => function ($v) {
                 return in_array($v, timezone_identifiers_list());
+            },
+            'locale' => function ($v) {
+                $locales = array_keys($this->systemService->getAvailableUiLanguages());
+
+                return in_array($v, $locales);
             },
             's3_root_folder' => function ($v) {
                 // Allow empty string (bucket root) or alphanumeric with hyphens, underscores, slashes

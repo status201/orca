@@ -248,4 +248,63 @@ class ProfileTest extends TestCase
             ->assertStatus(422)
             ->assertJsonValidationErrors('home_folder');
     }
+
+    public function test_user_can_set_locale_preference(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this
+            ->actingAs($user)
+            ->patch('/profile/preferences', [
+                'home_folder' => '',
+                'items_per_page' => 0,
+                'locale' => 'nl',
+            ]);
+
+        $response
+            ->assertSessionHasNoErrors()
+            ->assertRedirect('/profile');
+
+        $user->refresh();
+
+        $this->assertSame('nl', $user->getPreference('locale'));
+    }
+
+    public function test_user_can_clear_locale_preference(): void
+    {
+        $user = User::factory()->create([
+            'preferences' => ['locale' => 'nl'],
+        ]);
+
+        $response = $this
+            ->actingAs($user)
+            ->patch('/profile/preferences', [
+                'home_folder' => '',
+                'items_per_page' => 0,
+                'locale' => '',
+            ]);
+
+        $response
+            ->assertSessionHasNoErrors()
+            ->assertRedirect('/profile');
+
+        $user->refresh();
+
+        $this->assertNull($user->getPreference('locale'));
+    }
+
+    public function test_user_cannot_set_invalid_locale(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this
+            ->actingAs($user)
+            ->patch('/profile/preferences', [
+                'home_folder' => '',
+                'items_per_page' => 0,
+                'locale' => 'xx',
+            ]);
+
+        $response->assertSessionHasErrors('locale');
+    }
 }

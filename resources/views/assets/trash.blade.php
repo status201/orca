@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Trash')
+@section('title', __('Trash'))
 
 @section('content')
 <div x-data="trashGrid()">
@@ -9,15 +9,15 @@
         <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
                 <h1 class="text-3xl font-bold text-gray-900">
-                    Trash
+                    {{ __('Trash') }}
                 </h1>
-                <p class="text-gray-600 mt-2">Soft-deleted assets (S3 objects are kept)</p>
+                <p class="text-gray-600 mt-2">{{ __('Soft-deleted assets (S3 objects are kept)') }}</p>
             </div>
 
             <div class="flex gap-3">
                 <a href="{{ route('assets.index') }}"
                    class="px-4 py-2 text-sm bg-orca-black text-white rounded-lg hover:bg-orca-black-hover flex items-center justify-center whitespace-nowrap">
-                    <i class="fas fa-arrow-left mr-2"></i> Back to Assets
+                    <i class="fas fa-arrow-left mr-2"></i> {{ __('Back to Assets') }}
                 </a>
             </div>
         </div>
@@ -30,8 +30,8 @@
             <i class="fas fa-info-circle text-yellow-600 mr-3 mt-0.5"></i>
             <div>
                 <p class="text-sm text-yellow-800">
-                    <strong>Soft Delete:</strong> These assets are hidden but their S3 objects are still in the bucket.
-                    You can restore them or permanently delete them (which will also remove the S3 objects).
+                    <strong>{{ __('Soft Delete:') }}</strong> {{ __('These assets are hidden but their S3 objects are still in the bucket.') }}
+                    {{ __('You can restore them or permanently delete them (which will also remove the S3 objects).') }}
                 </p>
             </div>
         </div>
@@ -75,19 +75,19 @@
 
                 <!-- Trash badge -->
                 <div class="warning absolute top-2 right-2 bg-red-600 text-white px-2 py-1 rounded-full text-xs opacity-70">
-                    <i class="fas fa-trash-alt mr-1"></i>Deleted
+                    <i class="fas fa-trash-alt mr-1"></i>{{ __('Deleted') }}
                 </div>
 
                 <!-- Overlay with actions -->
                 <div class="actions absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 transition-all flex items-center justify-center opacity-0 group-hover:opacity-100">
                     <button @click="restoreAsset({{ $asset->id }})"
                             class="bg-green-600 text-white px-3 py-2 rounded-lg hover:bg-green-700 transition-colors mr-2"
-                            title="Restore">
+                            title="{{ __('Restore') }}">
                         <i class="fas fa-undo"></i>
                     </button>
                     <button @click="confirmDelete({{ $asset->id }})"
                             class="bg-red-600 text-white px-3 py-2 rounded-lg hover:bg-red-700 transition-colors"
-                            title="Permanently Delete">
+                            title="{{ __('Permanently Delete') }}">
                         <i class="fas fa-trash"></i>
                     </button>
                 </div>
@@ -100,7 +100,7 @@
                 </p>
                 <div class="text-xs text-gray-500 mt-1 space-y-0.5">
                     <p><i class="fas fa-hdd mr-1"></i>{{ $asset->formatted_size }}</p>
-                    <p title="{{ $asset->deleted_at }}"><i class="fas fa-clock mr-1"></i>Deleted {{ $asset->deleted_at->diffForHumans() }}</p>
+                    <p title="{{ $asset->deleted_at }}"><i class="fas fa-clock mr-1"></i>{{ __('Deleted') }} {{ $asset->deleted_at->diffForHumans() }}</p>
                     <p class="truncate" title="{{ $asset->user->name }}"><i class="fas fa-user mr-1"></i>{{ $asset->user->name }}</p>
                 </div>
 
@@ -131,11 +131,11 @@
     @else
     <div class="text-center py-12">
         <i class="fas fa-trash-alt text-gray-300 text-6xl mb-4"></i>
-        <h3 class="text-xl font-semibold text-gray-700 mb-2">Trash is Empty</h3>
-        <p class="text-gray-500">No deleted assets found</p>
+        <h3 class="text-xl font-semibold text-gray-700 mb-2">{{ __('Trash is Empty') }}</h3>
+        <p class="text-gray-500">{{ __('No deleted assets found') }}</p>
         <a href="{{ route('assets.index') }}"
            class="inline-block mt-4 px-6 py-2 text-sm bg-orca-black text-white rounded-lg hover:bg-orca-black-hover">
-            Back to Assets
+            {{ __('Back to Assets') }}
         </a>
     </div>
     @endif
@@ -153,7 +153,7 @@ function trashGrid() {
 function trashCard(assetId) {
     return {
         restoreAsset(id) {
-            if (confirm('Restore this asset?')) {
+            if (confirm(@js(__('Restore this asset?')))) {
                 const form = document.createElement('form');
                 form.method = 'POST';
                 form.action = `/assets/${id}/restore`;
@@ -171,7 +171,7 @@ function trashCard(assetId) {
         },
 
         confirmDelete(id) {
-            if (confirm('⚠️ PERMANENTLY DELETE this asset?\n\nThis will:\n- Remove the database record\n- Delete the S3 object\n- Delete the thumbnail\n\nThis action CANNOT be undone!')) {
+            if (confirm(@js(__("PERMANENTLY DELETE this asset?\n\nThis will:\n- Remove the database record\n- Delete the S3 object\n- Delete the thumbnail\n\nThis action CANNOT be undone!")))) {
                 const form = document.createElement('form');
                 form.method = 'POST';
                 form.action = `/assets/${id}/force-delete`;

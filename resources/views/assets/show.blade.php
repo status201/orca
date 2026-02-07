@@ -28,7 +28,7 @@
     <!-- Back button and breadcrumb -->
     <div class="mb-6 flex items-center justify-between">
         <a href="{{ route('assets.index') }}" class="inline-flex items-center text-orca-black hover:text-orca-black-hover">
-            <i class="fas fa-arrow-left mr-2"></i> Back to Assets
+            <i class="fas fa-arrow-left mr-2"></i> {{ __('Back to Assets') }}
         </a>
 
         @if(count($breadcrumbSegments) > 0)
@@ -89,7 +89,7 @@
                 @elseif($asset->isVideo())
                     <video controls class="w-full" preload="metadata">
                         <source src="{{ $asset->url }}" type="{{ $asset->mime_type }}">
-                        Your browser does not support the video tag.
+                        {{ __('Your browser does not support the video tag.') }}
                     </video>
                 @else
                     <div class="aspect-video bg-gray-100 flex items-center justify-center">
@@ -112,15 +112,15 @@
                             @endphp
                             <i class="fas {{ $icon }} {{ $colorClass }} opacity-60 mb-4" style="font-size: 12rem;"></i>
                             <p class="text-gray-600 font-medium">{{ $asset->mime_type }}</p>
-                            <p class="text-gray-500 text-sm mt-1">{{ strtoupper(pathinfo($asset->filename, PATHINFO_EXTENSION)) }} File</p>
+                            <p class="text-gray-500 text-sm mt-1">{{ strtoupper(pathinfo($asset->filename, PATHINFO_EXTENSION)) }} {{ __('File') }}</p>
                         </div>
                     </div>
                 @endif
             </div>
-            
+
             <!-- URL Copy Section -->
             <div class="mt-6 bg-white rounded-lg shadow-lg p-6">
-                <h3 class="text-lg font-semibold mb-3">Asset URL</h3>
+                <h3 class="text-lg font-semibold mb-3">{{ __('Asset URL') }}</h3>
                 <div class="flex items-center space-x-2">
                     <input type="text"
                            value="{{ $asset->url }}"
@@ -130,13 +130,13 @@
                             :class="copiedStates.main ? 'bg-green-600 hover:bg-green-700' : 'bg-orca-black hover:bg-orca-black-hover'"
                             class="px-4 py-2 text-white rounded-lg whitespace-nowrap transition-all duration-300">
                         <i :class="copiedStates.main ? 'fas fa-check' : 'fas fa-copy'" class="mr-2"></i>
-                        <span x-text="copiedStates.main ? 'Copied!' : 'Copy'"></span>
+                        <span x-text="copiedStates.main ? @js(__('Copied!')) : @js(__('Copy'))"></span>
                     </button>
                 </div>
 
                 @if($asset->thumbnail_url)
                 <div class="mt-4">
-                    <h4 class="text-sm font-semibold mb-2 text-gray-700">Thumbnail URL</h4>
+                    <h4 class="text-sm font-semibold mb-2 text-gray-700">{{ __('Thumbnail URL') }}</h4>
                     <div class="flex items-center space-x-2">
                         <input type="text"
                                value="{{ $asset->thumbnail_url }}"
@@ -146,111 +146,111 @@
                                 :class="copiedStates.thumb ? 'bg-green-600 hover:bg-green-700' : 'bg-gray-600 hover:bg-gray-700'"
                                 class="px-4 py-2 text-white rounded-lg whitespace-nowrap transition-all duration-300">
                             <i :class="copiedStates.thumb ? 'fas fa-check' : 'fas fa-copy'" class="mr-2"></i>
-                            <span x-text="copiedStates.thumb ? 'Copied!' : 'Copy'"></span>
+                            <span x-text="copiedStates.thumb ? @js(__('Copied!')) : @js(__('Copy'))"></span>
                         </button>
                     </div>
                 </div>
                 @endif
             </div>
         </div>
-        
+
         <!-- Info column -->
         <div class="space-y-6">
             <!-- Details card -->
             <div class="bg-white rounded-lg shadow-lg p-6">
                 <h2 class="text-2xl font-bold mb-4 break-words">{{ $asset->filename }}</h2>
-                
+
                 <dl class="space-y-3 text-sm">
                     <div>
-                        <dt class="text-gray-500">File Size</dt>
+                        <dt class="text-gray-500">{{ __('File Size') }}</dt>
                         <dd class="font-medium">{{ $asset->formatted_size }}</dd>
                     </div>
-                    
+
                     @if($asset->width && $asset->height)
                     <div>
-                        <dt class="text-gray-500">Dimensions</dt>
+                        <dt class="text-gray-500">{{ __('Dimensions') }}</dt>
                         <dd class="font-medium">{{ $asset->width }} × {{ $asset->height }} px</dd>
                     </div>
                     @endif
-                    
+
                     <div>
-                        <dt class="text-gray-500">Type</dt>
+                        <dt class="text-gray-500">{{ __('Type') }}</dt>
                         <dd class="font-medium">{{ $asset->mime_type }}</dd>
                     </div>
-                    
+
                     <div>
-                        <dt class="text-gray-500">Uploaded By</dt>
+                        <dt class="text-gray-500">{{ __('Uploaded By') }}</dt>
                         <dd class="font-medium">{{ $asset->user->name }}</dd>
                     </div>
-                    
+
                     <div>
-                        <dt class="text-gray-500">Uploaded</dt>
+                        <dt class="text-gray-500">{{ __('Uploaded') }}</dt>
                         <dd class="font-medium" title="{{ $asset->created_at->format('M d, Y H:i:s') }}">{{ $asset->created_at->format('M d, Y') }}</dd>
                     </div>
 
                     @if($asset->wasModified())
                     <div>
-                        <dt class="text-gray-500">Last Modified By</dt>
-                        <dd class="font-medium">{{ $asset->modifier?->name ?? 'Unknown' }}</dd>
+                        <dt class="text-gray-500">{{ __('Last Modified By') }}</dt>
+                        <dd class="font-medium">{{ $asset->modifier?->name ?? __('Unknown') }}</dd>
                     </div>
                     <div>
-                        <dt class="text-gray-500">Last Modified</dt>
+                        <dt class="text-gray-500">{{ __('Last Modified') }}</dt>
                         <dd class="font-medium" title="{{ $asset->updated_at->format('M d, Y H:i:s') }}">{{ $asset->updated_at->format('M d, Y') }}</dd>
                     </div>
                     @endif
                 </dl>
-                
+
                 @if($asset->alt_text)
                 <div class="mt-4 pt-4 border-t">
-                    <h4 class="text-sm font-semibold text-gray-700 mb-1">Alt Text</h4>
+                    <h4 class="text-sm font-semibold text-gray-700 mb-1">{{ __('Alt Text') }}</h4>
                     <p class="text-sm text-gray-600">{{ $asset->alt_text }}</p>
                 </div>
                 @endif
-                
+
                 @if($asset->caption)
                 <div class="mt-4 pt-4 border-t">
-                    <h4 class="text-sm font-semibold text-gray-700 mb-1">Caption</h4>
+                    <h4 class="text-sm font-semibold text-gray-700 mb-1">{{ __('Caption') }}</h4>
                     <p class="text-sm text-gray-600">{{ $asset->caption }}</p>
                 </div>
                 @endif
 
                 @if($asset->license_type)
                 <div class="mt-4 pt-4 border-t">
-                    <h4 class="text-sm font-semibold text-gray-700 mb-1">License Type</h4>
+                    <h4 class="text-sm font-semibold text-gray-700 mb-1">{{ __('License Type') }}</h4>
                     <p class="text-sm text-gray-600">
                         @switch($asset->license_type)
                             @case('public_domain')
-                                Public Domain
+                                {{ __('Public Domain') }}
                                 @break
                             @case('cc0')
-                                CC0 (No Rights Reserved)
+                                {{ __('CC0 (No Rights Reserved)') }}
                                 @break
                             @case('cc_by')
-                                CC BY (Attribution)
+                                {{ __('CC BY (Attribution)') }}
                                 @break
                             @case('cc_by_sa')
-                                CC BY-SA (Attribution-ShareAlike)
+                                {{ __('CC BY-SA (Attribution-ShareAlike)') }}
                                 @break
                             @case('cc_by_nd')
-                                CC BY-ND (Attribution-NoDerivs)
+                                {{ __('CC BY-ND (Attribution-NoDerivs)') }}
                                 @break
                             @case('cc_by_nc')
-                                CC BY-NC (Attribution-NonCommercial)
+                                {{ __('CC BY-NC (Attribution-NonCommercial)') }}
                                 @break
                             @case('cc_by_nc_sa')
-                                CC BY-NC-SA (Attribution-NonCommercial-ShareAlike)
+                                {{ __('CC BY-NC-SA (Attribution-NonCommercial-ShareAlike)') }}
                                 @break
                             @case('cc_by_nc_nd')
-                                CC BY-NC-ND (Attribution-NonCommercial-NoDerivs)
+                                {{ __('CC BY-NC-ND (Attribution-NonCommercial-NoDerivs)') }}
                                 @break
                             @case('fair_use')
-                                Fair Use
+                                {{ __('Fair Use') }}
                                 @break
                             @case('all_rights_reserved')
-                                All Rights Reserved
+                                {{ __('All Rights Reserved') }}
                                 @break
                             @case('other')
-                                Other
+                                {{ __('Other') }}
                                 @break
                             @default
                                 {{ $asset->license_type }}
@@ -261,13 +261,13 @@
 
                 @if($asset->license_expiry_date)
                 <div class="mt-4 pt-4 border-t">
-                    <h4 class="text-sm font-semibold text-gray-700 mb-1">License Expiry Date</h4>
+                    <h4 class="text-sm font-semibold text-gray-700 mb-1">{{ __('License Expiry Date') }}</h4>
                     <p class="text-sm text-gray-600">
                         {{ $asset->license_expiry_date->format('M d, Y') }}
                         @if($asset->license_expiry_date->isPast())
-                            <span class="ml-2 text-xs px-2 py-0.5 bg-red-100 text-red-700 rounded-full">Expired</span>
+                            <span class="ml-2 text-xs px-2 py-0.5 bg-red-100 text-red-700 rounded-full">{{ __('Expired') }}</span>
                         @elseif($asset->license_expiry_date->diffInDays(now()) <= 30)
-                            <span class="ml-2 text-xs px-2 py-0.5 bg-yellow-100 text-yellow-700 rounded-full">Expiring soon</span>
+                            <span class="ml-2 text-xs px-2 py-0.5 bg-yellow-100 text-yellow-700 rounded-full">{{ __('Expiring soon') }}</span>
                         @endif
                     </p>
                 </div>
@@ -275,14 +275,14 @@
 
                 @if($asset->copyright)
                 <div class="mt-4 pt-4 border-t">
-                    <h4 class="text-sm font-semibold text-gray-700 mb-1">Copyright Information</h4>
+                    <h4 class="text-sm font-semibold text-gray-700 mb-1">{{ __('Copyright Information') }}</h4>
                     <p class="text-sm text-gray-600">{{ $asset->copyright }}</p>
                 </div>
                 @endif
 
                 @if($asset->copyright_source)
                 <div class="mt-4 pt-4 border-t">
-                    <h4 class="text-sm font-semibold text-gray-700 mb-1">Copyright Source</h4>
+                    <h4 class="text-sm font-semibold text-gray-700 mb-1">{{ __('Copyright Source') }}</h4>
                     <p class="text-sm text-gray-600">
                         @if(Str::startsWith($asset->copyright_source, ['http://', 'https://']))
                             <a href="{{ $asset->copyright_source }}" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:text-blue-800 break-all">
@@ -298,8 +298,8 @@
 
             <!-- Tags card -->
             <div class="bg-white rounded-lg shadow-lg p-6">
-                <h3 class="text-lg font-semibold mb-4">Tags</h3>
-                
+                <h3 class="text-lg font-semibold mb-4">{{ __('Tags') }}</h3>
+
                 @if($asset->tags->count() > 0)
                 <div class="flex flex-wrap gap-2 mb-4">
                     @foreach($asset->tags as $tag)
@@ -311,61 +311,61 @@
                     </span>
                     @endforeach
                 </div>
-                
+
                 <div class="flex flex-wrap gap-2 text-xs">
                     @if($asset->userTags->count() > 0)
                     <span class="text-gray-500">
-                        <i class="fas fa-user mr-1"></i> {{ $asset->userTags->count() }} user tag(s)
+                        <i class="fas fa-user mr-1"></i> {{ $asset->userTags->count() }} {{ __('user tag(s)') }}
                     </span>
                     @endif
-                    
+
                     @if($asset->aiTags->count() > 0)
                     <span class="text-gray-500">
-                        <i class="fas fa-robot mr-1"></i> {{ $asset->aiTags->count() }} AI tag(s)
+                        <i class="fas fa-robot mr-1"></i> {{ $asset->aiTags->count() }} {{ __('AI tag(s)') }}
                     </span>
                     @endif
                 </div>
                 @else
-                <p class="text-gray-500 text-sm">No tags yet</p>
+                <p class="text-gray-500 text-sm">{{ __('No tags yet') }}</p>
                 @endif
             </div>
-            
+
             <!-- Actions card -->
             <div class="actions-card bg-white rounded-lg shadow-lg p-6">
-                <h3 class="text-lg font-semibold mb-4">Actions</h3>
-                
+                <h3 class="text-lg font-semibold mb-4">{{ __('Actions') }}</h3>
+
                 <div class="space-y-3">
                     @can('update', $asset)
-                    <a href="{{ route('assets.edit', $asset) }}" 
+                    <a href="{{ route('assets.edit', $asset) }}"
                        class="block w-full px-4 py-2 bg-orca-black text-white text-center rounded-lg hover:bg-orca-black-hover">
-                        <i class="fas fa-edit mr-2"></i> Edit Asset
+                        <i class="fas fa-edit mr-2"></i> {{ __('Edit Asset') }}
                     </a>
                     @endcan
-                    
+
                     <button @click="downloadAsset('{{ route('assets.download', $asset) }}')"
                             :disabled="downloading"
                             :class="downloading ? 'bg-green-600 hover:bg-green-700' : 'bg-gray-600 hover:bg-gray-700'"
                             class="w-full px-4 py-2 text-white rounded-lg transition-all duration-300">
                         <i :class="downloading ? 'fas fa-spinner fa-spin' : 'fas fa-download'" class="mr-2"></i>
-                        <span x-text="downloading ? 'Downloading...' : 'Download'"></span>
+                        <span x-text="downloading ? @js(__('Downloading...')) : @js(__('Download'))"></span>
                     </button>
 
                     @can('replace', $asset)
                         <a href="{{ route('assets.replace', $asset) }}"
                            class="block w-full px-4 py-2 bg-amber-600 text-white text-center rounded-lg hover:bg-amber-700">
-                            <i class="fas fa-shuffle mr-2"></i> Replace Asset
+                            <i class="fas fa-shuffle mr-2"></i> {{ __('Replace Asset') }}
                         </a>
                     @endcan
 
                     @can('delete', $asset)
-                    <form action="{{ route('assets.destroy', $asset) }}" 
+                    <form action="{{ route('assets.destroy', $asset) }}"
                           method="POST"
-                          onsubmit="return confirm('Are you sure you want to delete {{$asset->filename}}?')">
+                          onsubmit="return confirm('{{ __('Are you sure you want to delete') }} {{$asset->filename}}?')">
                         @csrf
                         @method('DELETE')
-                        <button type="submit" 
+                        <button type="submit"
                                 class="w-full px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">
-                            <i class="fas fa-trash mr-2"></i> Delete Asset
+                            <i class="fas fa-trash mr-2"></i> {{ __('Delete Asset') }}
                         </button>
                     </form>
                     @endcan
@@ -398,7 +398,7 @@ function assetDetail() {
             } catch (error) {
                 console.error('Download failed:', error);
                 this.downloading = false;
-                window.showToast('Download failed', 'error');
+                window.showToast(@js(__('Download failed')), 'error');
             }
         },
 
@@ -407,13 +407,13 @@ function assetDetail() {
             if (navigator.clipboard && window.isSecureContext) {
                 navigator.clipboard.writeText(url).then(() => {
                     this.copiedStates[type] = true;
-                    window.showToast('URL copied to clipboard!');
+                    window.showToast(@js(__('URL copied to clipboard!')));
                     setTimeout(() => {
                         this.copiedStates[type] = false;
                     }, 2000);
                 }).catch(err => {
                     console.error('Failed to copy:', err);
-                    window.showToast('Failed to copy URL', 'error');
+                    window.showToast(@js(__('Failed to copy URL')), 'error');
                 });
             } else {
                 // Fallback for HTTP/older browsers
@@ -426,13 +426,13 @@ function assetDetail() {
                 try {
                     document.execCommand('copy');
                     this.copiedStates[type] = true;
-                    window.showToast('URL copied to clipboard!');
+                    window.showToast(@js(__('URL copied to clipboard!')));
                     setTimeout(() => {
                         this.copiedStates[type] = false;
                     }, 2000);
                 } catch (err) {
                     console.error('Failed to copy:', err);
-                    window.showToast('Failed to copy URL', 'error');
+                    window.showToast(@js(__('Failed to copy URL')), 'error');
                 }
                 textArea.remove();
             }

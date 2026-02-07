@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Tags')
+@section('title', __('Tags'))
 
 @section('content')
 <div x-data="tagManager()">
@@ -8,8 +8,8 @@
     <div class="mb-6">
         <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
-                <h1 class="text-3xl font-bold text-gray-900">Tags</h1>
-                <p class="text-gray-600 mt-2">Browse all tags in your asset library</p>
+                <h1 class="text-3xl font-bold text-gray-900">{{ __('Tags') }}</h1>
+                <p class="text-gray-600 mt-2">{{ __('Browse all tags in your asset library') }}</p>
             </div>
 
             @if($tags->count() > 0)
@@ -18,7 +18,7 @@
                 <div class="relative md:order-2">
                     <input type="text"
                            x-model="searchQuery"
-                           placeholder="Search tags..."
+                           placeholder="{{ __('Search tags...') }}"
                            class="w-full sm:w-64 pl-10 pr-10 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orca-black focus:border-transparent">
                     <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
                     <button x-show="searchQuery.length > 0"
@@ -29,7 +29,7 @@
                     </button>
                 </div>
                 <p x-show="searchQuery.length > 0" x-cloak class="md:order-1 text-sm text-gray-600 whitespace-nowrap">
-                    <span x-text="matchingCount"></span> of {{ $tags->count() }}
+                    <span x-text="matchingCount"></span> {{ __('of') }} {{ $tags->count() }}
                 </p>
             </div>
             @endif
@@ -41,19 +41,19 @@
         <nav class="-mb-px flex space-x-8">
             <a href="{{ route('tags.index') }}"
                class="py-4 px-1 border-b-2 {{ !request('type') ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }} font-medium text-sm">
-                All Tags @if(!request('type'))<span>(<span x-text="matchingCount"></span>)</span>@endif
+                {{ __('All Tags') }} @if(!request('type'))<span>(<span x-text="matchingCount"></span>)</span>@endif
             </a>
             <a href="{{ route('tags.index', ['type' => 'user']) }}"
                class="py-4 px-1 border-b-2 {{ request('type') === 'user' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }} font-medium text-sm">
-                User Tags @if(request('type') === 'user')<span>(<span x-text="matchingCount"></span>)</span>@endif
+                {{ __('User Tags') }} @if(request('type') === 'user')<span>(<span x-text="matchingCount"></span>)</span>@endif
             </a>
             <a href="{{ route('tags.index', ['type' => 'ai']) }}"
                class="py-4 px-1 border-b-2 {{ request('type') === 'ai' ? 'border-purple-500 text-purple-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }} font-medium text-sm">
-                AI Tags @if(request('type') === 'ai')<span>(<span x-text="matchingCount"></span>)</span>@endif
+                {{ __('AI Tags') }} @if(request('type') === 'ai')<span>(<span x-text="matchingCount"></span>)</span>@endif
             </a>
         </nav>
     </div>
-    
+
     @if($tags->count() > 0)
     <!-- Tags grid -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 xxl:grid-cols-6 gap-4">
@@ -80,7 +80,7 @@
                     <!-- Edit button (only for user tags) -->
                     <button @click="editTag({{ $tag->id }}, '{{ addslashes($tag->name) }}')"
                             class="text-gray-500 hover:text-blue-600 p-1.5 hover:bg-blue-50 rounded transition"
-                            title="Edit tag">
+                            title="{{ __('Edit tag') }}">
                         <i class="fas fa-edit text-sm"></i>
                     </button>
                     @endif
@@ -88,7 +88,7 @@
                     <!-- Delete button (for all tags) -->
                     <button @click="deleteTag({{ $tag->id }}, '{{ addslashes($tag->name) }}', '{{ $tag->type }}')"
                             class="delete text-gray-500 hover:text-red-600 p-1.5 hover:bg-red-50 rounded transition"
-                            title="Delete tag">
+                            title="{{ __('Delete tag') }}">
                         <i class="fas fa-trash text-sm"></i>
                     </button>
                 </div>
@@ -106,20 +106,20 @@
          x-cloak
          class="text-center py-12 bg-white rounded-lg shadow">
         <i class="fas fa-search text-6xl text-gray-300 mb-4"></i>
-        <h3 class="text-xl font-semibold text-gray-700 mb-2">No matching tags</h3>
+        <h3 class="text-xl font-semibold text-gray-700 mb-2">{{ __('No matching tags') }}</h3>
         <p class="text-gray-500">
-            No tags match "<span x-text="searchQuery"></span>"
+            {{ __('No tags match') }} "<span x-text="searchQuery"></span>"
         </p>
         <button @click="searchQuery = ''" class="mt-4 text-blue-600 hover:text-blue-800">
-            Clear search
+            {{ __('Clear search') }}
         </button>
     </div>
     @else
     <div class="text-center py-12 bg-white rounded-lg shadow">
         <i class="fas fa-tags text-6xl text-gray-300 mb-4"></i>
-        <h3 class="text-xl font-semibold text-gray-700 mb-2">No tags found</h3>
+        <h3 class="text-xl font-semibold text-gray-700 mb-2">{{ __('No tags found') }}</h3>
         <p class="text-gray-500">
-            Tags will appear here as you add them to your assets
+            {{ __('Tags will appear here as you add them to your assets') }}
         </p>
     </div>
     @endif
@@ -130,12 +130,12 @@
          class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
          @click.self="showEditModal = false">
         <div class="bg-white rounded-lg shadow-xl p-6 max-w-md w-full mx-4">
-            <h2 class="text-2xl font-bold mb-4">Edit Tag</h2>
+            <h2 class="text-2xl font-bold mb-4">{{ __('Edit Tag') }}</h2>
 
             <form @submit.prevent="updateTag">
                 <div class="mb-4">
                     <label for="editTagName" class="block text-sm font-medium text-gray-700 mb-2">
-                        Tag Name
+                        {{ __('Tag Name') }}
                     </label>
                     <input type="text"
                            id="editTagName"
@@ -149,11 +149,11 @@
                     <button type="button"
                             @click="showEditModal = false"
                             class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
-                        Cancel
+                        {{ __('Cancel') }}
                     </button>
                     <button type="submit"
                             class="px-4 py-2 bg-orca-black text-white rounded-lg hover:bg-orca-black-hover">
-                        <i class="fas fa-save mr-2"></i> Save
+                        <i class="fas fa-save mr-2"></i> {{ __('Save') }}
                     </button>
                 </div>
             </form>
@@ -227,20 +227,20 @@ function tagManager() {
                 const data = await response.json();
 
                 if (response.ok) {
-                    window.showToast('Tag updated successfully');
+                    window.showToast(@js(__('Tag updated successfully')));
                     window.location.reload();
                 } else {
-                    window.showToast(data.message || 'Failed to update tag', 'error');
+                    window.showToast(data.message || @js(__('Failed to update tag')), 'error');
                 }
             } catch (error) {
                 console.error('Update error:', error);
-                window.showToast('Failed to update tag', 'error');
+                window.showToast(@js(__('Failed to update tag')), 'error');
             }
         },
 
         async deleteTag(id, name, type) {
-            const tagType = type === 'ai' ? 'AI tag' : 'tag';
-            if (!confirm(`Are you sure you want to delete the ${tagType} "${name}"? This will remove it from all assets.`)) {
+            const tagType = type === 'ai' ? @js(__('AI tag')) : @js(__('tag'));
+            if (!confirm(@js(__('Are you sure you want to delete the')) + ` ${tagType} "${name}"? ` + @js(__('This will remove it from all assets.')))) {
                 return;
             }
 
@@ -256,14 +256,14 @@ function tagManager() {
                 const data = await response.json();
 
                 if (response.ok) {
-                    window.showToast('Tag deleted successfully');
+                    window.showToast(@js(__('Tag deleted successfully')));
                     window.location.reload();
                 } else {
-                    window.showToast(data.message || 'Failed to delete tag', 'error');
+                    window.showToast(data.message || @js(__('Failed to delete tag')), 'error');
                 }
             } catch (error) {
                 console.error('Delete error:', error);
-                window.showToast('Failed to delete tag', 'error');
+                window.showToast(@js(__('Failed to delete tag')), 'error');
             }
         }
     };

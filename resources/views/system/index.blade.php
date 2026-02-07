@@ -1,13 +1,13 @@
 @extends('layouts.app')
 
-@section('title', 'System Administration')
+@section('title', __('System Administration'))
 
 @section('content')
 <div x-data="systemAdmin()" x-init="init()">
     <!-- Header -->
     <div class="mb-6">
-        <h1 class="text-3xl font-bold text-gray-900">System Administration</h1>
-        <p class="text-gray-600 mt-2">Monitor and manage system resources</p>
+        <h1 class="text-3xl font-bold text-gray-900">{{ __('System Administration') }}</h1>
+        <p class="text-gray-600 mt-2">{{ __('Monitor and manage system resources') }}</p>
     </div>
 
     <!-- Tab Navigation -->
@@ -16,19 +16,19 @@
             <button @click="activeTab = 'overview'"
                     :class="activeTab === 'overview' ? 'border-orca-black text-orca-black' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
                     class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
-                <i class="fas fa-dashboard mr-2"></i>Overview
+                <i class="fas fa-dashboard mr-2"></i>{{ __('Overview') }}
             </button>
 
             <button @click="activeTab = 'settings'"
                     :class="activeTab === 'settings' ? 'border-orca-black text-orca-black' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
                     class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
-                <i class="fas fa-cog mr-2"></i>Settings
+                <i class="fas fa-cog mr-2"></i>{{ __('Settings') }}
             </button>
 
             <button @click="activeTab = 'queue'"
                     :class="activeTab === 'queue' ? 'border-orca-black text-orca-black' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
                     class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
-                <i class="fas fa-tasks mr-2"></i>Queue
+                <i class="fas fa-tasks mr-2"></i>{{ __('Queue') }}
                 <span x-show="queueStats.pending > 0"
                       class="ml-2 px-2 py-0.5 text-xs bg-blue-100 text-blue-700 rounded-full"
                       x-text="queueStats.pending"></span>
@@ -40,31 +40,31 @@
             <button @click="activeTab = 'logs'"
                     :class="activeTab === 'logs' ? 'border-orca-black text-orca-black' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
                     class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
-                <i class="fas fa-file-lines mr-2"></i>Logs
+                <i class="fas fa-file-lines mr-2"></i>{{ __('Logs') }}
             </button>
 
             <button @click="activeTab = 'commands'"
                     :class="activeTab === 'commands' ? 'border-orca-black text-orca-black' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
                     class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
-                <i class="fas fa-terminal mr-2"></i>Commands
+                <i class="fas fa-terminal mr-2"></i>{{ __('Commands') }}
             </button>
 
             <button @click="activeTab = 'diagnostics'"
                     :class="activeTab === 'diagnostics' ? 'border-orca-black text-orca-black' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
                     class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
-                <i class="fas fa-stethoscope mr-2"></i>Diagnostics
+                <i class="fas fa-stethoscope mr-2"></i>{{ __('Diagnostics') }}
             </button>
 
             <button @click="activeTab = 'documentation'"
                     :class="activeTab === 'documentation' ? 'border-orca-black text-orca-black' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
                     class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
-                <i class="fas fa-book mr-2"></i>Documentation
+                <i class="fas fa-book mr-2"></i>{{ __('Documentation') }}
             </button>
 
             <button @click="activeTab = 'tests'"
                     :class="activeTab === 'tests' ? 'border-orca-black text-orca-black' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
                     class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">
-                <i class="fas fa-vial mr-2"></i>Tests
+                <i class="fas fa-vial mr-2"></i>{{ __('Tests') }}
                 <span x-show="testStats.failed > 0"
                       class="attention ml-2 px-2 py-0.5 text-xs bg-red-100 text-red-700 rounded-full"
                       x-text="testStats.failed"></span>
@@ -86,7 +86,7 @@
                         <i class="fab fa-php text-2xl text-purple-600"></i>
                     </div>
                     <div class="ml-4">
-                        <p class="text-sm font-medium text-gray-500">PHP Version</p>
+                        <p class="text-sm font-medium text-gray-500">{{ __('PHP Version') }}</p>
                         <p class="text-lg font-semibold text-gray-900">{{ $systemInfo['php_version'] }}</p>
                     </div>
                 </div>
@@ -99,7 +99,7 @@
                         <i class="fab fa-laravel text-2xl text-red-600"></i>
                     </div>
                     <div class="ml-4">
-                        <p class="text-sm font-medium text-gray-500">Laravel</p>
+                        <p class="text-sm font-medium text-gray-500">{{ __('Laravel') }}</p>
                         <p class="text-lg font-semibold text-gray-900">{{ $systemInfo['laravel_version'] }}</p>
                     </div>
                 </div>
@@ -112,7 +112,7 @@
                         <i class="fas fa-server text-2xl text-green-600"></i>
                     </div>
                     <div class="ml-4">
-                        <p class="text-sm font-medium text-gray-500">Environment</p>
+                        <p class="text-sm font-medium text-gray-500">{{ __('Environment') }}</p>
                         <p class="text-lg font-semibold text-gray-900">{{ ucfirst($systemInfo['environment']) }}</p>
                     </div>
                 </div>
@@ -125,7 +125,7 @@
                         <i class="fas fa-memory text-2xl text-blue-600"></i>
                     </div>
                     <div class="ml-4">
-                        <p class="text-sm font-medium text-gray-500">Memory Limit</p>
+                        <p class="text-sm font-medium text-gray-500">{{ __('Memory Limit') }}</p>
                         <p class="text-lg font-semibold text-gray-900">{{ $systemInfo['memory_limit'] }}</p>
                     </div>
                 </div>
@@ -136,7 +136,7 @@
         <div class="bg-white rounded-lg shadow">
             <div class="px-6 py-4 border-b border-gray-200">
                 <h3 class="text-lg font-semibold text-gray-900">
-                    <i class="fas fa-database mr-2"></i>Database Statistics
+                    <i class="fas fa-database mr-2"></i>{{ __('Database Statistics') }}
                 </h3>
             </div>
             <div class="p-6">
@@ -155,7 +155,7 @@
         <div class="bg-white rounded-lg shadow">
             <div class="px-6 py-4 border-b border-gray-200">
                 <h3 class="text-lg font-semibold text-gray-900">
-                    <i class="fas fa-heartbeat mr-2"></i>API Status
+                    <i class="fas fa-heartbeat mr-2"></i>{{ __('API Status') }}
                 </h3>
             </div>
             <div class="p-6">
@@ -165,7 +165,7 @@
                         <div class="attention w-3 h-3 rounded-full bg-green-500 mr-3"></div>
                         <div>
                             <p class="text-sm font-medium text-gray-900">Sanctum</p>
-                            <p class="attention text-xs text-green-600">Active</p>
+                            <p class="attention text-xs text-green-600">{{ __('Active') }}</p>
                         </div>
                     </div>
 
@@ -178,13 +178,13 @@
                             <p class="attention text-xs"
                                :class="systemInfo.jwtEnvEnabled === '1' && settings.jwtSettingEnabled === '1' ? 'text-green-600' : 'text-red-600'">
                                 <template x-if="systemInfo.jwtEnvEnabled === '1' && settings.jwtSettingEnabled === '1'">
-                                    <span>Active</span>
+                                    <span>{{ __('Active') }}</span>
                                 </template>
                                 <template x-if="systemInfo.jwtEnvEnabled !== '1'">
-                                    <span>Disabled (env)</span>
+                                    <span>{{ __('Disabled (env)') }}</span>
                                 </template>
                                 <template x-if="systemInfo.jwtEnvEnabled === '1' && settings.jwtSettingEnabled !== '1'">
-                                    <span>Disabled (setting)</span>
+                                    <span>{{ __('Disabled (setting)') }}</span>
                                 </template>
                             </p>
                         </div>
@@ -195,10 +195,10 @@
                         <div class="attention w-3 h-3 rounded-full mr-3"
                              :class="settings.metaEndpointEnabled === '1' ? 'bg-green-500' : 'bg-red-500'"></div>
                         <div>
-                            <p class="text-sm font-medium text-gray-900">Public Meta</p>
+                            <p class="text-sm font-medium text-gray-900">{{ __('Public Meta') }}</p>
                             <p class="attention text-xs"
                                :class="settings.metaEndpointEnabled === '1' ? 'text-green-600' : 'text-red-600'"
-                               x-text="settings.metaEndpointEnabled === '1' ? 'Enabled' : 'Disabled'"></p>
+                               x-text="settings.metaEndpointEnabled === '1' ? @js(__('Enabled')) : @js(__('Disabled'))"></p>
                         </div>
                     </div>
                 </div>
@@ -206,10 +206,10 @@
             <div class="p-6 pt-[0]">
                 <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
                     <h4 class="text-sm font-semibold text-blue-900 mb-2">
-                        <i class="fas fa-info-circle mr-1"></i>About API settings
+                        <i class="fas fa-info-circle mr-1"></i>{{ __('About API settings') }}
                     </h4>
                     <div class="text-xs text-blue-800 space-y-1">
-                        <p>You can find these API settings on the <strong><a href="/api-docs" title="API Settings & Documentation">API page</a></strong></p>
+                        <p>{{ __('You can find these API settings on the') }} <strong><a href="/api-docs" title="{{ __('API Settings & Documentation') }}">{{ __('API page') }}</a></strong></p>
                     </div>
                 </div>
             </div>
@@ -221,25 +221,25 @@
         <div class="bg-white rounded-lg shadow">
             <div class="px-6 py-4 border-b border-gray-200">
                 <h3 class="text-lg font-semibold text-gray-900">
-                    <i class="fas fa-hard-drive mr-2"></i>Disk Usage
+                    <i class="fas fa-hard-drive mr-2"></i>{{ __('Disk Usage') }}
                 </h3>
             </div>
             <div class="p-6">
                 <div class="space-y-4">
                     <div class="flex justify-between items-center">
-                        <span class="text-sm text-gray-600">Storage (app/)</span>
+                        <span class="text-sm text-gray-600">{{ __('Storage (app/)') }}</span>
                         <span class="text-sm font-semibold text-gray-900" x-text="formatBytes({{ $diskUsage['storage_size'] }})"></span>
                     </div>
                     <div class="flex justify-between items-center">
-                        <span class="text-sm text-gray-600">Logs</span>
+                        <span class="text-sm text-gray-600">{{ __('Logs') }}</span>
                         <span class="text-sm font-semibold text-gray-900" x-text="formatBytes({{ $diskUsage['logs_size'] }})"></span>
                     </div>
                     <div class="flex justify-between items-center">
-                        <span class="text-sm text-gray-600">Cache</span>
+                        <span class="text-sm text-gray-600">{{ __('Cache') }}</span>
                         <span class="text-sm font-semibold text-gray-900" x-text="formatBytes({{ $diskUsage['cache_size'] }})"></span>
                     </div>
                     <div class="flex justify-between items-center pt-4 border-t border-gray-200">
-                        <span class="text-sm font-semibold text-gray-900">Total Storage</span>
+                        <span class="text-sm font-semibold text-gray-900">{{ __('Total Storage') }}</span>
                         <span class="text-lg font-bold text-gray-900" x-text="formatBytes({{ $diskUsage['total_size'] }})"></span>
                     </div>
                 </div>
@@ -252,30 +252,30 @@
         <div class="bg-white rounded-lg shadow">
             <div class="px-6 py-6 border-b border-gray-200">
                 <h3 class="text-lg font-semibold text-gray-900">
-                    <i class="fas fa-sliders-h mr-2"></i>Application Settings
+                    <i class="fas fa-sliders-h mr-2"></i>{{ __('Application Settings') }}
                 </h3>
-                <p class="text-sm text-gray-500 mt-1">Configure global application settings</p>
+                <p class="text-sm text-gray-500 mt-1">{{ __('Configure global application settings') }}</p>
             </div>
             <div class="p-6 space-y-6">
 
                 <!-- S3 Storage Settings -->
                 <div>
                     <h4 class="text-md font-semibold text-gray-800 mb-4 pb-2 border-b border-gray-200">
-                        <i class="fab fa-aws mr-2 text-gray-500"></i>S3 Storage
+                        <i class="fab fa-aws mr-2 text-gray-500"></i>{{ __('S3 Storage') }}
                     </h4>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <!-- S3 Root Folder -->
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">
-                                Root folder prefix
+                                {{ __('Root folder prefix') }}
                             </label>
                             <input type="text"
                                    x-model="settings.s3_root_folder"
                                    @change="updateSetting('s3_root_folder', settings.s3_root_folder)"
                                    placeholder=""
                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orca-black focus:border-transparent">
-                            <p class="text-xs text-gray-500 mt-1">S3 prefix for root folder view &amp; uploads. Leave empty for bucket root.</p>
-                            <p class="text-xs text-amber-600 mt-1"><i class="fas fa-exclamation-triangle mr-1"></i>Changing this does not move existing assets.</p>
+                            <p class="text-xs text-gray-500 mt-1">{{ __('S3 prefix for root folder view & uploads. Leave empty for bucket root.') }}</p>
+                            <p class="text-xs text-amber-600 mt-1"><i class="fas fa-exclamation-triangle mr-1"></i>{{ __('Changing this does not move existing assets.') }}</p>
                         </div>
                     </div>
                 </div>
@@ -283,13 +283,13 @@
                 <!-- Display Settings -->
                 <div>
                     <h4 class="text-md font-semibold text-gray-800 mb-4 pb-2 border-b border-gray-200">
-                        <i class="fas fa-desktop mr-2 text-gray-500"></i>Display Settings
+                        <i class="fas fa-desktop mr-2 text-gray-500"></i>{{ __('Display Settings') }}
                     </h4>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <!-- Items Per Page -->
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">
-                                Items per page
+                                {{ __('Items per page') }}
                             </label>
                             <select x-model="settings.items_per_page"
                                     @change="updateSetting('items_per_page', settings.items_per_page)"
@@ -302,13 +302,13 @@
                                 <option value="72">72</option>
                                 <option value="96">96</option>
                             </select>
-                            <p class="text-xs text-gray-500 mt-1">Number of assets displayed per page in the asset grid</p>
+                            <p class="text-xs text-gray-500 mt-1">{{ __('Number of assets displayed per page in the asset grid') }}</p>
                         </div>
 
                         <!-- Timezone -->
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">
-                                Timezone
+                                {{ __('Timezone') }}
                             </label>
                             <select x-model="settings.timezone"
                                     @change="updateSetting('timezone', settings.timezone)"
@@ -329,7 +329,22 @@
                                     </optgroup>
                                 @endforeach
                             </select>
-                            <p class="text-xs text-gray-500 mt-1">Application timezone for displaying dates and timestamps</p>
+                            <p class="text-xs text-gray-500 mt-1">{{ __('Application timezone for displaying dates and timestamps') }}</p>
+                        </div>
+
+                        <!-- UI Language -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                {{ __('UI Language') }}
+                            </label>
+                            <select x-model="settings.locale"
+                                    @change="updateSetting('locale', settings.locale)"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orca-black focus:border-transparent">
+                                @foreach($availableUiLanguages as $code => $label)
+                                    <option value="{{ $code }}">{{ $label }}</option>
+                                @endforeach
+                            </select>
+                            <p class="text-xs text-gray-500 mt-1">{{ __('Application interface language for all users (users can override in their profile)') }}</p>
                         </div>
                     </div>
                 </div>
@@ -337,13 +352,13 @@
                 <!-- AWS Rekognition Settings -->
                 <div>
                     <h4 class="text-md font-semibold text-gray-800 mb-4 pb-2 border-b border-gray-200">
-                        <i class="fab fa-aws mr-2 text-gray-500"></i>AWS Rekognition Settings
+                        <i class="fab fa-aws mr-2 text-gray-500"></i>{{ __('AWS Rekognition Settings') }}
                     </h4>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <!-- Max Labels -->
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">
-                                Maximum AI tags per asset
+                                {{ __('Maximum AI tags per asset') }}
                             </label>
                             <input type="number"
                                    x-model="settings.rekognition_max_labels"
@@ -351,13 +366,13 @@
                                    min="1"
                                    max="20"
                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orca-black focus:border-transparent">
-                            <p class="text-xs text-gray-500 mt-1">Maximum number of AI-generated tags per asset (1-20)</p>
+                            <p class="text-xs text-gray-500 mt-1">{{ __('Maximum number of AI-generated tags per asset (1-20)') }}</p>
                         </div>
 
                         <!-- Language -->
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">
-                                AI tag language
+                                {{ __('AI tag language') }}
                             </label>
                             <select x-model="settings.rekognition_language"
                                     @change="updateSetting('rekognition_language', settings.rekognition_language)"
@@ -366,13 +381,13 @@
                                     <option value="{{ $code }}">{{ $name }}</option>
                                 @endforeach
                             </select>
-                            <p class="text-xs text-gray-500 mt-1">Language for AI-generated tags (uses AWS Translate for non-English)</p>
+                            <p class="text-xs text-gray-500 mt-1">{{ __('Language for AI-generated tags (uses AWS Translate for non-English)') }}</p>
                         </div>
 
                         <!-- Min Confidence -->
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">
-                                Minimum confidence threshold
+                                {{ __('Minimum confidence threshold') }}
                             </label>
                             <select x-model="settings.rekognition_min_confidence"
                                     @change="updateSetting('rekognition_min_confidence', settings.rekognition_min_confidence)"
@@ -381,14 +396,14 @@
                                     <option value="{{ $i }}">{{ $i }}.0%</option>
                                 @endfor
                             </select>
-                            <p class="text-xs text-gray-500 mt-1">Minimum confidence level for AI-detected labels (65-99%)</p>
+                            <p class="text-xs text-gray-500 mt-1">{{ __('Minimum confidence level for AI-detected labels (65-99%)') }}</p>
                         </div>
                     </div>
                 </div>
 
                 <!-- Status Messages -->
                 <div x-show="settingsSaved" x-transition class="attention mt-4 p-3 bg-green-50 border border-green-200 rounded-lg text-green-700 text-sm">
-                    <i class="fas fa-check-circle mr-2"></i>Settings saved successfully
+                    <i class="fas fa-check-circle mr-2"></i>{{ __('Settings saved successfully') }}
                 </div>
                 <div x-show="settingsError" x-transition class="attention mt-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
                     <i class="fas fa-exclamation-circle mr-2"></i><span x-text="settingsError"></span>
@@ -399,12 +414,12 @@
         <!-- Info Box -->
         <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
             <h4 class="text-sm font-semibold text-blue-900 mb-2">
-                <i class="fas fa-info-circle mr-1"></i>About Settings
+                <i class="fas fa-info-circle mr-1"></i>{{ __('About Settings') }}
             </h4>
             <div class="text-xs text-blue-800 space-y-1">
-                <p>Changes are saved automatically when you modify a setting.</p>
-                <p>Some settings (like language) only affect new AI tags, not existing ones.</p>
-                <p>AWS Rekognition must be enabled in your environment configuration for AI tagging to work.</p>
+                <p>{{ __('Changes are saved automatically when you modify a setting.') }}</p>
+                <p>{{ __('Some settings (like language) only affect new AI tags, not existing ones.') }}</p>
+                <p>{{ __('AWS Rekognition must be enabled in your environment configuration for AI tagging to work.') }}</p>
             </div>
         </div>
     </div>
@@ -416,7 +431,7 @@
             <div class="bg-white rounded-lg shadow p-6">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-sm font-medium text-gray-500">Pending Jobs</p>
+                        <p class="text-sm font-medium text-gray-500">{{ __('Pending Jobs') }}</p>
                         <p class="attention text-3xl font-bold text-blue-600" x-text="queueStats.pending"></p>
                     </div>
                     <i class="fas fa-clock text-4xl text-blue-200"></i>
@@ -426,7 +441,7 @@
             <div class="bg-white rounded-lg shadow p-6">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-sm font-medium text-gray-500">Failed Jobs</p>
+                        <p class="text-sm font-medium text-gray-500">{{ __('Failed Jobs') }}</p>
                         <p class="attention text-3xl font-bold text-red-600" x-text="queueStats.failed"></p>
                     </div>
                     <i class="fas fa-exclamation-triangle text-4xl text-red-200"></i>
@@ -436,7 +451,7 @@
             <div class="bg-white rounded-lg shadow p-6">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-sm font-medium text-gray-500">Batches</p>
+                        <p class="text-sm font-medium text-gray-500">{{ __('Batches') }}</p>
                         <p class="text-3xl font-bold text-purple-600" x-text="queueStats.batches"></p>
                     </div>
                     <i class="fas fa-layer-group text-4xl text-purple-200"></i>
@@ -447,7 +462,7 @@
                 <button @click="refreshQueueStatus()"
                         class="w-full h-full flex items-center justify-center text-gray-600 hover:text-gray-900">
                     <i class="fas fa-sync-alt text-2xl" :class="{'fa-spin': loadingQueue}"></i>
-                    <span class="ml-2">Refresh</span>
+                    <span class="ml-2">{{ __('Refresh') }}</span>
                 </button>
             </div>
         </div>
@@ -455,35 +470,35 @@
         <!-- Queue Controls -->
         <div class="bg-white rounded-lg shadow p-6">
             <h3 class="text-lg font-semibold text-gray-900 mb-4">
-                <i class="fas fa-sliders-h mr-2"></i>Queue Controls
+                <i class="fas fa-sliders-h mr-2"></i>{{ __('Queue Controls') }}
             </h3>
             <div class="actions flex flex-wrap gap-3">
                 <button @click="retryAllFailedJobs()"
                         class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50"
                         :disabled="queueStats.failed === 0">
-                    <i class="fas fa-redo mr-2"></i>Retry All Failed
+                    <i class="fas fa-redo mr-2"></i>{{ __('Retry All Failed') }}
                 </button>
 
                 <button @click="flushFailedJobs()"
                         class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50"
                         :disabled="queueStats.failed === 0">
-                    <i class="fas fa-trash mr-2"></i>Flush Failed
+                    <i class="fas fa-trash mr-2"></i>{{ __('Flush Failed') }}
                 </button>
 
                 <button @click="restartWorkers()"
                         class="px-4 py-2 bg-orca-black text-white rounded-lg hover:bg-orca-black-hover">
-                    <i class="fas fa-power-off mr-2"></i>Restart Workers
+                    <i class="fas fa-power-off mr-2"></i>{{ __('Restart Workers') }}
                 </button>
             </div>
 
             <div class="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
                 <h4 class="text-sm font-semibold text-blue-900 mb-2">
-                    <i class="fas fa-info-circle mr-1"></i>Queue Worker Setup
+                    <i class="fas fa-info-circle mr-1"></i>{{ __('Queue Worker Setup') }}
                 </h4>
                 <div class="text-xs text-blue-800 space-y-1">
-                    <p><strong>Development:</strong> Run manually in terminal: <code class="bg-blue-100 px-1 py-0.5 rounded">php artisan queue:work --tries=3</code></p>
-                    <p><strong>Production:</strong> Use supervisor to manage persistent workers. See <code class="bg-blue-100 px-1 py-0.5 rounded">DEPLOYMENT.md</code> for setup instructions.</p>
-                    <p><strong>Config file:</strong> <code class="bg-blue-100 px-1 py-0.5 rounded">deploy/supervisor/orca-queue-worker.conf</code></p>
+                    <p><strong>{{ __('Development:') }}</strong> {{ __('Run manually in terminal:') }} <code class="bg-blue-100 px-1 py-0.5 rounded">php artisan queue:work --tries=3</code></p>
+                    <p><strong>{{ __('Production:') }}</strong> {{ __('Use supervisor to manage persistent workers. See') }} <code class="bg-blue-100 px-1 py-0.5 rounded">DEPLOYMENT.md</code> {{ __('for setup instructions.') }}</p>
+                    <p><strong>{{ __('Config file:') }}</strong> <code class="bg-blue-100 px-1 py-0.5 rounded">deploy/supervisor/orca-queue-worker.conf</code></p>
                 </div>
             </div>
         </div>
@@ -492,11 +507,11 @@
         <div class="bg-white rounded-lg shadow p-6">
             <div class="flex items-center justify-between mb-4">
                 <h3 class="text-lg font-semibold text-gray-900">
-                    <i class="fas fa-server mr-2"></i>Supervisor Status
+                    <i class="fas fa-server mr-2"></i>{{ __('Supervisor Status') }}
                 </h3>
                 <button @click="refreshSupervisorStatus()"
                         class="attention px-3 py-1 text-sm bg-gray-600 text-white rounded-lg hover:bg-gray-700">
-                    <i class="fas fa-sync-alt mr-1" :class="{'fa-spin': loadingSupervisor}"></i>Refresh
+                    <i class="fas fa-sync-alt mr-1" :class="{'fa-spin': loadingSupervisor}"></i>{{ __('Refresh') }}
                 </button>
             </div>
 
@@ -511,11 +526,11 @@
             <div x-show="supervisorStatus.available && supervisorStatus.workers.length > 0" class="space-y-4">
                 <div class="flex items-center space-x-4 text-sm">
                     <div class="flex items-center">
-                        <span class="font-semibold text-gray-700">Total Workers:</span>
+                        <span class="font-semibold text-gray-700">{{ __('Total Workers:') }}</span>
                         <span class="ml-2 text-gray-900" x-text="supervisorStatus.total"></span>
                     </div>
                     <div class="flex items-center">
-                        <span class="font-semibold text-gray-700">Running:</span>
+                        <span class="font-semibold text-gray-700">{{ __('Running:') }}</span>
                         <span class="attention ml-2 px-2 py-0.5 bg-green-100 text-green-700 rounded-full text-xs font-semibold" x-text="supervisorStatus.running"></span>
                     </div>
                 </div>
@@ -524,10 +539,10 @@
                     <table class="min-w-full divide-y divide-gray-200">
                         <thead class="bg-gray-50">
                             <tr>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Worker Name</th>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">PID</th>
-                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Uptime</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">{{ __('Worker Name') }}</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">{{ __('Status') }}</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">{{ __('PID') }}</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">{{ __('Uptime') }}</th>
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">
@@ -559,18 +574,18 @@
         <div x-show="failedJobs.length > 0" class="bg-white rounded-lg shadow">
             <div class="px-6 py-4 border-b border-gray-200">
                 <h3 class="text-lg font-semibold text-gray-900">
-                    <i class="fas fa-exclamation-circle mr-2"></i>Failed Jobs
+                    <i class="fas fa-exclamation-circle mr-2"></i>{{ __('Failed Jobs') }}
                 </h3>
             </div>
             <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50">
                         <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">UUID</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Queue</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Exception</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Failed At</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{{ __('UUID') }}</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{{ __('Queue') }}</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{{ __('Exception') }}</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{{ __('Failed At') }}</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{{ __('Actions') }}</th>
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
@@ -585,7 +600,7 @@
                                 <td class="px-6 py-4 text-sm">
                                     <button @click="retryJob(job.uuid)"
                                             class="text-blue-600 hover:text-blue-900">
-                                        <i class="fas fa-redo mr-1"></i>Retry
+                                        <i class="fas fa-redo mr-1"></i>{{ __('Retry') }}
                                     </button>
                                 </td>
                             </tr>
@@ -602,29 +617,29 @@
             <div class="px-6 py-6 border-b border-gray-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
                     <h3 class="text-lg font-semibold text-gray-900">
-                        <i class="fas fa-file-lines mr-2"></i>Laravel Log Viewer
+                        <i class="fas fa-file-lines mr-2"></i>{{ __('Laravel Log Viewer') }}
                     </h3>
-                    <p class="text-sm text-gray-500 mt-1">See what's going on</p>
+                    <p class="text-sm text-gray-500 mt-1">{{ __('See what\'s going on') }}</p>
                 </div>
                 <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
                     <select x-model="logLines" @change="refreshLogs()"
                             class="rounded-md border-gray-300 text-sm">
-                        <option value="20">20 lines</option>
-                        <option value="50">50 lines</option>
-                        <option value="100">100 lines</option>
-                        <option value="200">200 lines</option>
+                        <option value="20">{{ __('20 lines') }}</option>
+                        <option value="50">{{ __('50 lines') }}</option>
+                        <option value="100">{{ __('100 lines') }}</option>
+                        <option value="200">{{ __('200 lines') }}</option>
                     </select>
                     <button @click="refreshLogs()"
                             class="px-4 py-2 text-sm bg-gray-600 text-white rounded-lg hover:bg-gray-700">
-                        <i class="fas fa-sync-alt mr-2" :class="{'fa-spin': loadingLogs}"></i>Refresh
+                        <i class="fas fa-sync-alt mr-2" :class="{'fa-spin': loadingLogs}"></i>{{ __('Refresh') }}
                     </button>
                 </div>
             </div>
             <div class="p-6">
                 <div x-show="logData.exists" class="space-y-4">
                     <div class="text-sm text-gray-600">
-                        <span class="font-semibold">File:</span> <span class="break-all font-mono" x-text="logData.path"></span><br>
-                        <span class="font-semibold">Size:</span> <span x-text="formatBytes(logData.size)"></span>
+                        <span class="font-semibold">{{ __('File:') }}</span> <span class="break-all font-mono" x-text="logData.path"></span><br>
+                        <span class="font-semibold">{{ __('Size:') }}</span> <span x-text="formatBytes(logData.size)"></span>
                     </div>
                     <div class="attention bg-gray-900 rounded-lg p-4 overflow-x-auto">
                         <pre class="text-xs text-green-400 font-mono"><template x-for="(line, index) in logData.lines" :key="index"><div x-text="line" :class="getLogLineColor(line)"></div></template></pre>
@@ -632,11 +647,11 @@
                 </div>
                 <div x-show="!logData.exists" class="text-center py-8 text-gray-500">
                     <i class="fas fa-inbox text-4xl mb-3"></i>
-                    <p>Click the refresh button</p>
-                    <p>Choose the amount of lines at the top right.</p>
+                    <p>{{ __('Click the refresh button') }}</p>
+                    <p>{{ __('Choose the amount of lines at the top right.') }}</p>
                     <button @click="refreshLogs()"
                             class="px-4 py-2 mt-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700">
-                        <i class="fas fa-sync-alt mr-2" :class="{'fa-spin': loadingLogs}"></i>Refresh
+                        <i class="fas fa-sync-alt mr-2" :class="{'fa-spin': loadingLogs}"></i>{{ __('Refresh') }}
                     </button>
                 </div>
             </div>
@@ -650,9 +665,9 @@
             <div class="px-6 py-6 border-b border-gray-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
                     <h3 class="text-lg font-semibold text-gray-900">
-                        <i class="fas fa-terminal mr-2"></i>Execute Artisan Command
+                        <i class="fas fa-terminal mr-2"></i>{{ __('Execute Artisan Command') }}
                     </h3>
-                    <p class="text-sm text-gray-500 mt-1">Manage caching, run migrations, etc.</p>
+                    <p class="text-sm text-gray-500 mt-1">{{ __('Manage caching, run migrations, etc.') }}</p>
                 </div>
 
                 <div class="flex flex-col sm:flex-row items-stretch sm:items-top gap-3">
@@ -661,18 +676,18 @@
                         <input type="text"
                                x-model="customCommand"
                                @keydown.enter="executeCustomCommand()"
-                               placeholder="e.g., cache:clear"
+                               placeholder="{{ __('e.g., cache:clear') }}"
                                class="w-full px-4 py-2 border border-gray-300 rounded-lg font-mono text-sm">
                         <p class="text-xs text-gray-500 mt-1">
                             <i class="fas fa-shield-alt mr-1"></i>
-                            Only whitelisted commands are allowed for security.
+                            {{ __('Only whitelisted commands are allowed for security.') }}
                         </p>
                     </div>
                     <button @click="executeCustomCommand()"
                             :disabled="!customCommand || executingCommand"
                             class="px-6 py-2 bg-orca-black text-white rounded-lg hover:bg-orca-black-hover disabled:opacity-50">
                         <i class="fas mr-2" :class="executingCommand ? 'fa-spinner fa-spin' : 'fa-play'"></i>
-                        Execute
+                        {{ __('Execute') }}
                     </button>
                 </div>
 
@@ -681,7 +696,7 @@
             <div class="space-y-4  p-6">
                 <!-- Command Output -->
                 <div x-show="commandOutput" class="mt-4">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Output</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">{{ __('Output') }}</label>
                     <div class="attention bg-gray-900 rounded-lg p-4 overflow-x-auto">
                     <pre class="text-xs font-mono"
                          :class="commandSuccess ? 'text-green-400' : 'text-red-400'"
@@ -695,7 +710,7 @@
         <!-- Suggested Commands -->
         <div class="bg-white rounded-lg shadow p-6">
             <h3 class="text-lg font-semibold text-gray-900 mb-4">
-                <i class="fas fa-list mr-2"></i>Suggested Commands
+                <i class="fas fa-list mr-2"></i>{{ __('Suggested Commands') }}
             </h3>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                 @foreach($suggestedCommands as $cmd)
@@ -706,7 +721,7 @@
                         </div>
                         <button @click="customCommand = '{{ $cmd['command'] }}'; executeCustomCommand()"
                                 class="w-full px-3 py-1.5 text-sm bg-orca-black text-white rounded hover:bg-orca-black-hover">
-                            <i class="fas fa-play mr-1"></i>Run
+                            <i class="fas fa-play mr-1"></i>{{ __('Run') }}
                         </button>
                     </div>
                 @endforeach
@@ -719,46 +734,46 @@
         <!-- Configuration Details -->
         <div class="bg-white rounded-lg shadow p-6">
             <h3 class="text-lg font-semibold text-gray-900 mb-4">
-                <i class="fas fa-cog mr-2"></i>System Configuration
+                <i class="fas fa-cog mr-2"></i>{{ __('System Configuration') }}
             </h3>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div class="space-y-3">
                     <div class="flex justify-between py-2 border-b border-gray-200">
-                        <span class="text-sm text-gray-600">Queue Driver:</span>
+                        <span class="text-sm text-gray-600">{{ __('Queue Driver:') }}</span>
                         <span class="text-sm font-semibold text-gray-900">{{ $systemInfo['queue_driver'] }}</span>
                     </div>
                     <div class="flex justify-between py-2 border-b border-gray-200">
-                        <span class="text-sm text-gray-600">Cache Driver:</span>
+                        <span class="text-sm text-gray-600">{{ __('Cache Driver:') }}</span>
                         <span class="text-sm font-semibold text-gray-900">{{ $systemInfo['cache_driver'] }}</span>
                     </div>
                     <div class="flex justify-between py-2 border-b border-gray-200">
-                        <span class="text-sm text-gray-600">Session Driver:</span>
+                        <span class="text-sm text-gray-600">{{ __('Session Driver:') }}</span>
                         <span class="text-sm font-semibold text-gray-900">{{ $systemInfo['session_driver'] }}</span>
                     </div>
                     <div class="flex justify-between py-2 border-b border-gray-200">
-                        <span class="text-sm text-gray-600">Storage Disk:</span>
+                        <span class="text-sm text-gray-600">{{ __('Storage Disk:') }}</span>
                         <span class="text-sm font-semibold text-gray-900">{{ $systemInfo['storage_disk'] }}</span>
                     </div>
                 </div>
                 <div class="space-y-3">
                     <div class="flex justify-between py-2 border-b border-gray-200">
-                        <span class="text-sm text-gray-600">Timezone:</span>
+                        <span class="text-sm text-gray-600">{{ __('Timezone:') }}</span>
                         <span class="text-sm font-semibold text-gray-900">{{ $systemInfo['timezone'] }}</span>
                     </div>
                     <div class="flex justify-between py-2 border-b border-gray-200">
-                        <span class="text-sm text-gray-600">Debug Mode:</span>
+                        <span class="text-sm text-gray-600">{{ __('Debug Mode:') }}</span>
                         <span class="attention text-sm font-semibold {{ $systemInfo['debug_mode'] ? 'text-red-600' : 'text-green-600' }}">
-                            {{ $systemInfo['debug_mode'] ? 'Enabled' : 'Disabled' }}
+                            {{ $systemInfo['debug_mode'] ? __('Enabled') : __('Disabled') }}
                         </span>
                     </div>
                     <div class="flex justify-between py-2 border-b border-gray-200">
-                        <span class="text-sm text-gray-600">Rekognition:</span>
+                        <span class="text-sm text-gray-600">{{ __('Rekognition:') }}</span>
                         <span class="attention text-sm font-semibold {{ $systemInfo['rekognition_enabled'] ? 'text-green-600' : 'text-gray-400' }}">
-                            {{ $systemInfo['rekognition_enabled'] ? 'Enabled' : 'Disabled' }}
+                            {{ $systemInfo['rekognition_enabled'] ? __('Enabled') : __('Disabled') }}
                         </span>
                     </div>
                     <div class="flex justify-between py-2 border-b border-gray-200">
-                        <span class="text-sm text-gray-600">Max Execution:</span>
+                        <span class="text-sm text-gray-600">{{ __('Max Execution:') }}</span>
                         <span class="text-sm font-semibold text-gray-900">{{ $systemInfo['max_execution_time'] }}s</span>
                     </div>
                 </div>
@@ -768,35 +783,35 @@
         <!-- PHP Configuration -->
         <div class="bg-white rounded-lg shadow p-6">
             <h3 class="text-lg font-semibold text-gray-900 mb-4">
-                <i class="fab fa-php mr-2"></i>PHP Configuration
+                <i class="fab fa-php mr-2"></i>{{ __('PHP Configuration') }}
             </h3>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div class="flex justify-between py-2 border-b border-gray-200">
-                    <span class="text-sm text-gray-600">Memory Limit:</span>
+                    <span class="text-sm text-gray-600">{{ __('Memory Limit:') }}</span>
                     <span class="text-sm font-semibold text-gray-900">{{ $systemInfo['memory_limit'] }}</span>
                 </div>
                 <div class="flex justify-between py-2 border-b border-gray-200">
-                    <span class="text-sm text-gray-600">Upload Max Filesize:</span>
+                    <span class="text-sm text-gray-600">{{ __('Upload Max Filesize:') }}</span>
                     <span class="text-sm font-semibold text-gray-900">{{ $systemInfo['upload_max_filesize'] }}</span>
                 </div>
                 <div class="flex justify-between py-2 border-b border-gray-200">
-                    <span class="text-sm text-gray-600">Post Max Size:</span>
+                    <span class="text-sm text-gray-600">{{ __('Post Max Size:') }}</span>
                     <span class="text-sm font-semibold text-gray-900">{{ $systemInfo['post_max_size'] }}</span>
                 </div>
                 <div class="flex justify-between py-2 border-b border-gray-200">
-                    <span class="text-sm text-gray-600">Max Execution Time:</span>
+                    <span class="text-sm text-gray-600">{{ __('Max Execution Time:') }}</span>
                     <span class="text-sm font-semibold text-gray-900">{{ $systemInfo['max_execution_time'] }}s</span>
                 </div>
                 <div class="flex justify-between py-2 border-b border-gray-200">
-                    <span class="text-sm text-gray-600">GD Extension:</span>
+                    <span class="text-sm text-gray-600">{{ __('GD Extension:') }}</span>
                     <span class="attention text-sm font-semibold {{ $systemInfo['gd_enabled'] ? 'text-green-600' : 'text-red-600' }}">
-                        {{ $systemInfo['gd_enabled'] ? 'Enabled' : 'Not Available' }}
+                        {{ $systemInfo['gd_enabled'] ? __('Enabled') : __('Not Available') }}
                     </span>
                 </div>
                 <div class="flex justify-between py-2 border-b border-gray-200">
-                    <span class="text-sm text-gray-600">Imagick Extension:</span>
+                    <span class="text-sm text-gray-600">{{ __('Imagick Extension:') }}</span>
                     <span class="attention text-sm font-semibold {{ $systemInfo['imagick_enabled'] ? 'text-green-600' : 'text-gray-500' }}">
-                        {{ $systemInfo['imagick_enabled'] ? 'Enabled' : 'Not Available' }}
+                        {{ $systemInfo['imagick_enabled'] ? __('Enabled') : __('Not Available') }}
                     </span>
                 </div>
             </div>
@@ -805,19 +820,19 @@
         <!-- Connection Tests -->
         <div class="bg-white rounded-lg shadow p-6">
             <h3 class="text-lg font-semibold text-gray-900 mb-4">
-                <i class="fas fa-plug mr-2"></i>Connection Tests
+                <i class="fas fa-plug mr-2"></i>{{ __('Connection Tests') }}
             </h3>
             <div class="space-y-3">
                 <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                     <div>
-                        <p class="text-sm font-semibold text-gray-900">Amazon S3</p>
-                        <p class="text-xs text-gray-500">Test S3 bucket connectivity</p>
+                        <p class="text-sm font-semibold text-gray-900">{{ __('Amazon S3') }}</p>
+                        <p class="text-xs text-gray-500">{{ __('Test S3 bucket connectivity') }}</p>
                     </div>
                     <button @click="testS3Connection()"
                             :disabled="testingS3"
                             class="test px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50">
                         <i class="fas mr-2" :class="testingS3 ? 'fa-spinner fa-spin' : 'fa-vial'"></i>
-                        Test
+                        {{ __('Test') }}
                     </button>
                 </div>
                 <div x-show="s3TestResult" class="p-3 rounded-lg"
@@ -835,9 +850,9 @@
             <div class="px-6 py-6 border-b border-gray-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
                     <h3 class="text-lg font-semibold text-gray-900">
-                        <i class="fas fa-book mr-2"></i>Project Documentation
+                        <i class="fas fa-book mr-2"></i>{{ __('Project Documentation') }}
                     </h3>
-                    <p class="text-sm text-gray-500 mt-1">Check out ORCA's documentation</p>
+                    <p class="text-sm text-gray-500 mt-1">{{ __('Check out ORCA\'s documentation') }}</p>
                 </div>
                 <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
                     <select x-model="selectedDoc"
@@ -853,14 +868,14 @@
                     </select>
                     <button @click="loadDocumentation()"
                             class="px-4 py-2 text-sm bg-gray-600 text-white rounded-lg hover:bg-gray-700">
-                        <i class="fas fa-sync-alt mr-2" :class="{'fa-spin': loadingDoc}"></i>Refresh
+                        <i class="fas fa-sync-alt mr-2" :class="{'fa-spin': loadingDoc}"></i>{{ __('Refresh') }}
                     </button>
                 </div>
             </div>
             <div class="p-6">
                 <div x-show="loadingDoc" class="text-center py-8 text-gray-500">
                     <i class="fas fa-spinner fa-spin text-4xl mb-3"></i>
-                    <p>Loading documentation...</p>
+                    <p>{{ __('Loading documentation...') }}</p>
                 </div>
                 <div x-show="!loadingDoc && docError" class="text-center py-8 text-red-500">
                     <i class="fas fa-exclamation-circle text-4xl mb-3"></i>
@@ -871,7 +886,7 @@
                 </div>
                 <div x-show="!loadingDoc && !docError && !docContent" class="text-center py-8 text-gray-500">
                     <i class="fas fa-book-open text-4xl mb-3"></i>
-                    <p>Select a documentation file to view its contents.</p>
+                    <p>{{ __('Select a documentation file to view its contents.') }}</p>
                 </div>
             </div>
         </div>
@@ -884,26 +899,26 @@
             <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
                 <div>
                     <h3 class="text-lg font-semibold text-gray-900">
-                        <i class="fas fa-vial mr-2"></i>Test Runner
+                        <i class="fas fa-vial mr-2"></i>{{ __('Test Runner') }}
                     </h3>
-                    <p class="text-sm text-gray-500 mt-1">Run automated tests for the application</p>
+                    <p class="text-sm text-gray-500 mt-1">{{ __('Run automated tests for the application') }}</p>
                 </div>
                 <div class="flex flex-col sm:flex-row gap-3">
                     <select x-model="testSuite"
                             class="rounded-lg border-gray-300 text-sm">
-                        <option value="all">All Tests</option>
-                        <option value="unit">Unit Tests</option>
-                        <option value="feature">Feature Tests</option>
+                        <option value="all">{{ __('All Tests') }}</option>
+                        <option value="unit">{{ __('Unit Tests') }}</option>
+                        <option value="feature">{{ __('Feature Tests') }}</option>
                     </select>
                     <input type="text"
                            x-model="testFilter"
-                           placeholder="Filter by name..."
+                           placeholder="{{ __('Filter by name...') }}"
                            class="rounded-lg border-gray-300 text-sm px-3 py-2">
                     <button @click="runTests()"
                             :disabled="runningTests"
                             class="test px-4 py-2 text-sm bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 flex items-center justify-center">
                         <i class="fas mr-2" :class="runningTests ? 'fa-spinner fa-spin' : 'fa-play'"></i>
-                        <span x-text="runningTests ? 'Running...' : 'Run Tests'"></span>
+                        <span x-text="runningTests ? @js(__('Running...')) : @js(__('Run Tests'))"></span>
                     </button>
                 </div>
             </div>
@@ -911,7 +926,7 @@
             <!-- Progress Bar -->
             <div x-show="runningTests" class="mb-6">
                 <div class="flex items-center justify-between mb-2">
-                    <span class="text-sm text-gray-600">Running tests...</span>
+                    <span class="text-sm text-gray-600">{{ __('Running tests...') }}</span>
                     <span class="text-sm text-gray-600" x-text="Math.round(testProgress) + '%'"></span>
                 </div>
                 <div class="w-full bg-gray-200 rounded-full h-2.5">
@@ -924,23 +939,23 @@
             <div x-show="testStats.total > 0" class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
                 <div class="bg-gray-50 rounded-lg p-4 text-center">
                     <p class="text-3xl font-bold text-gray-900" x-text="testStats.total"></p>
-                    <p class="text-sm text-gray-500">Total Tests</p>
+                    <p class="text-sm text-gray-500">{{ __('Total Tests') }}</p>
                 </div>
                 <div class="bg-green-50 rounded-lg p-4 text-center">
                     <p class="attention text-3xl font-bold text-green-600" x-text="testStats.passed"></p>
-                    <p class="attention text-sm text-gray-500">Passed</p>
+                    <p class="attention text-sm text-gray-500">{{ __('Passed') }}</p>
                 </div>
                 <div class="rounded-lg p-4 text-center" :class="testStats.failed > 0 ? 'bg-red-50' : 'bg-gray-50'">
                     <p class="attention text-3xl font-bold" :class="testStats.failed > 0 ? 'text-red-600' : 'text-gray-400'" x-text="testStats.failed"></p>
-                    <p class="attention text-sm text-gray-500">Failed</p>
+                    <p class="attention text-sm text-gray-500">{{ __('Failed') }}</p>
                 </div>
                 <div class="bg-blue-50 rounded-lg p-4 text-center">
                     <p class="text-3xl font-bold text-blue-600" x-text="testStats.assertions"></p>
-                    <p class="text-sm text-gray-500">Assertions</p>
+                    <p class="text-sm text-gray-500">{{ __('Assertions') }}</p>
                 </div>
                 <div class="bg-purple-50 rounded-lg p-4 text-center">
                     <p class="text-3xl font-bold text-purple-600" x-text="testStats.duration + 's'"></p>
-                    <p class="text-sm text-gray-500">Duration</p>
+                    <p class="text-sm text-gray-500">{{ __('Duration') }}</p>
                 </div>
             </div>
 
@@ -951,10 +966,10 @@
                         <i class="fas fa-check-circle text-3xl text-green-600"></i>
                     </div>
                     <div class="ml-4">
-                        <h4 class="text-lg font-semibold text-green-800">All Tests Passed!</h4>
+                        <h4 class="text-lg font-semibold text-green-800">{{ __('All Tests Passed!') }}</h4>
                         <p class="text-sm text-green-700">
-                            <span x-text="testStats.passed"></span> tests completed successfully with
-                            <span x-text="testStats.assertions"></span> assertions.
+                            <span x-text="testStats.passed"></span> {{ __('tests completed successfully with') }}
+                            <span x-text="testStats.assertions"></span> {{ __('assertions.') }}
                         </p>
                     </div>
                 </div>
@@ -963,10 +978,10 @@
                         <i class="fas fa-times-circle text-3xl text-red-600"></i>
                     </div>
                     <div class="ml-4">
-                        <h4 class="text-lg font-semibold text-red-800">Tests Failed</h4>
+                        <h4 class="text-lg font-semibold text-red-800">{{ __('Tests Failed') }}</h4>
                         <p class="text-sm text-red-700">
-                            <span x-text="testStats.failed"></span> test(s) failed out of
-                            <span x-text="testStats.total"></span> total tests.
+                            <span x-text="testStats.failed"></span> {{ __('test(s) failed out of') }}
+                            <span x-text="testStats.total"></span> {{ __('total tests.') }}
                         </p>
                     </div>
                 </div>
@@ -977,26 +992,26 @@
         <div class="bg-white rounded-lg shadow">
             <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
                 <h3 class="text-lg font-semibold text-gray-900">
-                    <i class="fas fa-terminal mr-2"></i>Test Output
+                    <i class="fas fa-terminal mr-2"></i>{{ __('Test Output') }}
                 </h3>
                 <div class="flex items-center gap-2">
                     <button x-show="testOutput"
                             @click="copyTestOutput()"
                             class="px-3 py-1.5 text-sm bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200">
-                        <i class="fas fa-copy mr-1"></i>Copy
+                        <i class="fas fa-copy mr-1"></i>{{ __('Copy') }}
                     </button>
                     <button x-show="testOutput"
                             @click="testOutput = ''; testStats = {total: 0, passed: 0, failed: 0, skipped: 0, assertions: 0, duration: 0, tests: []}"
                             class="px-3 py-1.5 text-sm bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200">
-                        <i class="fas fa-trash mr-1"></i>Clear
+                        <i class="fas fa-trash mr-1"></i>{{ __('Clear') }}
                     </button>
                 </div>
             </div>
             <div class="p-6">
                 <div x-show="!testOutput && !runningTests" class="text-center py-12 text-gray-500">
                     <i class="fas fa-flask text-6xl mb-4 text-gray-300"></i>
-                    <p class="text-lg">No tests have been run yet</p>
-                    <p class="text-sm mt-2">Click "Run Tests" to execute the test suite</p>
+                    <p class="text-lg">{{ __('No tests have been run yet') }}</p>
+                    <p class="text-sm mt-2">{{ __('Click "Run Tests" to execute the test suite') }}</p>
                 </div>
                 <div x-show="testOutput || runningTests" class="attention bg-gray-900 rounded-lg p-4 overflow-x-auto max-h-[600px] overflow-y-auto">
                     <pre class="text-sm font-mono whitespace-pre-wrap text-gray-100" x-html="formatTestOutput(testOutput)"></pre>
@@ -1008,7 +1023,7 @@
         <div x-show="testStats.tests && testStats.tests.length > 0" class="bg-white rounded-lg shadow">
             <div class="px-6 py-4 border-b border-gray-200">
                 <h3 class="text-lg font-semibold text-gray-900">
-                    <i class="fas fa-list-check mr-2"></i>Test Results by Suite
+                    <i class="fas fa-list-check mr-2"></i>{{ __('Test Results by Suite') }}
                 </h3>
             </div>
             <div class="p-6">
@@ -1026,10 +1041,10 @@
                                 </div>
                                 <div class="attention flex items-center gap-2">
                                     <span class="px-2 py-0.5 text-xs font-semibold rounded-full bg-green-100 text-green-700"
-                                          x-text="tests.filter(t => t.status === 'passed').length + ' passed'"></span>
+                                          x-text="tests.filter(t => t.status === 'passed').length + @js(' ' . __('passed'))"></span>
                                     <span x-show="tests.filter(t => t.status === 'failed').length > 0"
                                           class="px-2 py-0.5 text-xs font-semibold rounded-full bg-red-100 text-red-700"
-                                          x-text="tests.filter(t => t.status === 'failed').length + ' failed'"></span>
+                                          x-text="tests.filter(t => t.status === 'failed').length + @js(' ' . __('failed'))"></span>
                                 </div>
                             </div>
                             <div x-show="expandedSuites.includes(suite)" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" class="border-t border-gray-200">
@@ -1053,13 +1068,13 @@
         <!-- Quick Info -->
         <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
             <h4 class="text-sm font-semibold text-blue-900 mb-2">
-                <i class="fas fa-info-circle mr-1"></i>About Testing
+                <i class="fas fa-info-circle mr-1"></i>{{ __('About Testing') }}
             </h4>
             <div class="text-xs text-blue-800 space-y-1">
-                <p>Tests are run using <strong>Pest PHP</strong>, a testing framework built on PHPUnit.</p>
-                <p><strong>Unit Tests:</strong> Test individual components in isolation (models, services).</p>
-                <p><strong>Feature Tests:</strong> Test complete HTTP requests and responses (controllers, routes).</p>
-                <p>Tests run against an in-memory SQLite database, so they don't affect your real data.</p>
+                <p>{{ __('Tests are run using') }} <strong>Pest PHP</strong>{{ __(', a testing framework built on PHPUnit.') }}</p>
+                <p><strong>{{ __('Unit Tests:') }}</strong> {{ __('Test individual components in isolation (models, services).') }}</p>
+                <p><strong>{{ __('Feature Tests:') }}</strong> {{ __('Test complete HTTP requests and responses (controllers, routes).') }}</p>
+                <p>{{ __('Tests run against an in-memory SQLite database, so they don\'t affect your real data.') }}</p>
             </div>
         </div>
     </div>
@@ -1108,6 +1123,7 @@ function systemAdmin() {
         settings: {
             items_per_page: '{{ collect($settings)->firstWhere('key', 'items_per_page')['value'] ?? '24' }}',
             timezone: '{{ collect($settings)->firstWhere('key', 'timezone')['value'] ?? 'UTC' }}',
+            locale: '{{ collect($settings)->firstWhere('key', 'locale')['value'] ?? 'en' }}',
             s3_root_folder: '{{ collect($settings)->firstWhere('key', 's3_root_folder')['value'] ?? 'assets' }}',
             rekognition_max_labels: '{{ collect($settings)->firstWhere('key', 'rekognition_max_labels')['value'] ?? '5' }}',
             rekognition_language: '{{ collect($settings)->firstWhere('key', 'rekognition_language')['value'] ?? 'en' }}',
@@ -1188,7 +1204,7 @@ function systemAdmin() {
                 this.failedJobs = data.failed_jobs;
             } catch (error) {
                 console.error('Failed to refresh queue status:', error);
-                window.showToast('Failed to refresh queue status', 'error');
+                window.showToast(@js(__('Failed to refresh queue status')), 'error');
             } finally {
                 this.loadingQueue = false;
             }
@@ -1201,7 +1217,7 @@ function systemAdmin() {
                 this.logData = await response.json();
             } catch (error) {
                 console.error('Failed to refresh logs:', error);
-                window.showToast('Failed to refresh logs', 'error');
+                window.showToast(@js(__('Failed to refresh logs')), 'error');
             } finally {
                 this.loadingLogs = false;
             }
@@ -1225,18 +1241,18 @@ function systemAdmin() {
 
                 const result = await response.json();
                 this.commandSuccess = result.success;
-                this.commandOutput = result.output || result.error || 'No output';
+                this.commandOutput = result.output || result.error || @js(__('No output'));
 
                 if (result.success) {
-                    window.showToast('Command executed successfully', 'success');
+                    window.showToast(@js(__('Command executed successfully')), 'success');
                 } else {
-                    window.showToast('Command failed', 'error');
+                    window.showToast(@js(__('Command failed')), 'error');
                 }
             } catch (error) {
                 console.error('Failed to execute command:', error);
                 this.commandSuccess = false;
                 this.commandOutput = error.message;
-                window.showToast('Failed to execute command', 'error');
+                window.showToast(@js(__('Failed to execute command')), 'error');
             } finally {
                 this.executingCommand = false;
             }
@@ -1255,19 +1271,19 @@ function systemAdmin() {
 
                 const result = await response.json();
                 if (result.success) {
-                    window.showToast('Job queued for retry', 'success');
+                    window.showToast(@js(__('Job queued for retry')), 'success');
                     this.refreshQueueStatus();
                 } else {
-                    window.showToast('Failed to retry job', 'error');
+                    window.showToast(@js(__('Failed to retry job')), 'error');
                 }
             } catch (error) {
                 console.error('Failed to retry job:', error);
-                window.showToast('Failed to retry job', 'error');
+                window.showToast(@js(__('Failed to retry job')), 'error');
             }
         },
 
         async retryAllFailedJobs() {
-            if (!confirm('Retry all failed jobs?')) return;
+            if (!confirm(@js(__('Retry all failed jobs?')))) return;
 
             this.customCommand = 'queue:retry all';
             await this.executeCustomCommand();
@@ -1275,7 +1291,7 @@ function systemAdmin() {
         },
 
         async flushFailedJobs() {
-            if (!confirm('Delete all failed jobs? This cannot be undone.')) return;
+            if (!confirm(@js(__('Delete all failed jobs? This cannot be undone.')))) return;
 
             try {
                 const response = await fetch('{{ route('system.flush-queue') }}', {
@@ -1288,14 +1304,14 @@ function systemAdmin() {
 
                 const result = await response.json();
                 if (result.success) {
-                    window.showToast('Failed jobs flushed', 'success');
+                    window.showToast(@js(__('Failed jobs flushed')), 'success');
                     this.refreshQueueStatus();
                 } else {
-                    window.showToast('Failed to flush queue', 'error');
+                    window.showToast(@js(__('Failed to flush queue')), 'error');
                 }
             } catch (error) {
                 console.error('Failed to flush queue:', error);
-                window.showToast('Failed to flush queue', 'error');
+                window.showToast(@js(__('Failed to flush queue')), 'error');
             }
         },
 
@@ -1311,13 +1327,13 @@ function systemAdmin() {
 
                 const result = await response.json();
                 if (result.success) {
-                    window.showToast('Queue workers signaled to restart', 'success');
+                    window.showToast(@js(__('Queue workers signaled to restart')), 'success');
                 } else {
-                    window.showToast('Failed to restart workers', 'error');
+                    window.showToast(@js(__('Failed to restart workers')), 'error');
                 }
             } catch (error) {
                 console.error('Failed to restart workers:', error);
-                window.showToast('Failed to restart workers', 'error');
+                window.showToast(@js(__('Failed to restart workers')), 'error');
             }
         },
 
@@ -1331,7 +1347,7 @@ function systemAdmin() {
                 console.error('Failed to refresh supervisor status:', error);
                 this.supervisorStatus = {
                     available: false,
-                    message: 'Failed to check supervisor status',
+                    message: @js(__('Failed to check supervisor status')),
                     workers: [],
                     total: 0,
                     running: 0
@@ -1360,7 +1376,7 @@ function systemAdmin() {
 
                 if (result.success) {
                     this.settingsSaved = true;
-                    window.showToast('Setting saved', 'success');
+                    window.showToast(@js(__('Setting saved')), 'success');
                     setTimeout(() => { this.settingsSaved = false; }, 3000);
 
                     // When root folder changes, refresh the folder hierarchy from S3
@@ -1368,13 +1384,13 @@ function systemAdmin() {
                         await this.refreshFolderHierarchy();
                     }
                 } else {
-                    this.settingsError = result.error || 'Failed to save setting';
+                    this.settingsError = result.error || @js(__('Failed to save setting'));
                     window.showToast(this.settingsError, 'error');
                 }
             } catch (error) {
                 console.error('Failed to update setting:', error);
-                this.settingsError = 'Failed to save setting';
-                window.showToast('Failed to save setting', 'error');
+                this.settingsError = @js(__('Failed to save setting'));
+                window.showToast(@js(__('Failed to save setting')), 'error');
             } finally {
                 this.savingSettings = false;
             }
@@ -1393,10 +1409,10 @@ function systemAdmin() {
                     throw new Error('Failed to refresh folders');
                 }
 
-                window.showToast('Folder hierarchy refreshed from S3', 'success');
+                window.showToast(@js(__('Folder hierarchy refreshed from S3')), 'success');
             } catch (error) {
                 console.error('Failed to refresh folder hierarchy:', error);
-                window.showToast('Failed to refresh folder hierarchy', 'error');
+                window.showToast(@js(__('Failed to refresh folder hierarchy')), 'error');
             }
         },
 
@@ -1415,7 +1431,7 @@ function systemAdmin() {
                 console.error('S3 test failed:', error);
                 this.s3TestResult = true;
                 this.s3TestSuccess = false;
-                this.s3TestMessage = 'Connection test failed: ' + error.message;
+                this.s3TestMessage = @js(__('Connection test failed:')) + ' ' + error.message;
             } finally {
                 this.testingS3 = false;
             }
@@ -1448,11 +1464,11 @@ function systemAdmin() {
                 if (result.success) {
                     this.docContent = result.content;
                 } else {
-                    this.docError = result.error || 'Failed to load documentation';
+                    this.docError = result.error || @js(__('Failed to load documentation'));
                 }
             } catch (error) {
                 console.error('Failed to load documentation:', error);
-                this.docError = 'Failed to load documentation: ' + error.message;
+                this.docError = @js(__('Failed to load documentation:')) + ' ' + error.message;
             } finally {
                 this.loadingDoc = false;
             }
@@ -1504,18 +1520,18 @@ function systemAdmin() {
                     this.$nextTick(() => this.autoExpandFailedSuites());
 
                     if (result.stats.failed > 0) {
-                        window.showToast(`Tests completed: ${result.stats.failed} failed`, 'error');
+                        window.showToast(@js(__('Tests completed:')) + ' ' + result.stats.failed + ' ' + @js(__('failed')), 'error');
                     } else {
-                        window.showToast(`All ${result.stats.passed} tests passed!`, 'success');
+                        window.showToast(@js(__('All')) + ' ' + result.stats.passed + ' ' + @js(__('tests passed!')), 'success');
                     }
                 } else {
-                    this.testOutput = result.error || 'Failed to run tests';
-                    window.showToast('Failed to run tests', 'error');
+                    this.testOutput = result.error || @js(__('Failed to run tests'));
+                    window.showToast(@js(__('Failed to run tests')), 'error');
                 }
             } catch (error) {
                 console.error('Failed to run tests:', error);
                 this.testOutput = 'Error: ' + error.message;
-                window.showToast('Failed to run tests', 'error');
+                window.showToast(@js(__('Failed to run tests')), 'error');
             } finally {
                 clearInterval(progressInterval);
                 this.runningTests = false;
@@ -1624,7 +1640,7 @@ function systemAdmin() {
             const text = this.testOutput;
             if (navigator.clipboard && window.isSecureContext) {
                 navigator.clipboard.writeText(text).then(() => {
-                    window.showToast('Output copied to clipboard', 'success');
+                    window.showToast(@js(__('Output copied to clipboard')), 'success');
                 }).catch(err => {
                     console.error('Failed to copy:', err);
                     this.fallbackCopyToClipboard(text);
@@ -1645,10 +1661,10 @@ function systemAdmin() {
             textArea.select();
             try {
                 document.execCommand('copy');
-                window.showToast('Output copied to clipboard', 'success');
+                window.showToast(@js(__('Output copied to clipboard')), 'success');
             } catch (err) {
                 console.error('Fallback copy failed:', err);
-                window.showToast('Failed to copy output', 'error');
+                window.showToast(@js(__('Failed to copy output')), 'error');
             }
             textArea.remove();
         }
