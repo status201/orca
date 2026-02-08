@@ -158,7 +158,7 @@
                                         <div class="text-sm font-medium text-gray-900" x-text="object.filename"></div>
                                         <template x-if="object.is_deleted">
                                             <span class="text-xs px-2 py-0.5 bg-red-100 text-red-700 rounded-full whitespace-nowrap">
-                                                <i class="fas fa-trash-alt mr-1"></i>{{ __('Deleted') }}
+                                                <i class="attention fas fa-trash-alt mr-1"></i>{{ __('Deleted') }}
                                             </span>
                                         </template>
                                     </div>
@@ -254,7 +254,8 @@ function discoverObjects() {
                 this.unmappedObjects = data.objects || [];
                 this.scanned = true;
 
-                window.showToast(@js(__('Found')) + ` ${data.count} ` + @js(__('unmapped object(s)')));
+                window.showToast(@js(__('Found :count unmapped object(s)')).replace(':count', data.count));
+
             } catch (error) {
                 console.error('Scan error:', error);
                 window.showToast(@js(__('Failed to scan bucket')), 'error');
