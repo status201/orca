@@ -375,6 +375,7 @@
     "Import": "Importeren",
     "Import :count Selected": ":count geselecteerde importeren",
     "Import failed:": "Import mislukt:",
+    "Import initiated: :imported assets queued for processing, :skipped skipped.": "Import draait: :imported assets in de wachtrij, :skipped overgeslagen.",
     "Import into other systems": "Importeren in andere systemen",
     "Important:": "Belangrijk:",
     "Importing...": "Importeren...",

@@ -177,7 +177,10 @@ class DiscoverController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => "Import initiated: {$imported} assets queued for processing, {$skipped} skipped.",
+            'message' => __('Import initiated: :imported assets queued for processing, :skipped skipped.', [
+                'imported' => $imported,
+                'skipped' => $skipped
+            ]),
             'imported' => $imported,
             'skipped' => $skipped,
             'queued_asset_ids' => $queued,
