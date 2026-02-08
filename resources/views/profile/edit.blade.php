@@ -26,12 +26,12 @@
                 </div>
 
                 <!-- Right Column -->
-                <div class="space-y-6">
+                <div class="flex flex-col gap-6">
                     <div class="p-4 sm:p-8 bg-white shadow sm:rounded-lg">
                         @include('profile.partials.update-preferences-form')
                     </div>
 
-                    <div class="actions p-4 sm:p-8 bg-white shadow sm:rounded-lg">
+                    <div class="mt-auto p-4 sm:p-8 bg-white shadow sm:rounded-lg">
                         @include('profile.partials.delete-user-form')
                     </div>
                 </div>

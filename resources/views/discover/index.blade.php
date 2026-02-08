@@ -92,7 +92,7 @@
                                 <i class="fas fa-file-import mr-2"></i>
                                 <span x-text="selectedMessage"></span>
                             </div>
-                            
+
                         </template>
                         <template x-if="importing">
                             <span><i class="fas fa-spinner fa-spin mr-2"></i> {{ __('Importing...') }}</span>
