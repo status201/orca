@@ -874,6 +874,7 @@
                         <option value="USER_MANUAL.md">USER_MANUAL.md</option>
                         <option value="CLAUDE.md">CLAUDE.md</option>
                         <option value="DEPLOYMENT.md">DEPLOYMENT.md</option>
+                        <option value="GEBRUIKERSHANDLEIDING.md">GEBRUIKERSHANDLEIDING.md</option>
                         <option value="QUICK_REFERENCE.md">QUICK_REFERENCE.md</option>
                         <option value="README.md">README.md</option>
                         <option value="RTE_INTEGRATION.md">RTE_INTEGRATION.md</option>

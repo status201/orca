@@ -1,6 +1,28 @@
-# ORCA DAM User Manual
+# ORCA DAM — Quick Start Guide
 
 **ORCA Retrieves Cloud Assets** — Your friendly Digital Asset Manager
+
+---
+
+## Table of Contents
+
+1. [Welcome to ORCA!](#welcome-to-orca)
+2. [The Golden Rules](#the-golden-rules)
+3. [Getting Started](#getting-started)
+4. [Uploading Files](#uploading-files)
+5. [Browsing & Finding Assets](#browsing--finding-assets)
+6. [Working with Tags](#working-with-tags)
+7. [Editing Asset Details](#editing-asset-details)
+8. [Replacing Assets](#replacing-assets)
+9. [The Trash (Admin Only)](#the-trash-admin-only)
+10. [Moving Files (The Long Way)](#moving-files-the-long-way)
+11. [Discover Feature (Admin Only)](#discover-feature-admin-only)
+12. [Export to CSV (Admin Only)](#export-to-csv-admin-only)
+13. [API Docs & Token Management (Admin Only)](#api-docs--token-management-admin-only)
+14. [User Preferences](#user-preferences)
+15. [Tips & Tricks](#tips--tricks)
+16. [Glossary](#glossary)
+17. [Getting Help](#getting-help)
 
 ---
 
@@ -8,63 +30,30 @@
 
 Congratulations on getting access to ORCA DAM! Whether you're uploading images for course materials, managing documents, or organizing media files for Studyflow, you've come to the right place.
 
-### Why Does ORCA Exist?
-
-Ever tried managing files directly on Amazon S3? It's like trying to organize a library where:
-
-- There's no search function
-- You can't add notes to books
-- Anyone with access can accidentally delete important files
-- There's no way to know who uploaded what
-- Oops, you just made a file public that shouldn't be
-
-**Not fun.**
-
-That's exactly why we built ORCA. Think of it as a friendly reception desk in front of a massive warehouse.
-ORCA sits between you and the raw cloud storage, making everything safer, searchable, and manageable.
+Ever tried managing files directly on Amazon S3? No search, no notes on files, no idea who uploaded what, and one wrong click makes something public that shouldn't be. **Not fun.** ORCA is the friendly reception desk in front of that massive warehouse — it sits between you and the raw cloud storage, making everything safer, searchable, and manageable.
 
 ---
 
-## Before You Start: Important Things to Know
-
-### The Golden Rules of ORCA
+## The Golden Rules
 
 ORCA has some deliberate limitations. These aren't bugs — they're safety features!
 
-#### 1. You Can Rename Files — But Not Move Them
+**1. You Can Rename Files — But Not Move Them**
+You can change an asset's **display filename** anytime via the Edit page. The actual URL (S3 key) stays the same, so existing links never break.
 
-You can edit an asset's **display filename** at any time via the Edit page. This changes how the file appears in ORCA, but the actual URL (the S3 key) stays exactly the same. All existing links in Studyflow and other systems continue to work.
+**2. You Cannot Move Files Between Folders**
+Moving would change the URL, breaking all existing links. See "Moving Files (The Long Way)" below for the workaround.
 
-#### 2. You Cannot Move Files Between Folders
-
-Moving a file would change its URL, breaking all existing links.
-
-**What to do instead:** See the "Moving Files (The Long Way)" section below.
-
-#### 3. Soft Delete is Your Safety Net
-
-When you delete a file, it doesn't actually vanish into thin air. It goes to the Trash first (we call this "soft delete"). Only administrators can permanently delete files or restore them from the Trash.
-
-This means: accidentally deleted something? Don't panic! Ask an admin to restore it.
+**3. Soft Delete is Your Safety Net**
+Deleted files go to Trash first ("soft delete"). Only admins can permanently delete or restore files. Accidentally deleted something? Don't panic — ask an admin!
 
 ---
 
 ## Getting Started
 
-### The Dashboard
-
-When you log in, you'll see your personal dashboard showing:
-
-- **Total Assets** — All files in the system
-- **My Assets** — Files you personally uploaded
-- **Total Storage** — How much space is being used
-- **Tags** — Count of user-created and AI-generated tags
-
-*Admins see additional stats like total users and trashed items.*
+When you log in, your dashboard shows **Total Assets**, **My Assets**, **Total Storage**, and **Tag** counts. Admins also see user count and trashed items.
 
 ### Your Role: Editor vs Admin
-
-ORCA has two user roles with different capabilities:
 
 | Feature | Editor | Admin |
 |---------|:------:|:-----:|
@@ -88,172 +77,78 @@ ORCA has two user roles with different capabilities:
 
 ## Uploading Files
 
-### Choosing the Right Folder — This is Important!
-
-Remember how we said you can't move files? This is why **choosing the correct folder before uploading is crucial**.
-
-Think before you click that upload button:
-
-- Where does this file belong?
-- Will other team members know where to find it?
-- Does a suitable folder already exist?
-
-*Admins can create new folders if needed — just ask!*
+Remember: you can't move files later, so **choose the correct folder before uploading**. Think about where the file belongs and whether other team members can find it. Need a new folder? Ask an admin!
 
 ### How to Upload
 
 1. Click **Upload** in the navigation menu
-2. Select your target folder from the dropdown
-3. Either:
-   - Drag and drop files onto the upload area, or
-   - Click to browse and select files
+2. Select your target folder
+3. Drag and drop files onto the upload area, or click to browse
 4. Watch the progress bars — larger files may take a moment
-5. Done! Your files are now in ORCA. Generating thumbnails and AI tags is done in the background, this might take a little while, just refresh the page.
+5. Done! Thumbnails and AI tags generate in the background; just refresh the page
 
-**File size limit:** Up to 500MB per file. Larger files are automatically uploaded in chunks, so don't worry if your connection hiccups — it can resume where it left off.
+**File size limit:** Up to 500MB per file. Larger files upload in chunks automatically, so connection hiccups won't lose your progress.
 
-### What Happens After Upload?
-
-1. Your file is safely stored in AWS S3
-2. A thumbnail is generated (for images)
-3. If AI tagging is enabled, ORCA automatically analyzes images and adds relevant tags
-4. The file appears in your asset library, ready to use
+After upload, your file is stored in S3, a thumbnail is generated (for images), AI tags are added if enabled, and the asset appears in your library.
 
 ---
 
 ## Browsing & Finding Assets
 
-### The Assets Page
+View assets in **Grid View** (visual thumbnails) or **List View** (detailed table) — toggle with the buttons in the top right.
 
-This is where you'll spend most of your time. You can view assets in two ways:
+**Search:** Type any part of a filename, tag, folder, S3 key, alt text, or caption.
 
-- **Grid View** — Visual thumbnails, great for images
-- **List View** — Detailed table, better for managing lots of files
+**Filters:** File type (images/videos/documents), folder, tags (multi-select).
 
-Toggle between them using the buttons in the top right.
-
-### Searching & Filtering
-
-**Search box:** Type any part of a filename, tag, folder, s3key to find it quickly.
-
-**Filters available:**
-- **File type** — Images, Videos, Documents
-- **Folder** — Browse by folder location
-- **Tags** — Filter by one or more tags (checkboxes let you select multiple)
-
-**Sorting options:**
-- Date modified (newest/oldest)
-- Date uploaded (newest/oldest)
-- Size (largest/smallest)
-- Name (A-Z / Z-A)
-- S3 key (the technical file path)
+**Sorting:** Date modified, date uploaded, size, name, or S3 key — each ascending or descending.
 
 ### Quick Actions
 
-Hover over any asset to see action buttons:
+Hover over any asset to see: **👁 View**, **📋 Copy URL**, **✏️ Edit**, **⇄ Replace**, **🗑 Delete**.
 
-- **👁 View** — See full details
-- **📋 Copy URL** — Copy the public link to your clipboard (for pasting into Studyflow)
-- **✏️ Edit** — Modify asset details
-- **⇄ Replace** — Replace an asset
-- **🗑 Delete** — Send to Trash
-
-In List View, you can also edit tags and license info directly inline — no need to open the full edit page!
+In List View, you can edit tags and license info directly inline.
 
 ---
 
 ## Working with Tags
 
-Tags help you organize and find assets. They're like labels you stick on files.
-
-### Two Types of Tags
+Tags are labels that help you organize and find assets. They come in two types:
 
 | Type | Icon | How Created |
 |------|------|-------------|
 | **User tags** | Blue badge | Added manually by you |
-| **AI tags** | Purple badge | Generated automatically by artificial intelligence |
+| **AI tags** | Purple badge | Generated automatically by AI |
 
-### Important Tag Rules
+**Tags are unique** — you can't have two tags with the same name. A tag's type (user/AI) is set when it's first created and doesn't change, even if the same tag is later added manually to another asset. This mostly matters for statistics, not day-to-day use.
 
-#### Tags Must Be Unique
+**Adding tags:** On the Edit page, type a tag name and press Enter. In List View, click the **+** button in the Tags column.
 
-You can't have two tags with the same name. This keeps things organized — imagine having three different "logo" tags!
+**Removing tags:** Click the **×** next to any tag. This only removes the connection — the tag itself still exists.
 
-#### Tag Type is Set at Birth
-
-Here's something that trips people up: a tag's type (user or AI) is determined when it's **first created**.
-
-**Example:**
-1. AI analyzes an image and creates the tag "sunset" (type: AI)
-2. Later, you manually add "sunset" to a different image
-3. The tag is still type "AI" — because that's how it was first created
-
-This doesn't really matter for day-to-day use, but it's good to know when you're looking at tag statistics.
-
-### Adding Tags to Assets
-
-**From the Edit page:**
-1. Open any asset
-2. Scroll to the Tags section
-3. Type a tag name and press Enter
-4. Repeat for more tags
-
-**From List View (inline):**
-1. Find the Tags column
-2. Click the **+** button
-3. Type your tag and press Enter or click Add
-
-### Removing Tags
-
-Click the **×** next to any tag to remove it from that asset. This doesn't delete the tag itself — it just removes the connection.
-
-### A Warning About Tags and Trash
-
-Here's a subtle but important thing:
-
-> **Tags showing "0 assets" might not be truly empty!**
-
-Why? Because they could still be attached to assets sitting in the Trash. You just can't see those trashed assets in the normal view.
-
-**When restoring from Trash:**
-- Tags that were still attached → **Preserved** ✓
-- Tags you removed before restoring → **Gone forever** ✗
-
-So if you delete an asset, then remove its tags, then restore it — those removed tags won't magically reappear.
+> **Tags showing "0 assets" might not be empty!** They could still be attached to trashed assets. When restoring from Trash, tags still attached are preserved, but tags you removed before restoring are gone forever.
 
 ---
 
 ## Editing Asset Details
 
-Click on any asset or hit the Edit button to modify:
+Click any asset or hit Edit to modify:
 
-### Filename
-You can change the display name of any asset. This only affects how it appears in ORCA — the actual URL and S3 key remain unchanged, so existing links are never broken.
-
-### Alt Text
-A short description of the image for accessibility (screen readers use this). Keep it brief but descriptive.
-
-*Example: "Student studying at a laptop in a library"*
-
-### Caption
-A longer description or credit line that might be displayed alongside the image.
-
-### License Information
-
-Track the usage rights for your assets:
-
-- **License Type** — Public Domain, Creative Commons variants, Fair Use, All Rights Reserved
-- **License Expiry Date** — When does the license run out? (leave empty if perpetual)
-- **Copyright Holder** — Who owns the rights?
-- **Copyright Source** — Link to where you found the licensing info
+- **Filename** — Display name only; the URL and S3 key stay the same, so links never break
+- **Alt Text** — Short description for accessibility. Keep it brief but descriptive (e.g., "Student studying at a laptop in a library")
+- **Caption** — Longer description or credit line displayed alongside the image
+- **License Info** — Track usage rights:
+  - **License Type** — Public Domain, Creative Commons variants, Fair Use, All Rights Reserved
+  - **License Expiry Date** — When does the license run out? (leave empty if perpetual)
+  - **Copyright Holder** — Who owns the rights?
+  - **Copyright Source** — Link to where you found the licensing info
 
 ### Generating AI Tags
 
 If AI tagging is enabled and you want fresh suggestions:
 1. Open the Edit page for any image
 2. Click **Generate AI Tags**
-3. Wait a moment while the AI analyzes the image
-4. New tags appear automatically!
+3. New tags appear automatically
 
 *Note: This replaces any existing AI tags on that asset.*
 
@@ -261,263 +156,130 @@ If AI tagging is enabled and you want fresh suggestions:
 
 ## Replacing Assets
 
-Sometimes you need to update a file without changing its URL. Maybe you uploaded a placeholder image while the final version was still being designed, or you need to fix a typo in a document. That's where **Asset Replace** comes in.
+Need to update a file without changing its URL? **Asset Replace** keeps the same URL, preserves all metadata (alt text, caption, tags, license info), and only swaps the file itself. All existing links continue to work.
 
-### Why Replace Instead of Re-upload?
+### How to Replace
 
-Remember the Golden Rules? You can't rename or move files because it would break links. The same problem applies if you delete a file and upload a new one — you'd get a completely new URL.
+1. Go to the **Edit** page → click **Replace File**
+2. You'll see the current file preview and a drop zone for the new file
+3. Drag and drop or browse for your replacement
+4. **The new file must have the same extension** (e.g., `.jpg` → `.jpg`, not `.jpg` → `.png`)
+5. Click **Replace File** and confirm the warning dialog
 
-**Asset Replace solves this:**
-- The URL stays exactly the same
-- All existing links in (published or draft) content continue to work
-- All metadata (alt text, caption, tags, license info) is preserved
-- Only the file itself changes
+If you need to change the file format entirely, you'll have to delete and re-upload (which means updating all links).
 
-### How to Replace an Asset
+### The Placeholder Workflow
 
-1. Go to the **Edit** page for the asset you want to replace
-2. Click the **Replace File** button (below the preview image)
-3. On the Replace page, you'll see:
-   - The current file preview and details
-   - A drop zone for your new file
-4. Drag and drop your replacement file, or click to browse
-5. **Important:** The new file must have the same extension (e.g., you can't replace a `.jpg` with a `.png`)
-6. Click **Replace File** and confirm the warning dialog
-7. Wait for the upload to complete — you'll be redirected back to the Edit page
+This is where Asset Replace really shines:
 
-### The Draft/Placeholder Workflow
+1. **Upload placeholders** with clear names like `hero-image-DRAFT.jpg` — tag them `draft`!
+2. **Link them in Studyflow** using the ORCA URLs
+3. **Replace when ready** — swap in the final versions
+4. **No broken links** — Studyflow automatically shows the new images
 
-This is where Asset Replace really shines. Here's a common scenario:
-
-1. **Create content early:** You're building a course in Studyflow, but the final images aren't ready yet
-2. **Upload placeholders:** Upload temporary images with clear names like `hero-image-DRAFT.jpg`
-3. **Link them in Studyflow:** Add the images to your content using the ORCA URLs
-4. **Replace when ready:** When the final images arrive, simply replace the placeholders
-5. **No broken links:** Studyflow automatically shows the new images!
-
-### Tips for Using Drafts
-
-**Tag your placeholders!** Add a tag like `draft` or `placeholder` to temporary uploads. This makes them easy to find later:
-
-1. Filter by the `draft` tag to see all your placeholders
-2. Replace each one with the final version
-3. Remove the `draft` tag when done
-
-**Use descriptive filenames:** Even for placeholders, name them clearly:
-- `hero-section-DRAFT.jpg` ✓
-- `temp1.jpg` ✗
-
-**Keep a list:** For larger projects, maintain a simple checklist of placeholder files that need replacing.
+Filter by the `draft` tag to see all your placeholders, replace each one, and remove the tag when done.
 
 ### Important Warnings
 
-#### Same Extension Required
+> **The original file is permanently gone after replacement** (unless S3 versioning is enabled — ask your admin). There's no undo.
 
-You must replace a file with one of the same type:
-- `.jpg` can only be replaced with `.jpg`
-- `.pdf` can only be replaced with `.pdf`
-- `.png` cannot replace `.jpg` (different format!)
-
-If you need to change the file format, you'll have to delete and re-upload (which means updating all links).
-
-#### The Previous Version is Lost
-
-This is crucial to understand:
-
-> **Without S3 versioning enabled, the original file is permanently deleted when you replace it.**
-
-Ask your administrator if versioning is enabled on your S3 bucket. If it is, previous versions are kept and can potentially be recovered. If not, replacement is a one-way operation — there's no undo.
-
-#### Thumbnail and Dimensions Update
-
-When you replace an image:
-- A new thumbnail is generated automatically
-- The stored dimensions (width/height) update to match the new file
-- The file size updates
-
-This is expected behavior — the metadata should reflect the actual file.
+When you replace an image, the thumbnail, dimensions, and file size all update automatically to match the new file.
 
 ---
 
 ## The Trash (Admin Only)
 
-When files are deleted, they go to the Trash — a holding area before permanent deletion.
-
-### Viewing the Trash
-
-Admins can access the Trash from the navigation menu. Here you'll see all soft-deleted assets with options to:
+Deleted files go to Trash — a holding area before permanent deletion. Admins can access it from the navigation menu.
 
 - **Restore** — Bring the asset back to life
-- **Delete Permanently** — Remove forever (this also deletes the actual file from S3)
+- **Delete Permanently** — Remove forever (also deletes the file from S3)
 
-### Why Soft Delete?
-
-It's your safety net:
-- Accidentally deleted something? Restore it!
-- Need to audit what was removed? Check the Trash!
-- Prevents the "oh no" moment of irreversible deletion
+It's your safety net: accidentally deleted something? Restore it! Need to audit what was removed? Check the Trash. Prevents the "oh no" moment of irreversible deletion.
 
 ---
 
 ## Moving Files (The Long Way)
 
-Since ORCA doesn't allow moving files directly (remember, it would break links!), here's the workaround:
+Since ORCA doesn't allow moving files (it would break links!), here's the workaround:
 
-1. **Download the file** to your computer first
+1. **Download** the file to your computer
 2. **Soft delete** the original in ORCA
 3. Ask an **admin to permanently delete** the trashed file
-4. **Upload the file again** to the correct folder
+4. **Upload** the file to the correct folder
 5. **Update all links** in Studyflow to point to the new URL
 
-Yes, it's tedious. That's intentional — it makes you think twice about whether you really need to move something, and reminds you to update those links.
+Yes, it's tedious. That's intentional — it makes you think twice and reminds you to update those links.
 
 ---
 
 ## Discover Feature (Admin Only)
 
-Sometimes files end up in S3 without going through ORCA (uploaded directly, migrated from another system, etc.).
+Files sometimes end up in S3 without going through ORCA (direct uploads, migrations, etc.). **Discover** lets admins scan S3 for unmapped files, preview them, and import selected ones into ORCA.
 
-The **Discover** feature lets admins:
-1. Scan S3 for files that aren't in ORCA's database
-2. Preview what was found
-3. Import selected files into ORCA
-
-Files that belong to trashed assets are shown with a red "Deleted" badge to prevent accidentally re-importing something that was intentionally removed.
+Files belonging to trashed assets show a red "Deleted" badge to prevent accidentally re-importing something intentionally removed.
 
 ---
 
 ## Export to CSV (Admin Only)
 
-Need to analyze your asset library in a spreadsheet? Admins can export everything to CSV:
-
-1. Go to Assets
-2. Apply any filters you want (the export respects your current filter)
-3. Click the **Export** button
-4. Open the downloaded CSV in Excel, Google Sheets, or your preferred tool
-
-The export includes:
-- All file details (name, size, type, dimensions)
-- Tags (user and AI in separate columns)
-- License and copyright info
-- Public URLs
-- Who uploaded it and when
+Admins can export the asset library to CSV: go to Assets, apply any filters, and click **Export**. The export includes file details, tags (user and AI in separate columns), license/copyright info, public URLs, and uploader info.
 
 ---
 
 ## API Docs & Token Management (Admin Only)
 
-If external systems (websites, apps, rich text editors) need to access your DAM, admins can manage API authentication from the **API Docs** page.
-
-### Accessing the API Docs Page
-
-Click your name in the top-right → **API Docs**
+External systems can access your DAM via the API. Manage authentication from the **API Docs** page (click your name → API Docs).
 
 ### API Tokens (Sanctum)
 
-API tokens are **long-lived** credentials for backend-to-backend integrations. They should never be exposed in frontend code.
+Long-lived credentials for backend-to-backend integrations. Never expose these in frontend code.
 
-**To create a token:**
 1. Go to API Docs → **API Tokens** tab
-2. Select an existing user or create a new API user
-3. Give the token a descriptive name (e.g., "Website CMS")
-4. Click **Create Token**
-5. **Copy the token immediately** — it will only be shown once
+2. Select a user, give the token a descriptive name (e.g., "Website CMS")
+3. Click **Create Token**
+4. **Copy immediately — shown only once!**
 
-**To revoke a token:**
-- Click the revoke button next to the token in the list
+Revoke anytime from the token list.
 
 ### JWT Secrets
 
-JWT secrets are for **frontend integrations** (e.g., rich text editors). Your external backend generates short-lived JWT tokens using the secret, and ORCA validates them.
+For frontend integrations (e.g., rich text editors). Your external backend generates short-lived JWTs using the secret, and ORCA validates them.
 
-**To generate a JWT secret:**
 1. Go to API Docs → **JWT Secrets** tab
-2. Select a user from the dropdown
-3. Click **Generate Secret**
-4. **Copy the secret immediately** — it will only be shown once
-5. Share the secret securely with the external system's backend developer
+2. Select a user, click **Generate Secret**
+3. **Copy immediately — shown only once!**
+4. Share the secret securely with the external system's backend developer
 
-**To revoke a JWT secret:**
-- Click the revoke button next to the user in the list
+Revoke from the list when no longer needed.
 
-> **Note:** JWT authentication must be enabled in the system configuration (`JWT_ENABLED=true` in `.env`). You can also toggle it at runtime from the API Docs dashboard.
+> JWT authentication must be enabled (`JWT_ENABLED=true` in `.env`). You can also toggle it at runtime from the API Docs dashboard.
 
 ---
 
 ## User Preferences
 
-You can customize ORCA to work the way you prefer. Access your preferences via the **Profile** page (click your name in the top-right menu).
+Customize ORCA via the **Profile** page (click your name → Profile → Preferences section → Save).
 
 ### Available Preferences
 
-#### Home Folder
+- **Home Folder** — Default starting folder when browsing assets. Useful if you mostly work in one folder (e.g., `assets/marketing`). Leave empty for root. Use the refresh icon (↻) to reload the folder list if new folders were added.
+- **Items Per Page** — Choose from 12, 24, 36, 48, 60, 72, or 96. Select "Use default" to follow the global setting. The per-page dropdown on the Assets page still works as a session override.
+- **Language** — English or Nederlands. Select "Use default" to follow the admin's global setting. Changes take effect on the next page load.
 
-Set your default starting folder when browsing assets. This is useful if you mostly work in a specific folder.
-
-- When you visit the Assets page without specifying a folder, ORCA will automatically show your home folder
-- The folder must be within the system's configured root folder
-- Leave empty to use the default (root folder)
-
-**Example:** If you always work with marketing assets, set your home folder to `assets/marketing`. Every time you go to Assets, you'll start there instead of the root.
-
-#### Items Per Page
-
-Set how many assets you want to see per page by default.
-
-- Choose from: 12, 24, 36, 48, 60, 72, or 96
-- Select "Use default" to follow the global system setting
-- This affects both Grid and List views
-
-**Note:** The "Results per page" dropdown on the Assets page still works — it overrides your preference for that session. Your preference is just the default when you first load the page.
-
-#### Language
-
-Choose the interface language for your ORCA session. Currently supported: **English** and **Nederlands (Dutch)**.
-
-- Select a language to override the global system default
-- Select "Use default" to follow whatever your admin has configured
-- The change takes effect on the next page load
-
-### How Preferences Work
-
-Preferences follow a hierarchy (highest priority first):
-
-1. **URL parameters** — If you click a link with `?folder=assets/docs`, that wins
-2. **Your user preference** — What you set in Profile → Preferences
-3. **Global system setting** — The default configured by your admin
-
-This applies to home folder, items per page, and language. Your preferences are respected, but you can still navigate freely — clicking a different folder or changing the results dropdown won't reset to your preferences until you load a fresh page.
-
-### Setting Your Preferences
-
-1. Click your name in the top-right corner
-2. Select **Profile**
-3. Scroll down to the **Preferences** section
-4. Choose your preferred home folder from the dropdown
-5. Choose your preferred items per page
-6. Choose your preferred language (or "Use default" to follow the global setting)
-7. Click **Save**
-
-You'll see a "Saved" confirmation when successful.
-
-**Tip:** Click the refresh icon (↻) next to the folder dropdown to reload the folder list if new folders were recently created.
+Preferences follow a priority: URL parameters > your user preference > global system setting. Your preferences are respected, but navigating freely (clicking folders, changing dropdowns) won't reset until you load a fresh page.
 
 ---
 
 ## Tips & Tricks
 
-### Keyboard Shortcuts
+**Keyboard Shortcuts:** Enter to confirm, Escape to cancel.
 
-- **Enter** — Confirm tag input
-- **Escape** — Cancel current action
-
-### Best Practices
-
-1. **Name files clearly before uploading** — You can rename them later, but a clear original name helps
-2. **Use tags generously** — They make searching so much easier
-3. **Fill in alt text** — It's good for accessibility and helps you remember what's in the image
-4. **Choose folders wisely** — Think of the folder structure as permanent
-5. **Check the Trash before asking "where did my file go?"** — Someone might have deleted it
+**Best Practices:**
+1. **Name files clearly before uploading** — you can rename later, but clear originals help
+2. **Use tags generously** — they make searching much easier
+3. **Fill in alt text** — good for accessibility and helps you remember what's in the image
+4. **Choose folders wisely** — the folder structure is permanent
+5. **Check the Trash** before asking "where did my file go?"
 
 ---
 
@@ -525,35 +287,24 @@ You'll see a "Saved" confirmation when successful.
 
 | Term | Meaning |
 |------|---------|
-| **Asset** | Any file stored in ORCA (image, document, video, etc.) |
-| **S3** | Amazon's cloud storage service where your files actually live |
+| **S3** | Amazon's cloud storage where your files live |
 | **Soft Delete** | Sending a file to Trash (recoverable) |
-| **Hard/Permanent Delete** | Removing a file forever (not recoverable) |
+| **Hard Delete** | Removing a file forever (not recoverable) |
 | **AI Tags** | Tags automatically generated by artificial intelligence |
 | **User Tags** | Tags manually added by people |
 | **S3 Key** | The technical path/address of a file in cloud storage |
-| **Thumbnail** | A small preview image generated for visual files |
-| **Custom Domain** | A friendly URL (like `cdn.example.com`) used instead of the raw S3 bucket URL |
-| **Locale** | Your preferred interface language (e.g., English, Nederlands) |
-| **Preferences** | Personal settings (like home folder, language) that customize your ORCA experience |
+| **Custom Domain** | A friendly URL (like `cdn.example.com`) instead of the raw S3 bucket URL |
 | **Rekognition** | Amazon's AI service that analyzes images and suggests tags |
 | **Replace** | Uploading a new file to overwrite an existing asset while keeping the same URL |
 
-### Getting Help
+---
 
-Stuck? Here's what to do:
+## Getting Help
+
 - Check this manual first (you're already here!)
 - Ask your admin for help with permissions or restoring files
 - For technical issues, contact your system administrator
-
----
-
-### Need More Help?
-
-If you're an admin looking for technical documentation, check out:
-- `README.md` — General project overview
-- `CLAUDE.md` — Technical architecture details
-- `DEPLOYMENT.md` — Server setup instructions
+- Admins: see `README.md`, `CLAUDE.md`, and `DEPLOYMENT.md` for technical docs
 
 ---
 

@@ -481,6 +481,7 @@ class SystemController extends Controller
         $allowedFiles = [
             'CLAUDE.md',
             'DEPLOYMENT.md',
+            'GEBRUIKERSHANDLEIDING.md',
             'QUICK_REFERENCE.md',
             'README.md',
             'RTE_INTEGRATION.md',
