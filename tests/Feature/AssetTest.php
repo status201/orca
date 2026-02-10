@@ -242,7 +242,9 @@ test('replace accepts file with same extension', function () {
         'height' => 1080,
     ]);
     $s3Service->shouldReceive('deleteFile')->andReturn(true);
+    $s3Service->shouldReceive('deleteResizedImages')->once();
     $s3Service->shouldReceive('generateThumbnail')->andReturn('thumbnails/new_thumb.jpg');
+    $s3Service->shouldReceive('generateResizedImages')->andReturn(['s' => 'thumbnails/S/new.jpg', 'm' => 'thumbnails/M/new.jpg', 'l' => 'thumbnails/L/new.jpg']);
     $this->app->instance(\App\Services\S3Service::class, $s3Service);
 
     $file = \Illuminate\Http\UploadedFile::fake()->image('replacement.jpg', 1920, 1080);
@@ -313,7 +315,9 @@ test('replace accepts file with different case extension', function () {
         'height' => 600,
     ]);
     $s3Service->shouldReceive('deleteFile')->andReturn(true);
+    $s3Service->shouldReceive('deleteResizedImages')->once();
     $s3Service->shouldReceive('generateThumbnail')->andReturn(null);
+    $s3Service->shouldReceive('generateResizedImages')->andReturn([]);
     $this->app->instance(\App\Services\S3Service::class, $s3Service);
 
     // Upload file with uppercase extension
@@ -345,7 +349,9 @@ test('replace uses s3_key extension not filename extension', function () {
         'height' => 600,
     ]);
     $s3Service->shouldReceive('deleteFile')->andReturn(true);
+    $s3Service->shouldReceive('deleteResizedImages')->once();
     $s3Service->shouldReceive('generateThumbnail')->andReturn(null);
+    $s3Service->shouldReceive('generateResizedImages')->andReturn([]);
     $this->app->instance(\App\Services\S3Service::class, $s3Service);
 
     // Upload a .jpg file — should match s3_key extension, not filename
@@ -379,7 +385,9 @@ test('replace preserves tags after replacement', function () {
         'height' => 600,
     ]);
     $s3Service->shouldReceive('deleteFile')->andReturn(true);
+    $s3Service->shouldReceive('deleteResizedImages')->once();
     $s3Service->shouldReceive('generateThumbnail')->andReturn(null);
+    $s3Service->shouldReceive('generateResizedImages')->andReturn([]);
     $this->app->instance(\App\Services\S3Service::class, $s3Service);
 
     $file = \Illuminate\Http\UploadedFile::fake()->image('replacement.jpg');

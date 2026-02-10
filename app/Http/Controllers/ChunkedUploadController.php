@@ -167,6 +167,23 @@ class ChunkedUploadController extends Controller
                         'error' => $e->getMessage(),
                     ]);
                 }
+
+                // Generate resized images
+                try {
+                    $resizedKeys = $this->s3Service->generateResizedImages($asset->s3_key);
+                    if (! empty($resizedKeys)) {
+                        $asset->update([
+                            'resize_s_s3_key' => $resizedKeys['s'] ?? null,
+                            'resize_m_s3_key' => $resizedKeys['m'] ?? null,
+                            'resize_l_s3_key' => $resizedKeys['l'] ?? null,
+                        ]);
+                    }
+                } catch (\Exception $e) {
+                    Log::error('Resize generation failed for chunked upload', [
+                        'asset_id' => $asset->id,
+                        'error' => $e->getMessage(),
+                    ]);
+                }
             }
 
             // Auto-tag with AI (async)

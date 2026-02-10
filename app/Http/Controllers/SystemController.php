@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\RegenerateResizedImage;
+use App\Models\Asset;
 use App\Models\Setting;
 use App\Services\SystemService;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
@@ -210,6 +212,12 @@ class SystemController extends Controller
                 // Allow empty (disabled) or a valid URL starting with http(s)://
                 return $v === '' || preg_match('/^https?:\/\/[a-zA-Z0-9\-\.]+\.[a-zA-Z]{2,}(\/.*)?$/', $v);
             },
+            'resize_s_width' => fn ($v) => $v === '' || (is_numeric($v) && $v >= 50 && $v <= 5000),
+            'resize_s_height' => fn ($v) => $v === '' || (is_numeric($v) && $v >= 50 && $v <= 5000),
+            'resize_m_width' => fn ($v) => $v === '' || (is_numeric($v) && $v >= 50 && $v <= 5000),
+            'resize_m_height' => fn ($v) => $v === '' || (is_numeric($v) && $v >= 50 && $v <= 5000),
+            'resize_l_width' => fn ($v) => $v === '' || (is_numeric($v) && $v >= 50 && $v <= 5000),
+            'resize_l_height' => fn ($v) => $v === '' || (is_numeric($v) && $v >= 50 && $v <= 5000),
         ];
 
         if (isset($validationRules[$key]) && ! $validationRules[$key]($value)) {
@@ -230,6 +238,26 @@ class SystemController extends Controller
         return response()->json([
             'success' => $success,
             'message' => $success ? 'Setting updated successfully' : 'Failed to update setting',
+        ]);
+    }
+
+    /**
+     * Regenerate resized images for all image assets (AJAX)
+     */
+    public function regenerateResizedImages()
+    {
+        $this->authorize('access', SystemController::class);
+
+        $assetIds = Asset::where('mime_type', 'like', 'image/%')->pluck('id');
+
+        foreach ($assetIds as $assetId) {
+            RegenerateResizedImage::dispatch($assetId);
+        }
+
+        return response()->json([
+            'success' => true,
+            'count' => $assetIds->count(),
+            'message' => $assetIds->count().' resize job(s) dispatched',
         ]);
     }
 

@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\Asset;
 use App\Models\Setting;
 use Aws\S3\S3Client;
 use Illuminate\Http\UploadedFile;
@@ -186,6 +187,121 @@ class S3Service
             \Log::error('Thumbnail generation failed: '.$e->getMessage());
 
             return null;
+        }
+    }
+
+    /**
+     * Generate resized image variants (S, M, L) and upload to S3
+     */
+    public function generateResizedImages(string $s3Key): array
+    {
+        try {
+            // Skip non-image extensions
+            $extension = strtolower(pathinfo($s3Key, PATHINFO_EXTENSION));
+            $imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'tiff', 'tif'];
+            if (! in_array($extension, $imageExtensions)) {
+                return [];
+            }
+
+            // Read dimension settings
+            $sizes = [
+                's' => [
+                    'width' => Setting::get('resize_s_width', 250),
+                    'height' => Setting::get('resize_s_height', ''),
+                ],
+                'm' => [
+                    'width' => Setting::get('resize_m_width', 600),
+                    'height' => Setting::get('resize_m_height', ''),
+                ],
+                'l' => [
+                    'width' => Setting::get('resize_l_width', 1200),
+                    'height' => Setting::get('resize_l_height', ''),
+                ],
+            ];
+
+            // Download original from S3 once
+            $result = $this->s3Client->getObject([
+                'Bucket' => $this->bucket,
+                'Key' => $s3Key,
+            ]);
+            $imageContent = (string) $result['Body'];
+
+            // Build relative path for S3 key generation (same logic as generateThumbnail)
+            $rootPrefix = self::getRootPrefix();
+            $relativePath = ($rootPrefix !== '' && str_starts_with($s3Key, $rootPrefix))
+                ? substr($s3Key, strlen($rootPrefix))
+                : $s3Key;
+            $folder = dirname($relativePath);
+            $folder = ($folder === '.' || $folder === '') ? '' : $folder.'/';
+            $basename = pathinfo(basename($s3Key), PATHINFO_FILENAME);
+
+            $resizedKeys = [];
+
+            foreach ($sizes as $sizeKey => $dimensions) {
+                $w = ! empty($dimensions['width']) && is_numeric($dimensions['width']) ? (int) $dimensions['width'] : null;
+                $h = ! empty($dimensions['height']) && is_numeric($dimensions['height']) ? (int) $dimensions['height'] : null;
+
+                // Skip if no width AND no height configured
+                if ($w === null && $h === null) {
+                    continue;
+                }
+
+                $image = $this->imageManager->read($imageContent);
+
+                // scaleDown: fits inside box, keeps aspect ratio, never upscales
+                $image->scaleDown(width: $w, height: $h);
+
+                // Determine output format and content type
+                $outputExtension = $extension;
+                if ($extension === 'gif') {
+                    // GIFs become static JPEG
+                    $encoded = $image->toJpeg(quality: 85);
+                    $contentType = 'image/jpeg';
+                    $outputExtension = 'jpg';
+                } elseif ($extension === 'png') {
+                    $encoded = $image->toPng();
+                    $contentType = 'image/png';
+                } elseif ($extension === 'webp') {
+                    $encoded = $image->toWebp(quality: 85);
+                    $contentType = 'image/webp';
+                } else {
+                    $encoded = $image->toJpeg(quality: 85);
+                    $contentType = 'image/jpeg';
+                    if (! in_array($outputExtension, ['jpg', 'jpeg'])) {
+                        $outputExtension = 'jpg';
+                    }
+                }
+
+                $sizeLabel = strtoupper($sizeKey);
+                $resizedKey = "thumbnails/{$sizeLabel}/{$folder}{$basename}.{$outputExtension}";
+
+                $this->s3Client->putObject([
+                    'Bucket' => $this->bucket,
+                    'Key' => $resizedKey,
+                    'Body' => $encoded,
+                    'ContentType' => $contentType,
+                ]);
+
+                $resizedKeys[$sizeKey] = $resizedKey;
+            }
+
+            return $resizedKeys;
+        } catch (\Exception $e) {
+            \Log::error('Resize image generation failed: '.$e->getMessage());
+
+            return [];
+        }
+    }
+
+    /**
+     * Delete resized image variants from S3
+     */
+    public function deleteResizedImages(Asset $asset): void
+    {
+        foreach (['resize_s_s3_key', 'resize_m_s3_key', 'resize_l_s3_key'] as $field) {
+            if ($asset->{$field}) {
+                $this->deleteFile($asset->{$field});
+            }
         }
     }
 

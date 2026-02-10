@@ -49,6 +49,18 @@ class ProcessDiscoveredAsset implements ShouldQueue
                 $asset->update(['thumbnail_s3_key' => $thumbnailKey]);
             }
 
+            // Step 2b: Generate resized images
+            if ($asset->isImage()) {
+                $resizedKeys = $s3Service->generateResizedImages($asset->s3_key);
+                if (! empty($resizedKeys)) {
+                    $asset->update([
+                        'resize_s_s3_key' => $resizedKeys['s'] ?? null,
+                        'resize_m_s3_key' => $resizedKeys['m'] ?? null,
+                        'resize_l_s3_key' => $resizedKeys['l'] ?? null,
+                    ]);
+                }
+            }
+
             // Step 3: Run AI tagging if enabled
             if (config('services.aws.rekognition_enabled') && $asset->isImage()) {
                 Log::info("ProcessDiscoveredAsset: Running AI tagging for asset {$asset->id}");

@@ -968,6 +968,24 @@
             "nullable": true,
             "example": "thumbnails/abc123-uuid_thumb.jpg"
           },
+          "resize_s_s3_key": {
+            "type": "string",
+            "nullable": true,
+            "example": "thumbnails/S/abc123-uuid.jpg",
+            "description": "S3 key for small resize variant"
+          },
+          "resize_m_s3_key": {
+            "type": "string",
+            "nullable": true,
+            "example": "thumbnails/M/abc123-uuid.jpg",
+            "description": "S3 key for medium resize variant"
+          },
+          "resize_l_s3_key": {
+            "type": "string",
+            "nullable": true,
+            "example": "thumbnails/L/abc123-uuid.jpg",
+            "description": "S3 key for large resize variant"
+          },
           "alt_text": {
             "type": "string",
             "nullable": true,
@@ -1019,6 +1037,24 @@
             "format": "uri",
             "nullable": true,
             "description": "Public S3 URL for the thumbnail"
+          },
+          "resize_s_url": {
+            "type": "string",
+            "format": "uri",
+            "nullable": true,
+            "description": "Public URL for small resize variant"
+          },
+          "resize_m_url": {
+            "type": "string",
+            "format": "uri",
+            "nullable": true,
+            "description": "Public URL for medium resize variant"
+          },
+          "resize_l_url": {
+            "type": "string",
+            "format": "uri",
+            "nullable": true,
+            "description": "Public URL for large resize variant"
           },
           "formatted_size": {
             "type": "string",

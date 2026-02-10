@@ -59,6 +59,12 @@ test('export includes all required columns', function () {
     expect($content)->toContain('copyright_source');
     expect($content)->toContain('user_tags');
     expect($content)->toContain('ai_tags');
+    expect($content)->toContain('resize_s_s3_key');
+    expect($content)->toContain('resize_m_s3_key');
+    expect($content)->toContain('resize_l_s3_key');
+    expect($content)->toContain('resize_s_url');
+    expect($content)->toContain('resize_m_url');
+    expect($content)->toContain('resize_l_url');
 });
 
 test('export includes asset data', function () {

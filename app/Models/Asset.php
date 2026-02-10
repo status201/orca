@@ -22,6 +22,9 @@ class Asset extends Model
         'width',
         'height',
         'thumbnail_s3_key',
+        'resize_s_s3_key',
+        'resize_m_s3_key',
+        'resize_l_s3_key',
         'alt_text',
         'caption',
         'license_type',
@@ -42,6 +45,9 @@ class Asset extends Model
     protected $appends = [
         'url',
         'thumbnail_url',
+        'resize_s_url',
+        'resize_m_url',
+        'resize_l_url',
         'formatted_size',
         'folder',
     ];
@@ -118,6 +124,42 @@ class Asset extends Model
         }
 
         return S3Service::getPublicBaseUrl().'/'.$this->thumbnail_s3_key;
+    }
+
+    /**
+     * Get the small resize URL
+     */
+    public function getResizeSUrlAttribute(): ?string
+    {
+        if (! $this->resize_s_s3_key) {
+            return null;
+        }
+
+        return S3Service::getPublicBaseUrl().'/'.$this->resize_s_s3_key;
+    }
+
+    /**
+     * Get the medium resize URL
+     */
+    public function getResizeMUrlAttribute(): ?string
+    {
+        if (! $this->resize_m_s3_key) {
+            return null;
+        }
+
+        return S3Service::getPublicBaseUrl().'/'.$this->resize_m_s3_key;
+    }
+
+    /**
+     * Get the large resize URL
+     */
+    public function getResizeLUrlAttribute(): ?string
+    {
+        if (! $this->resize_l_s3_key) {
+            return null;
+        }
+
+        return S3Service::getPublicBaseUrl().'/'.$this->resize_l_s3_key;
     }
 
     /**

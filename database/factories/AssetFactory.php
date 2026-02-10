@@ -50,6 +50,9 @@ class AssetFactory extends Factory
             'width' => fake()->numberBetween(100, 4000),
             'height' => fake()->numberBetween(100, 4000),
             'thumbnail_s3_key' => 'thumbnails/'.Str::uuid().'_thumb.jpg',
+            'resize_s_s3_key' => 'thumbnails/S/'.Str::uuid().'.jpg',
+            'resize_m_s3_key' => 'thumbnails/M/'.Str::uuid().'.jpg',
+            'resize_l_s3_key' => 'thumbnails/L/'.Str::uuid().'.jpg',
         ]);
     }
 

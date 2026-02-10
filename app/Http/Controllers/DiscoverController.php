@@ -179,7 +179,7 @@ class DiscoverController extends Controller
             'success' => true,
             'message' => __('Import initiated: :imported assets queued for processing, :skipped skipped.', [
                 'imported' => $imported,
-                'skipped' => $skipped
+                'skipped' => $skipped,
             ]),
             'imported' => $imported,
             'skipped' => $skipped,

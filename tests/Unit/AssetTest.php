@@ -158,6 +158,31 @@ test('asset url falls back to s3 url when custom domain is empty', function () {
     cache()->forget('setting:custom_domain');
 });
 
+test('asset resize url accessors return correct urls when keys are set', function () {
+    $asset = Asset::factory()->create([
+        'resize_s_s3_key' => 'thumbnails/S/test.jpg',
+        'resize_m_s3_key' => 'thumbnails/M/test.jpg',
+        'resize_l_s3_key' => 'thumbnails/L/test.jpg',
+    ]);
+
+    $baseUrl = \App\Services\S3Service::getPublicBaseUrl();
+    expect($asset->resize_s_url)->toBe($baseUrl.'/thumbnails/S/test.jpg');
+    expect($asset->resize_m_url)->toBe($baseUrl.'/thumbnails/M/test.jpg');
+    expect($asset->resize_l_url)->toBe($baseUrl.'/thumbnails/L/test.jpg');
+});
+
+test('asset resize url accessors return null when keys are null', function () {
+    $asset = Asset::factory()->create([
+        'resize_s_s3_key' => null,
+        'resize_m_s3_key' => null,
+        'resize_l_s3_key' => null,
+    ]);
+
+    expect($asset->resize_s_url)->toBeNull();
+    expect($asset->resize_m_url)->toBeNull();
+    expect($asset->resize_l_url)->toBeNull();
+});
+
 test('asset scope withTags filters by tag ids', function () {
     $tag1 = Tag::factory()->create();
     $tag2 = Tag::factory()->create();

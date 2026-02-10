@@ -362,6 +362,105 @@
                     </div>
                 </div>
 
+                <!-- Image Resize Presets -->
+                <div>
+                    <h4 class="text-md font-semibold text-gray-800 mb-4 pb-2 border-b border-gray-200">
+                        <i class="fas fa-expand mr-2 text-gray-500"></i>{{ __('Image Resize Presets') }}
+                    </h4>
+                    <p class="text-xs text-gray-500 mb-4">{{ __('Configure dimensions for automatically generated image resize variants. Leave height empty for automatic aspect ratio. Images smaller than the target size will not be upscaled.') }}</p>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <!-- Small (S) -->
+                        <div class="space-y-3">
+                            <h5 class="text-sm font-medium text-gray-700">{{ __('Small (S)') }}</h5>
+                            <div>
+                                <label class="block text-xs text-gray-500 mb-1">{{ __('Width (px)') }}</label>
+                                <input type="number"
+                                       x-model="settings.resize_s_width"
+                                       @change="updateSetting('resize_s_width', settings.resize_s_width)"
+                                       min="50"
+                                       max="5000"
+                                       placeholder="250"
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orca-black focus:border-transparent">
+                            </div>
+                            <div>
+                                <label class="block text-xs text-gray-500 mb-1">{{ __('Height (px)') }}</label>
+                                <input type="number"
+                                       x-model="settings.resize_s_height"
+                                       @change="updateSetting('resize_s_height', settings.resize_s_height)"
+                                       min="50"
+                                       max="5000"
+                                       placeholder="{{ __('Auto') }}"
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orca-black focus:border-transparent">
+                            </div>
+                        </div>
+
+                        <!-- Medium (M) -->
+                        <div class="space-y-3">
+                            <h5 class="text-sm font-medium text-gray-700">{{ __('Medium (M)') }}</h5>
+                            <div>
+                                <label class="block text-xs text-gray-500 mb-1">{{ __('Width (px)') }}</label>
+                                <input type="number"
+                                       x-model="settings.resize_m_width"
+                                       @change="updateSetting('resize_m_width', settings.resize_m_width)"
+                                       min="50"
+                                       max="5000"
+                                       placeholder="600"
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orca-black focus:border-transparent">
+                            </div>
+                            <div>
+                                <label class="block text-xs text-gray-500 mb-1">{{ __('Height (px)') }}</label>
+                                <input type="number"
+                                       x-model="settings.resize_m_height"
+                                       @change="updateSetting('resize_m_height', settings.resize_m_height)"
+                                       min="50"
+                                       max="5000"
+                                       placeholder="{{ __('Auto') }}"
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orca-black focus:border-transparent">
+                            </div>
+                        </div>
+
+                        <!-- Large (L) -->
+                        <div class="space-y-3">
+                            <h5 class="text-sm font-medium text-gray-700">{{ __('Large (L)') }}</h5>
+                            <div>
+                                <label class="block text-xs text-gray-500 mb-1">{{ __('Width (px)') }}</label>
+                                <input type="number"
+                                       x-model="settings.resize_l_width"
+                                       @change="updateSetting('resize_l_width', settings.resize_l_width)"
+                                       min="50"
+                                       max="5000"
+                                       placeholder="1200"
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orca-black focus:border-transparent">
+                            </div>
+                            <div>
+                                <label class="block text-xs text-gray-500 mb-1">{{ __('Height (px)') }}</label>
+                                <input type="number"
+                                       x-model="settings.resize_l_height"
+                                       @change="updateSetting('resize_l_height', settings.resize_l_height)"
+                                       min="50"
+                                       max="5000"
+                                       placeholder="{{ __('Auto') }}"
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orca-black focus:border-transparent">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Regenerate Button -->
+                    <div class="mt-4">
+                        <button @click="regenerateAllSizes()"
+                                :disabled="regenerating"
+                                class="px-4 py-2 bg-orca-black text-white rounded-lg hover:bg-orca-black-hover disabled:opacity-50 disabled:cursor-not-allowed transition-all text-sm">
+                            <template x-if="!regenerating">
+                                <span><i class="fas fa-sync-alt mr-2"></i>{{ __('Regenerate All Sizes') }}</span>
+                            </template>
+                            <template x-if="regenerating">
+                                <span><i class="fas fa-spinner fa-spin mr-2"></i>{{ __('Regenerating...') }}</span>
+                            </template>
+                        </button>
+                        <p class="text-xs text-gray-500 mt-1">{{ __('Queues regeneration of all resize variants for existing image assets. This may take a while for large libraries.') }}</p>
+                    </div>
+                </div>
+
                 <!-- AWS Rekognition Settings -->
                 <div>
                     <h4 class="text-md font-semibold text-gray-800 mb-4 pb-2 border-b border-gray-200">
@@ -1143,12 +1242,19 @@ function systemAdmin() {
             rekognition_max_labels: '{{ collect($settings)->firstWhere('key', 'rekognition_max_labels')['value'] ?? '5' }}',
             rekognition_language: '{{ collect($settings)->firstWhere('key', 'rekognition_language')['value'] ?? 'en' }}',
             rekognition_min_confidence: '{{ collect($settings)->firstWhere('key', 'rekognition_min_confidence')['value'] ?? '80' }}',
+            resize_s_width: '{{ collect($settings)->firstWhere('key', 'resize_s_width')['value'] ?? '250' }}',
+            resize_s_height: '{{ collect($settings)->firstWhere('key', 'resize_s_height')['value'] ?? '' }}',
+            resize_m_width: '{{ collect($settings)->firstWhere('key', 'resize_m_width')['value'] ?? '600' }}',
+            resize_m_height: '{{ collect($settings)->firstWhere('key', 'resize_m_height')['value'] ?? '' }}',
+            resize_l_width: '{{ collect($settings)->firstWhere('key', 'resize_l_width')['value'] ?? '1200' }}',
+            resize_l_height: '{{ collect($settings)->firstWhere('key', 'resize_l_height')['value'] ?? '' }}',
             jwtSettingEnabled: '{{ collect($settings)->firstWhere('key', 'jwt_enabled_override')['value'] ?? '0' }}',
             metaEndpointEnabled: '{{ collect($settings)->firstWhere('key', 'api_meta_endpoint_enabled')['value'] ?? '0' }}',
         },
         settingsSaved: false,
         settingsError: '',
         savingSettings: false,
+        regenerating: false,
 
         systemInfo: {
           jwtEnvEnabled: '{{$systemInfo['jwt_enabled']}}',
@@ -1369,6 +1475,35 @@ function systemAdmin() {
                 };
             } finally {
                 this.loadingSupervisor = false;
+            }
+        },
+
+        async regenerateAllSizes() {
+            if (!confirm(@js(__('Are you sure you want to regenerate all resize variants? This will queue a job for every image asset.')))) {
+                return;
+            }
+
+            this.regenerating = true;
+            try {
+                const response = await fetch('{{ route('system.regenerate-resized-images') }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    },
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    window.showToast(result.count + @js(' ' . __('resize job(s) queued')), 'success');
+                } else {
+                    window.showToast(@js(__('Failed to queue regeneration')), 'error');
+                }
+            } catch (error) {
+                console.error('Failed to regenerate:', error);
+                window.showToast(@js(__('Failed to queue regeneration')), 'error');
+            } finally {
+                this.regenerating = false;
             }
         },
 

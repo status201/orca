@@ -180,6 +180,20 @@ class AssetController extends Controller
                             \Log::error("Thumbnail generation failed for {$asset->filename}: ".$e->getMessage());
                             // Continue without thumbnail
                         }
+
+                        // Generate resized images
+                        try {
+                            $resizedKeys = $this->s3Service->generateResizedImages($asset->s3_key);
+                            if (! empty($resizedKeys)) {
+                                $asset->update([
+                                    'resize_s_s3_key' => $resizedKeys['s'] ?? null,
+                                    'resize_m_s3_key' => $resizedKeys['m'] ?? null,
+                                    'resize_l_s3_key' => $resizedKeys['l'] ?? null,
+                                ]);
+                            }
+                        } catch (\Exception $e) {
+                            \Log::error("Resize generation failed for {$asset->filename}: ".$e->getMessage());
+                        }
                     }
 
                     // Auto-tag with AI if enabled
@@ -381,6 +395,9 @@ class AssetController extends Controller
             $this->s3Service->deleteFile($asset->thumbnail_s3_key);
         }
 
+        // Delete resized images
+        $this->s3Service->deleteResizedImages($asset);
+
         // Permanently delete from database
         $asset->forceDelete();
 
@@ -455,6 +472,9 @@ class AssetController extends Controller
                 $this->s3Service->deleteFile($asset->thumbnail_s3_key);
             }
 
+            // Delete old resized images
+            $this->s3Service->deleteResizedImages($asset);
+
             // Update asset record (only file-related fields)
             $asset->update([
                 'filename' => $fileData['filename'],
@@ -464,6 +484,9 @@ class AssetController extends Controller
                 'width' => $fileData['width'],
                 'height' => $fileData['height'],
                 'thumbnail_s3_key' => null,
+                'resize_s_s3_key' => null,
+                'resize_m_s3_key' => null,
+                'resize_l_s3_key' => null,
                 'last_modified_by' => Auth::id(),
             ]);
 
@@ -477,6 +500,20 @@ class AssetController extends Controller
                 } catch (\Exception $e) {
                     \Log::error('Thumbnail regeneration failed after replace: '.$e->getMessage());
                     // Continue without thumbnail - not critical
+                }
+
+                // Regenerate resized images
+                try {
+                    $resizedKeys = $this->s3Service->generateResizedImages($asset->s3_key);
+                    if (! empty($resizedKeys)) {
+                        $asset->update([
+                            'resize_s_s3_key' => $resizedKeys['s'] ?? null,
+                            'resize_m_s3_key' => $resizedKeys['m'] ?? null,
+                            'resize_l_s3_key' => $resizedKeys['l'] ?? null,
+                        ]);
+                    }
+                } catch (\Exception $e) {
+                    \Log::error('Resize regeneration failed after replace: '.$e->getMessage());
                 }
             }
 
@@ -537,7 +574,7 @@ class AssetController extends Controller
             \Log::error("Manual AI tagging failed for {$asset->filename}: ".$e->getMessage());
 
             return redirect()->route('assets.edit', $asset)
-                ->with('error', __('Failed to generate AI tags: ') .$e->getMessage());
+                ->with('error', __('Failed to generate AI tags: ').$e->getMessage());
         }
     }
 

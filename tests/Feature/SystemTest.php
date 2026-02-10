@@ -237,6 +237,66 @@ test('custom_domain rejects invalid urls', function () {
     $response->assertJson(['success' => false]);
 });
 
+test('admin can update resize_s_width setting', function () {
+    $admin = User::factory()->create(['role' => 'admin']);
+
+    $response = $this->actingAs($admin)->postJson(route('system.update-setting'), [
+        'key' => 'resize_s_width',
+        'value' => '300',
+    ]);
+
+    $response->assertOk();
+    $response->assertJson(['success' => true]);
+});
+
+test('resize width rejects values below 50', function () {
+    $admin = User::factory()->create(['role' => 'admin']);
+
+    $response = $this->actingAs($admin)->postJson(route('system.update-setting'), [
+        'key' => 'resize_s_width',
+        'value' => '10',
+    ]);
+
+    $response->assertStatus(422);
+});
+
+test('resize width allows empty string to disable', function () {
+    $admin = User::factory()->create(['role' => 'admin']);
+
+    $response = $this->actingAs($admin)->postJson(route('system.update-setting'), [
+        'key' => 'resize_m_height',
+        'value' => '',
+    ]);
+
+    $response->assertOk();
+    $response->assertJson(['success' => true]);
+});
+
+test('admin can regenerate resized images', function () {
+    $admin = User::factory()->create(['role' => 'admin']);
+
+    // Create some image assets
+    \App\Models\Asset::factory()->image()->count(3)->create();
+    \App\Models\Asset::factory()->pdf()->create(); // Should be excluded
+
+    \Illuminate\Support\Facades\Queue::fake();
+
+    $response = $this->actingAs($admin)->postJson(route('system.regenerate-resized-images'));
+
+    $response->assertOk();
+    $response->assertJson(['success' => true, 'count' => 3]);
+
+    \Illuminate\Support\Facades\Queue::assertPushed(\App\Jobs\RegenerateResizedImage::class, 3);
+});
+
+test('editors cannot regenerate resized images', function () {
+    $editor = User::factory()->create(['role' => 'editor']);
+
+    $response = $this->actingAs($editor)->postJson(route('system.regenerate-resized-images'));
+
+    $response->assertForbidden();
+});
+
 test('system page loads all settings correctly', function () {
     $admin = User::factory()->create(['role' => 'admin']);
 
