@@ -23,7 +23,7 @@ Route::middleware('auth.multi')->group(function () {
     Route::get('tags/search', [TagController::class, 'search']);
 
     // Folders API
-    Route::get('folders', [FolderController::class, 'index']);
+    Route::get('folders', [FolderController::class, 'index'])->name('folders.index');
 });
 
 // Chunked upload endpoints

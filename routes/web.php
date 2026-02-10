@@ -58,9 +58,6 @@ Route::middleware(['auth'])->group(function () {
     Route::patch('tags/{tag}', [TagController::class, 'update'])->name('tags.update');
     Route::delete('tags/{tag}', [TagController::class, 'destroy'])->name('tags.destroy');
 
-    // Folder routes (list for authenticated users)
-    Route::get('api/folders', [FolderController::class, 'index'])->name('folders.index');
-
     // Folder management (admin only)
     Route::middleware(['can:discover,App\Models\Asset'])->group(function () {
         Route::post('folders/scan', [FolderController::class, 'scan'])->name('folders.scan');
