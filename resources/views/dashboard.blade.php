@@ -201,7 +201,7 @@
                             <!-- Navigation -->
                             <div class="mt-8 flex items-center justify-between">
                                 <button @click="previousSlide(); pauseAutoPlay()"
-                                        class="p-3 rounded-full bg-white hover:bg-gray-100 transition-all shadow-sm hover:shadow-md">
+                                        class="p-3 w-12 h-12  rounded-full bg-white hover:bg-gray-100 transition-all shadow-sm hover:shadow-md">
                                     <i class="fas fa-chevron-left text-gray-700 w-4"></i>
                                 </button>
 
@@ -216,7 +216,7 @@
                                 </div>
 
                                 <button @click="nextSlide(); pauseAutoPlay()"
-                                        class="p-3 rounded-full bg-white hover:bg-gray-100 transition-all shadow-sm hover:shadow-md">
+                                        class="p-3 w-12 h-12 rounded-full bg-white hover:bg-gray-100 transition-all shadow-sm hover:shadow-md">
                                     <i class="fas fa-chevron-right text-gray-700 w-4"></i>
                                 </button>
                             </div>
