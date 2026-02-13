@@ -24,11 +24,11 @@
                 <div class="flex gap-4">
                     <label class="inline-flex items-center">
                         <input type="radio" x-model="matchField" value="s3_key" class="text-gray-900 focus:ring-gray-900">
-                        <span class="ml-2 text-sm">{{ __('S3 Key') }}</span>
+                        <span class="ml-2 text-sm">{{ __('s3_key') }}</span>
                     </label>
                     <label class="inline-flex items-center">
                         <input type="radio" x-model="matchField" value="filename" class="text-gray-900 focus:ring-gray-900">
-                        <span class="ml-2 text-sm">{{ __('Filename') }}</span>
+                        <span class="ml-2 text-sm">{{ __('filename') }}</span>
                     </label>
                 </div>
                 <p class="text-xs text-gray-500 mt-1">{{ __('Choose which field to use for matching CSV rows to existing assets') }}</p>
