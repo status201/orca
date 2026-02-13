@@ -71,6 +71,9 @@
                             <x-dropdown-link :href="route('api.index')">
                                 <i class="fas fa-code mr-2"></i>{{ __('API') }}
                             </x-dropdown-link>
+                            <x-dropdown-link :href="route('import.index')">
+                                <i class="fas fa-file-import mr-2"></i>{{ __('Import') }}
+                            </x-dropdown-link>
                         @endcan
 
                         <!-- Authentication -->
@@ -151,6 +154,9 @@
                     </x-responsive-nav-link>
                     <x-responsive-nav-link :href="route('api.index')">
                         <i class="fas fa-code mr-2"></i>{{ __('API') }}
+                    </x-responsive-nav-link>
+                    <x-responsive-nav-link :href="route('import.index')">
+                        <i class="fas fa-file-import mr-2"></i>{{ __('Import') }}
                     </x-responsive-nav-link>
                 @endcan
 

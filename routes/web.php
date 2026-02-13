@@ -6,6 +6,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DiscoverController;
 use App\Http\Controllers\ExportController;
 use App\Http\Controllers\FolderController;
+use App\Http\Controllers\ImportController;
 use App\Http\Controllers\JwtSecretController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SystemController;
@@ -95,6 +96,11 @@ Route::middleware(['auth'])->group(function () {
         Route::get('system/documentation', [SystemController::class, 'documentation'])->name('system.documentation');
         Route::post('system/regenerate-resized-images', [SystemController::class, 'regenerateResizedImages'])->name('system.regenerate-resized-images');
         Route::post('system/run-tests', [SystemController::class, 'runTests'])->name('system.run-tests');
+
+        // Import metadata
+        Route::get('import', [ImportController::class, 'index'])->name('import.index');
+        Route::post('import/preview', [ImportController::class, 'preview'])->name('import.preview');
+        Route::post('import/import', [ImportController::class, 'import'])->name('import.import');
 
         // API Documentation page
         Route::get('api-docs', [ApiDocsController::class, 'index'])->name('api.index');
