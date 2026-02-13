@@ -26,17 +26,7 @@
                     name="home_folder"
                     class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-2 focus:ring-orca-black focus:border-transparent font-mono text-sm">
                 <option value="">{{ __('Use default (root)') }}</option>
-                @foreach($folders as $folder)
-                    @php
-                        $rootPrefix = $rootFolder !== '' ? $rootFolder . '/' : '';
-                        $relativePath = ($folder === '' || $folder === $rootFolder) ? '' : str_replace($rootPrefix, '', $folder);
-                        $depth = $relativePath ? substr_count($relativePath, '/') + 1 : 0;
-                        $label = ($folder === '' || $folder === $rootFolder)
-                            ? '/ (root)'
-                            : str_repeat('╎  ', max(0, $depth - 1)) . '├─ ' . basename($folder);
-                    @endphp
-                    <option value="{{ $folder }}">{{ $label }}</option>
-                @endforeach
+                <x-folder-tree-options :folders="$folders" :root-folder="$rootFolder" />
             </select>
             <p class="mt-1 text-xs text-gray-500">{{ __('Your default starting folder when browsing assets.') }}</p>
             <p x-show="errors.home_folder" x-text="errors.home_folder" class="mt-2 text-sm text-red-600"></p>

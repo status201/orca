@@ -16,15 +16,7 @@
             <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                 <select x-model="selectedFolder"
                         class="flex-1 rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 font-mono text-sm">
-                    @foreach($folders as $folder)
-                        @php
-                            $rootPrefix = $rootFolder !== '' ? $rootFolder . '/' : '';
-                            $relativePath = ($folder === '' || ($rootFolder !== '' && $folder === $rootFolder)) ? '' : ($rootPrefix !== '' ? str_replace($rootPrefix, '', $folder) : $folder);
-                            $depth = $relativePath ? substr_count($relativePath, '/') + 1 : 0;
-                            $label = ($folder === '' || ($rootFolder !== '' && $folder === $rootFolder)) ? '/ (root)' : str_repeat('╎  ', max(0, $depth - 1)) . '├─ ' . basename($folder);
-                        @endphp
-                        <option value="{{ $folder }}">{{ $label }}</option>
-                    @endforeach
+                    <x-folder-tree-options :folders="$folders" :root-folder="$rootFolder" />
                 </select>
 
                 @can('discover', App\Models\Asset::class)
