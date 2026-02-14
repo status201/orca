@@ -595,3 +595,90 @@ test('assets index can sort by name', function () {
     expect($assets[0]->filename)->toBe('zeta.jpg');
     expect($assets[1]->filename)->toBe('alpha.jpg');
 });
+
+test('storeThumbnail uploads base64 thumbnail for video asset', function () {
+    $user = User::factory()->create();
+    $asset = Asset::factory()->create([
+        'filename' => 'video.mp4',
+        'mime_type' => 'video/mp4',
+        's3_key' => 'assets/video.mp4',
+        'thumbnail_s3_key' => null,
+    ]);
+
+    $s3Service = Mockery::mock(\App\Services\S3Service::class);
+    $s3Service->shouldReceive('uploadThumbnail')
+        ->once()
+        ->with('assets/video.mp4', Mockery::type('string'))
+        ->andReturn('thumbnails/video_thumb.jpg');
+    $this->app->instance(\App\Services\S3Service::class, $s3Service);
+
+    // Valid 1x1 white JPEG as base64
+    $base64 = '/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAABAAEDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAFRABAQAAAAAAAAAAAAAAAAAAAAf/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFBEBAAAAAAAAAAAAAAAAAAAAAP/aAAwDAQACEQMRAD8AOANH/9k=';
+
+    $response = $this->actingAs($user)
+        ->postJson(route('assets.thumbnail.store', $asset), [
+            'thumbnail' => $base64,
+        ]);
+
+    $response->assertStatus(200);
+    $response->assertJsonFragment(['message' => 'Video preview generated successfully.']);
+
+    $asset->refresh();
+    expect($asset->thumbnail_s3_key)->toBe('thumbnails/video_thumb.jpg');
+});
+
+test('storeThumbnail deletes old thumbnail before uploading new one', function () {
+    $user = User::factory()->create();
+    $asset = Asset::factory()->create([
+        'filename' => 'video.mp4',
+        'mime_type' => 'video/mp4',
+        's3_key' => 'assets/video.mp4',
+        'thumbnail_s3_key' => 'thumbnails/old_thumb.jpg',
+    ]);
+
+    $s3Service = Mockery::mock(\App\Services\S3Service::class);
+    $s3Service->shouldReceive('deleteFile')
+        ->once()
+        ->with('thumbnails/old_thumb.jpg')
+        ->andReturn(true);
+    $s3Service->shouldReceive('uploadThumbnail')
+        ->once()
+        ->andReturn('thumbnails/video_thumb.jpg');
+    $this->app->instance(\App\Services\S3Service::class, $s3Service);
+
+    $base64 = '/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAABAAEDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAFRABAQAAAAAAAAAAAAAAAAAAAAf/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFBEBAAAAAAAAAAAAAAAAAAAAAP/aAAwDAQACEQMRAD8AOANH/9k=';
+
+    $response = $this->actingAs($user)
+        ->postJson(route('assets.thumbnail.store', $asset), [
+            'thumbnail' => $base64,
+        ]);
+
+    $response->assertStatus(200);
+});
+
+test('storeThumbnail requires authentication', function () {
+    $asset = Asset::factory()->create([
+        'mime_type' => 'video/mp4',
+        's3_key' => 'assets/video.mp4',
+    ]);
+
+    $response = $this->postJson(route('assets.thumbnail.store', $asset), [
+        'thumbnail' => 'base64data',
+    ]);
+
+    $response->assertStatus(401);
+});
+
+test('storeThumbnail validates thumbnail field is required', function () {
+    $user = User::factory()->create();
+    $asset = Asset::factory()->create([
+        'mime_type' => 'video/mp4',
+        's3_key' => 'assets/video.mp4',
+    ]);
+
+    $response = $this->actingAs($user)
+        ->postJson(route('assets.thumbnail.store', $asset), []);
+
+    $response->assertStatus(422);
+    $response->assertJsonValidationErrors('thumbnail');
+});

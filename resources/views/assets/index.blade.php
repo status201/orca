@@ -171,6 +171,16 @@
                          alt="{{ $asset->filename }}"
                          class="w-full h-full object-cover"
                          loading="lazy">
+                @elseif($asset->isVideo() && $asset->thumbnail_url)
+                    <img src="{{ $asset->thumbnail_url }}"
+                         alt="{{ $asset->filename }}"
+                         class="w-full h-full object-cover"
+                         loading="lazy">
+                    <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+                        <div class="w-10 h-10 bg-black/50 rounded-full flex items-center justify-center">
+                            <i class="fas fa-play text-white text-sm ml-0.5"></i>
+                        </div>
+                    </div>
                 @else
                     <div class="w-full h-full flex items-center justify-center">
                         @php
@@ -285,12 +295,22 @@
                         <!-- Thumbnail -->
                         <td class="px-4 py-3">
                             <a href="{{ route('assets.show', $asset) }}" class="block">
-                                <div class="w-16 h-16 bg-gray-100 rounded flex items-center justify-center overflow-hidden hover:ring-2 hover:ring-orca-500 transition-all">
+                                <div class="w-16 h-16 bg-gray-100 rounded flex items-center justify-center overflow-hidden hover:ring-2 hover:ring-orca-500 transition-all relative">
                                     @if($asset->isImage() && $asset->thumbnail_url)
                                         <img src="{{ $asset->thumbnail_url }}"
                                              alt="{{ $asset->filename }}"
                                              class="w-full h-full object-cover"
                                              loading="lazy">
+                                    @elseif($asset->isVideo() && $asset->thumbnail_url)
+                                        <img src="{{ $asset->thumbnail_url }}"
+                                             alt="{{ $asset->filename }}"
+                                             class="w-full h-full object-cover"
+                                             loading="lazy">
+                                        <div class="absolute inset-0 flex items-center justify-center">
+                                            <div class="w-6 h-6 bg-black/50 rounded-full flex items-center justify-center">
+                                                <i class="fas fa-play text-white text-[0.5rem] ml-px"></i>
+                                            </div>
+                                        </div>
                                     @else
                                         @php
                                             $icon = $asset->getFileIcon();

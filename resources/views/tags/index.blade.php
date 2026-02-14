@@ -14,6 +14,16 @@
 
             @if($tags->count() > 0)
             <div class="flex flex-col sm:flex-row gap-3 sm:items-center">
+                <!-- Sort -->
+                <select onchange="updateSort(this.value)"
+                        class="md:order-3 pr-dropdown px-4 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orca-black focus:border-transparent">
+                    <option value="name_asc" {{ request('sort', 'name_asc') === 'name_asc' ? 'selected' : '' }}>{{ __('Name (A-Z)') }}</option>
+                    <option value="name_desc" {{ request('sort') === 'name_desc' ? 'selected' : '' }}>{{ __('Name (Z-A)') }}</option>
+                    <option value="most_used" {{ request('sort') === 'most_used' ? 'selected' : '' }}>{{ __('Most used') }}</option>
+                    <option value="least_used" {{ request('sort') === 'least_used' ? 'selected' : '' }}>{{ __('Least used') }}</option>
+                    <option value="newest" {{ request('sort') === 'newest' ? 'selected' : '' }}>{{ __('Newest') }}</option>
+                    <option value="oldest" {{ request('sort') === 'oldest' ? 'selected' : '' }}>{{ __('Oldest') }}</option>
+                </select>
                 <!-- Search -->
                 <div class="relative md:order-2">
                     <input type="text"
@@ -39,15 +49,15 @@
     <!-- Filter tabs -->
     <div class="mb-6 border-b border-gray-200">
         <nav class="-mb-px flex space-x-8">
-            <a href="{{ route('tags.index') }}"
+            <a href="{{ route('tags.index', array_filter(['sort' => request('sort')])) }}"
                class="py-4 px-1 border-b-2 {{ !request('type') ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }} font-medium text-sm">
                 {{ __('All Tags') }} @if(!request('type'))<span>(<span x-text="matchingCount"></span>)</span>@endif
             </a>
-            <a href="{{ route('tags.index', ['type' => 'user']) }}"
+            <a href="{{ route('tags.index', array_filter(['type' => 'user', 'sort' => request('sort')])) }}"
                class="py-4 px-1 border-b-2 {{ request('type') === 'user' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }} font-medium text-sm">
                 {{ __('User Tags') }} @if(request('type') === 'user')<span>(<span x-text="matchingCount"></span>)</span>@endif
             </a>
-            <a href="{{ route('tags.index', ['type' => 'ai']) }}"
+            <a href="{{ route('tags.index', array_filter(['type' => 'ai', 'sort' => request('sort')])) }}"
                class="py-4 px-1 border-b-2 {{ request('type') === 'ai' ? 'border-purple-500 text-purple-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }} font-medium text-sm">
                 {{ __('AI Tags') }} @if(request('type') === 'ai')<span>(<span x-text="matchingCount"></span>)</span>@endif
             </a>
@@ -163,6 +173,16 @@
 
 @push('scripts')
 <script>
+function updateSort(value) {
+    const url = new URL(window.location.href);
+    if (value === 'name_asc') {
+        url.searchParams.delete('sort');
+    } else {
+        url.searchParams.set('sort', value);
+    }
+    window.location.href = url.toString();
+}
+
 function tagManager() {
     return {
         showEditModal: false,

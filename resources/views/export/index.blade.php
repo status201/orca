@@ -49,25 +49,42 @@
 
                 <!-- Tags Filter -->
                 <div>
-                    <label for="tags" class="block text-sm font-medium text-gray-700 mb-2">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
                         <i class="fas fa-tags mr-2"></i>{{ __('Tags') }}
                     </label>
-                    <select id="tags"
-                            name="tags[]"
-                            x-model="selectedTags"
-                            multiple
-                            size="5"
-                            class="invert-scrollbar-colors w-full rounded-lg border-gray-300 focus:border-transparent focus:ring-orca-black">
-                        @foreach($tags as $tag)
-                            <option value="{{ $tag->id }}">
-                                {{ $tag->name }}
-                                @if($tag->type === 'ai')
-                                    <i class="fas fa-robot text-xs"></i>
-                                @endif
-                            </option>
-                        @endforeach
-                    </select>
-                    <p class="text-xs text-gray-500 mt-1">{{ __('Hold Ctrl/Cmd to select multiple tags (leave empty for all)') }}</p>
+                    <div class="border border-gray-300 rounded-lg">
+                        <div class="p-2 border-b border-gray-300">
+                            <div class="relative">
+                                <input type="text"
+                                       x-model="tagSearch"
+                                       placeholder="{{ __('Search tags...') }}"
+                                       class="w-full text-sm pl-8 pr-3 py-1 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orca-black focus:border-transparent">
+                                <i class="fas fa-search absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
+                            </div>
+                        </div>
+                        <div class="max-h-48 overflow-y-auto invert-scrollbar-colors p-2">
+                            <div class="grid grid-cols-1 gap-1">
+                                <template x-for="tag in allTagsData" :key="tag.id">
+                                    <label x-show="shouldShowTag(tag)"
+                                           class="flex items-center space-x-2 p-1.5 hover:bg-gray-50 rounded cursor-pointer">
+                                        <input type="checkbox"
+                                               :value="tag.id"
+                                               x-model="selectedTags"
+                                               @click="handleTagClick($event, tag)"
+                                               class="rounded text-blue-600 focus:ring-orca-black flex-shrink-0">
+                                        <span class="text-sm truncate" x-text="tag.name"></span>
+                                        <span :class="tag.type === 'ai' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700'"
+                                              class="tag attention text-xs px-1.5 py-0.5 rounded-full flex-shrink-0"
+                                              x-text="tag.type"></span>
+                                    </label>
+                                </template>
+                            </div>
+                        </div>
+                    </div>
+                    <template x-for="id in selectedTags" :key="'hidden-' + id">
+                        <input type="hidden" name="tags[]" :value="id">
+                    </template>
+                    <p class="text-xs text-gray-500 mt-1">{{ __('Select tags to filter (leave empty for all)') }}</p>
                 </div>
             </div>
 
@@ -157,11 +174,60 @@ function exportAssets() {
         folder: '',
         fileType: '',
         selectedTags: [],
+        tagSearch: '',
+        tagSearchDebounced: '',
+        _tagSearchTimeout: null,
+        lastCheckedIndex: null,
+        allTagsData: @json($tags->map(fn($t) => ['id' => (string)$t->id, 'name' => $t->name, 'type' => $t->type])),
+
+        init() {
+            this.$watch('tagSearch', (value) => {
+                clearTimeout(this._tagSearchTimeout);
+                this._tagSearchTimeout = setTimeout(() => {
+                    this.tagSearchDebounced = value;
+                }, 300);
+            });
+        },
+
+        handleTagClick(event, tag) {
+            const currentIndex = this.allTagsData.findIndex(t => t.id === tag.id);
+            if (event.shiftKey && this.lastCheckedIndex !== null && currentIndex !== this.lastCheckedIndex) {
+                const anchorIndex = this.lastCheckedIndex;
+                this.$nextTick(() => {
+                    const isChecked = this.selectedTags.includes(tag.id);
+                    const start = Math.min(anchorIndex, currentIndex);
+                    const end = Math.max(anchorIndex, currentIndex);
+                    for (let i = start; i <= end; i++) {
+                        const t = this.allTagsData[i];
+                        if (!this.shouldShowTag(t)) continue;
+                        if (t.id === tag.id) continue;
+                        const idx = this.selectedTags.indexOf(t.id);
+                        if (isChecked && idx === -1) {
+                            this.selectedTags.push(t.id);
+                        } else if (!isChecked && idx !== -1) {
+                            this.selectedTags.splice(idx, 1);
+                        }
+                    }
+                });
+            }
+            this.lastCheckedIndex = currentIndex;
+        },
+
+        shouldShowTag(tag) {
+            if (this.selectedTags.includes(tag.id)) {
+                return true;
+            }
+            if (!this.tagSearchDebounced.trim()) {
+                return true;
+            }
+            return tag.name.toLowerCase().includes(this.tagSearchDebounced.toLowerCase());
+        },
 
         resetFilters() {
             this.folder = '';
             this.fileType = '';
             this.selectedTags = [];
+            this.tagSearch = '';
         }
     }
 }

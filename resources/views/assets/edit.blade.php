@@ -70,6 +70,10 @@
                         <img src="{{ ($asset->thumbnail_url ?? $asset->url) . '?v=' . $asset->updated_at->timestamp }}"
                              alt="{{ $asset->filename }}"
                              class="max-w-sm rounded-lg">
+                    @elseif($asset->isVideo() && $asset->thumbnail_url)
+                        <img src="{{ $asset->thumbnail_url . '?v=' . $asset->updated_at->timestamp }}"
+                             alt="{{ $asset->filename }}"
+                             class="max-w-sm rounded-lg">
                     @else
                         <div class="w-48 h-48 bg-gray-100 rounded-lg flex items-center justify-center">
                             @php
@@ -91,11 +95,74 @@
                             <i class="fas {{ $icon }} {{ $colorClass }} opacity-60" style="font-size: 8rem;"></i>
                         </div>
                     @endif
-                    <div class="mt-3 text-center">
-                        <a href="{{ route('assets.replace', $asset) }}"
-                           class="attention inline-flex items-center px-4 py-2 bg-amber-600 text-white text-sm font-medium rounded-lg hover:bg-amber-700 transition-colors">
-                            <i class="fas fa-shuffle mr-2"></i> {{ __('Replace File') }}
-                        </a>
+                    <div class="mt-3 text-center space-y-2">
+                        @if($asset->isVideo())
+                        <div x-data="videoThumbnailGenerator()">
+                            <button type="button"
+                                    @click="openModal()"
+                                    class="inline-flex items-center px-4 py-2 bg-pink-600 text-white text-sm font-medium rounded-lg hover:bg-pink-700 transition-colors">
+                                <i class="fas fa-camera mr-2"></i> {{ __('Generate Preview') }}
+                            </button>
+
+                            <!-- Video Thumbnail Modal -->
+                            <div x-show="showModal" x-cloak
+                                 class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+                                 @keydown.escape.window="showModal = false">
+                                <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4 p-6" @click.outside="showModal = false">
+                                    <div class="flex items-center justify-between mb-4">
+                                        <h3 class="text-lg font-semibold">{{ __('Choose a preview thumbnail') }}</h3>
+                                        <button type="button" @click="showModal = false" class="text-gray-400 hover:text-gray-600">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </div>
+
+                                    <p class="text-sm text-gray-600 mb-4">{{ __('Select one of the generated previews to use as the video thumbnail.') }}</p>
+
+                                    <!-- Generating state -->
+                                    <div x-show="generating" class="text-center py-8">
+                                        <i class="fas fa-spinner fa-spin text-3xl text-pink-600 mb-3"></i>
+                                        <p class="text-gray-600">{{ __('Generating previews...') }}</p>
+                                    </div>
+
+                                    <!-- Error state -->
+                                    <div x-show="error" x-cloak class="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm" x-text="error"></div>
+
+                                    <!-- Frame selection -->
+                                    <div x-show="frames.length > 0 && !generating" x-cloak class="grid grid-cols-3 gap-3 mb-4">
+                                        <template x-for="(frame, index) in frames" :key="index">
+                                            <div @click="selectedIndex = index"
+                                                 :class="selectedIndex === index ? 'ring-2 ring-pink-600 ring-offset-2' : 'ring-1 ring-gray-200'"
+                                                 class="cursor-pointer rounded-lg overflow-hidden transition-all hover:ring-2 hover:ring-pink-400">
+                                                <img :src="frame" class="w-full aspect-video object-cover" :alt="'Frame ' + (index + 1)">
+                                                <div class="text-center text-xs py-1 bg-gray-50" x-text="timestamps[index] + 's'"></div>
+                                            </div>
+                                        </template>
+                                    </div>
+
+                                    <!-- Actions -->
+                                    <div x-show="frames.length > 0 && !generating" x-cloak class="flex justify-end space-x-3">
+                                        <button type="button" @click="showModal = false"
+                                                class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
+                                            {{ __('Cancel') }}
+                                        </button>
+                                        <button type="button" @click="confirm()"
+                                                :disabled="uploading || selectedIndex === null"
+                                                :class="uploading ? 'bg-pink-400 cursor-not-allowed' : 'bg-pink-600 hover:bg-pink-700'"
+                                                class="px-4 py-2 text-white rounded-lg transition-colors">
+                                            <i :class="uploading ? 'fas fa-spinner fa-spin' : 'fas fa-check'" class="mr-1"></i>
+                                            <span x-text="uploading ? @js(__('Uploading...')) : @js(__('Confirm'))"></span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        @endif
+                        <div>
+                            <a href="{{ route('assets.replace', $asset) }}"
+                               class="attention inline-flex items-center px-4 py-2 bg-amber-600 text-white text-sm font-medium rounded-lg hover:bg-amber-700 transition-colors">
+                                <i class="fas fa-shuffle mr-2"></i> {{ __('Replace File') }}
+                            </a>
+                        </div>
                     </div>
                 </div>
 
@@ -418,6 +485,138 @@ function assetEditor() {
                 this.showSuggestions = false;
                 this.selectedIndex = -1;
             }, 150);
+        }
+    };
+}
+
+function videoThumbnailGenerator() {
+    return {
+        showModal: false,
+        generating: false,
+        uploading: false,
+        frames: [],
+        timestamps: [1, 3, 6],
+        selectedIndex: null,
+        error: null,
+
+        openModal() {
+            this.showModal = true;
+            this.frames = [];
+            this.selectedIndex = null;
+            this.error = null;
+            this.generateFrames();
+        },
+
+        generateFrames() {
+            this.generating = true;
+            this.error = null;
+
+            const video = document.createElement('video');
+            video.crossOrigin = 'anonymous';
+            video.muted = true;
+            video.preload = 'auto';
+
+            const maxSize = 300;
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            const capturedFrames = [];
+            let currentTimestampIndex = 0;
+            let done = false;
+
+            const captureFrame = () => {
+                return new Promise((resolve, reject) => {
+                    const targetTime = this.timestamps[currentTimestampIndex];
+                    const seekTime = Math.min(targetTime, Math.max(0, video.duration - 0.1));
+
+                    const onSeeked = () => {
+                        video.removeEventListener('seeked', onSeeked);
+                        // Scale down to max 300px, maintaining aspect ratio
+                        const vw = video.videoWidth;
+                        const vh = video.videoHeight;
+                        const scale = Math.min(maxSize / vw, maxSize / vh, 1);
+                        canvas.width = Math.round(vw * scale);
+                        canvas.height = Math.round(vh * scale);
+                        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                        try {
+                            capturedFrames.push(canvas.toDataURL('image/jpeg', 0.85));
+                        } catch (e) {
+                            reject(e);
+                            return;
+                        }
+                        resolve();
+                    };
+
+                    video.addEventListener('seeked', onSeeked);
+                    video.currentTime = seekTime;
+                });
+            };
+
+            const onError = () => {
+                if (done) return;
+                done = true;
+                this.generating = false;
+                this.error = @js(__('Failed to load video. The video format may not be supported by your browser.'));
+            };
+
+            video.addEventListener('loadeddata', async () => {
+                if (done) return;
+                try {
+                    for (currentTimestampIndex = 0; currentTimestampIndex < this.timestamps.length; currentTimestampIndex++) {
+                        await captureFrame();
+                    }
+                    this.frames = capturedFrames;
+                    this.selectedIndex = 0;
+                } catch (e) {
+                    this.error = @js(__('Failed to generate video previews. The video format may not be supported by your browser.'));
+                    console.error('Frame capture error:', e);
+                } finally {
+                    done = true;
+                    this.generating = false;
+                    video.removeEventListener('error', onError);
+                    video.src = '';
+                    video.load();
+                }
+            });
+
+            video.addEventListener('error', onError);
+
+            video.src = @js($asset->url);
+        },
+
+        async confirm() {
+            if (this.selectedIndex === null || !this.frames[this.selectedIndex]) return;
+
+            this.uploading = true;
+            this.error = null;
+
+            // Strip the data URL prefix to get raw base64
+            const base64 = this.frames[this.selectedIndex].replace(/^data:image\/jpeg;base64,/, '');
+
+            try {
+                const response = await fetch(@js(route('assets.thumbnail.store', $asset)), {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Accept': 'application/json',
+                    },
+                    body: JSON.stringify({ thumbnail: base64 }),
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    window.showToast(data.message || @js(__('Video preview generated successfully.')));
+                    window.location.reload();
+                } else {
+                    this.error = data.message || @js(__('Failed to upload thumbnail.'));
+                }
+            } catch (e) {
+                this.error = @js(__('Network error. Please check your connection and try again.'));
+                console.error('Thumbnail upload error:', e);
+            } finally {
+                this.uploading = false;
+            }
         }
     };
 }

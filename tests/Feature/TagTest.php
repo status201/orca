@@ -54,6 +54,96 @@ test('tags index can filter by type ai', function () {
     $response->assertSee('ai-tag');
 });
 
+test('tags index sorts by name ascending by default', function () {
+    $user = User::factory()->create();
+    Tag::factory()->create(['name' => 'zebra']);
+    Tag::factory()->create(['name' => 'apple']);
+    Tag::factory()->create(['name' => 'mango']);
+
+    $response = $this->actingAs($user)->get(route('tags.index'));
+
+    $response->assertStatus(200);
+    $response->assertSeeInOrder(['apple', 'mango', 'zebra']);
+});
+
+test('tags index can sort by name descending', function () {
+    $user = User::factory()->create();
+    Tag::factory()->create(['name' => 'zebra']);
+    Tag::factory()->create(['name' => 'apple']);
+    Tag::factory()->create(['name' => 'mango']);
+
+    $response = $this->actingAs($user)->get(route('tags.index', ['sort' => 'name_desc']));
+
+    $response->assertStatus(200);
+    $response->assertSeeInOrder(['zebra', 'mango', 'apple']);
+});
+
+test('tags index can sort by most used', function () {
+    $user = User::factory()->create();
+    $tagA = Tag::factory()->create(['name' => 'rarely-used']);
+    $tagB = Tag::factory()->create(['name' => 'often-used']);
+
+    // Attach assets to make tagB more used
+    $assets = Asset::factory()->count(3)->create();
+    $tagB->assets()->attach($assets->pluck('id'));
+    $tagA->assets()->attach($assets->first()->id);
+
+    $response = $this->actingAs($user)->get(route('tags.index', ['sort' => 'most_used']));
+
+    $response->assertStatus(200);
+    $response->assertSeeInOrder(['often-used', 'rarely-used']);
+});
+
+test('tags index can sort by least used', function () {
+    $user = User::factory()->create();
+    $tagA = Tag::factory()->create(['name' => 'rarely-used']);
+    $tagB = Tag::factory()->create(['name' => 'often-used']);
+
+    $assets = Asset::factory()->count(3)->create();
+    $tagB->assets()->attach($assets->pluck('id'));
+    $tagA->assets()->attach($assets->first()->id);
+
+    $response = $this->actingAs($user)->get(route('tags.index', ['sort' => 'least_used']));
+
+    $response->assertStatus(200);
+    $response->assertSeeInOrder(['rarely-used', 'often-used']);
+});
+
+test('tags index can sort by newest', function () {
+    $user = User::factory()->create();
+    Tag::factory()->create(['name' => 'old-tag', 'created_at' => now()->subDays(5)]);
+    Tag::factory()->create(['name' => 'new-tag', 'created_at' => now()]);
+
+    $response = $this->actingAs($user)->get(route('tags.index', ['sort' => 'newest']));
+
+    $response->assertStatus(200);
+    $response->assertSeeInOrder(['new-tag', 'old-tag']);
+});
+
+test('tags index can sort by oldest', function () {
+    $user = User::factory()->create();
+    Tag::factory()->create(['name' => 'old-tag', 'created_at' => now()->subDays(5)]);
+    Tag::factory()->create(['name' => 'new-tag', 'created_at' => now()]);
+
+    $response = $this->actingAs($user)->get(route('tags.index', ['sort' => 'oldest']));
+
+    $response->assertStatus(200);
+    $response->assertSeeInOrder(['old-tag', 'new-tag']);
+});
+
+test('tags index sort works combined with type filter', function () {
+    $user = User::factory()->create();
+    Tag::factory()->user()->create(['name' => 'zebra-user']);
+    Tag::factory()->user()->create(['name' => 'apple-user']);
+    Tag::factory()->ai()->create(['name' => 'ai-tag']);
+
+    $response = $this->actingAs($user)->get(route('tags.index', ['type' => 'user', 'sort' => 'name_desc']));
+
+    $response->assertStatus(200);
+    $response->assertSeeInOrder(['zebra-user', 'apple-user']);
+    $response->assertDontSee('ai-tag');
+});
+
 test('authenticated users can update user tags', function () {
     $user = User::factory()->create();
     $tag = Tag::factory()->user()->create(['name' => 'old-name']);

@@ -532,6 +532,40 @@ class AssetController extends Controller
     }
 
     /**
+     * Store a browser-generated thumbnail for a video asset
+     */
+    public function storeThumbnail(Request $request, Asset $asset)
+    {
+        $this->authorize('update', $asset);
+
+        $request->validate([
+            'thumbnail' => 'required|string',
+        ]);
+
+        $imageData = base64_decode($request->input('thumbnail'), true);
+        if ($imageData === false) {
+            return response()->json(['message' => 'Invalid base64 data'], 422);
+        }
+
+        // Delete old thumbnail if exists
+        if ($asset->thumbnail_s3_key) {
+            $this->s3Service->deleteFile($asset->thumbnail_s3_key);
+        }
+
+        $thumbnailKey = $this->s3Service->uploadThumbnail($asset->s3_key, $imageData);
+        if (! $thumbnailKey) {
+            return response()->json(['message' => 'Failed to upload thumbnail'], 500);
+        }
+
+        $asset->update(['thumbnail_s3_key' => $thumbnailKey]);
+
+        return response()->json([
+            'message' => __('Video preview generated successfully.'),
+            'thumbnail_url' => $asset->thumbnail_url,
+        ]);
+    }
+
+    /**
      * Generate AI tags for an asset using AWS Rekognition
      */
     public function generateAiTags(Asset $asset)

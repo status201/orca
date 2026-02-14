@@ -37,12 +37,22 @@ class TagController extends Controller
     public function index(Request $request)
     {
         $type = $request->input('type'); // 'user' or 'ai' or null for all
+        $sort = $request->input('sort', 'name_asc');
 
-        $query = Tag::withCount('assets')->orderBy('name');
+        $query = Tag::withCount('assets');
 
         if ($type) {
             $query->where('type', $type);
         }
+
+        match ($sort) {
+            'name_desc' => $query->orderBy('name', 'desc'),
+            'most_used' => $query->orderBy('assets_count', 'desc'),
+            'least_used' => $query->orderBy('assets_count', 'asc'),
+            'newest' => $query->orderBy('created_at', 'desc'),
+            'oldest' => $query->orderBy('created_at', 'asc'),
+            default => $query->orderBy('name', 'asc'),
+        };
 
         $tags = $query->get();
 

@@ -49,6 +49,9 @@ Route::middleware(['auth'])->group(function () {
     // AI tagging
     Route::post('assets/{asset}/ai-tag', [AssetController::class, 'generateAiTags'])->name('assets.ai-tag');
 
+    // Video thumbnail
+    Route::post('assets/{asset}/thumbnail', [AssetController::class, 'storeThumbnail'])->name('assets.thumbnail.store');
+
     // Asset tag management
     Route::post('assets/{asset}/tags', [AssetController::class, 'addTags'])->name('assets.tags.add');
     Route::delete('assets/{asset}/tags/{tag}', [AssetController::class, 'removeTag'])->name('assets.tags.remove');

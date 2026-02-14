@@ -294,6 +294,37 @@ class S3Service
     }
 
     /**
+     * Upload raw image data as a thumbnail for a given asset s3_key
+     */
+    public function uploadThumbnail(string $s3Key, string $imageData): ?string
+    {
+        try {
+            $rootPrefix = self::getRootPrefix();
+            $relativePath = ($rootPrefix !== '' && str_starts_with($s3Key, $rootPrefix))
+                ? substr($s3Key, strlen($rootPrefix))
+                : $s3Key;
+            $folder = dirname($relativePath);
+            $folder = ($folder === '.' || $folder === '') ? '' : $folder.'/';
+            $thumbnailKey = 'thumbnails/'.$folder.Str::replaceLast('.', '_thumb.', basename($s3Key));
+            // Ensure thumbnail extension is .jpg
+            $thumbnailKey = preg_replace('/\.[^.]+$/', '.jpg', $thumbnailKey);
+
+            $this->s3Client->putObject([
+                'Bucket' => $this->bucket,
+                'Key' => $thumbnailKey,
+                'Body' => $imageData,
+                'ContentType' => 'image/jpeg',
+            ]);
+
+            return $thumbnailKey;
+        } catch (\Exception $e) {
+            \Log::error('Thumbnail upload failed: '.$e->getMessage());
+
+            return null;
+        }
+    }
+
+    /**
      * Delete resized image variants from S3
      */
     public function deleteResizedImages(Asset $asset): void
