@@ -203,7 +203,7 @@
                         <i :class="downloading ? 'fas fa-spinner fa-spin text-white' : 'fas fa-download'"></i>
                     </button>
                     <button @click.stop="copyAssetUrl('{{ $asset->url }}')"
-                            :class="copied ? 'bg-green-600' : 'bg-white hover:bg-gray-100'"
+                            :class="copied ? 'attention bg-green-600' : 'bg-white hover:bg-gray-100'"
                             :title="copied ? @js(__('Copied!')) : @js(__('Copy URL'))"
                             class="text-gray-900 px-3 py-2 rounded-lg transition-all duration-300 mr-2">
                         <i :class="copied ? 'fas fa-check text-white' : 'fas fa-copy'"></i>
@@ -333,7 +333,7 @@
                                     <i class="fas fa-eye"></i>
                                 </a>
                                 <button @click="copyUrl()"
-                                        :class="copied ? 'text-green-600' : 'text-gray-600 hover:text-gray-800'"
+                                        :class="copied ? 'attention text-green-600' : 'text-gray-600 hover:text-gray-800'"
                                         :title="copied ? @js(__('Copied!')) : @js(__('Copy URL'))">
                                     <i :class="copied ? 'fas fa-check' : 'fas fa-copy'"></i>
                                 </button>

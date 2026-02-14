@@ -86,7 +86,7 @@
                 </p>
                 <button @click="previewImport"
                         :disabled="loading || !csvData.trim()"
-                        class="px-6 py-3 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center disabled:opacity-50 disabled:cursor-not-allowed">
+                        class="px-6 py-3 text-sm bg-orca-black text-white rounded-lg hover:bg-orca-black-hover text-white transition-colors flex items-center disabled:opacity-50 disabled:cursor-not-allowed">
                     <template x-if="loading">
                         <i class="fas fa-spinner fa-spin mr-2"></i>
                     </template>
@@ -201,14 +201,14 @@
             <template x-if="matchedResults.length > 0">
                 <div class="mb-6">
                     <h3 class="text-md font-semibold text-gray-900 mb-3">
-                        <i class="fas fa-check-circle text-green-600 mr-2"></i>{{ __('Assets to Update') }}
+                        <i class="attention fas fa-check-circle text-green-600 mr-2"></i>{{ __('Assets to Update') }}
                     </h3>
                     <div class="space-y-3">
                         <template x-for="result in matchedResults" :key="result.row">
-                            <div class="border border-gray-200 rounded-lg p-4">
+                            <div class="import-result attention border border-gray-200 rounded-lg p-4">
                                 <div class="flex items-start gap-4">
                                     <!-- Thumbnail -->
-                                    <div class="flex-shrink-0">
+                                    <div class="attention flex-shrink-0">
                                         <img :src="result.asset.thumbnail_url || '/placeholder.png'"
                                              :alt="result.asset.filename"
                                              class="w-16 h-16 object-cover rounded border border-gray-200"
@@ -270,9 +270,9 @@
             <template x-if="unmatchedResults.length > 0">
                 <div class="mb-6">
                     <h3 class="text-md font-semibold text-gray-900 mb-3">
-                        <i class="fas fa-times-circle text-red-600 mr-2"></i>{{ __('Not Found') }}
+                        <i class="attention fas fa-times-circle text-red-600 mr-2"></i>{{ __('Not Found') }}
                     </h3>
-                    <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+                    <div class="attention bg-red-50 border border-red-200 rounded-lg p-4">
                         <ul class="space-y-1">
                             <template x-for="result in unmatchedResults" :key="result.row">
                                 <li class="text-sm text-red-800">
@@ -294,7 +294,7 @@
 
                 <button @click="runImport"
                         :disabled="loading || matchedResults.length === 0 || hasValidationErrors"
-                        class="px-6 py-3 text-sm bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center disabled:opacity-50 disabled:cursor-not-allowed">
+                        class="attention px-6 py-3 text-sm bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center disabled:opacity-50 disabled:cursor-not-allowed">
                     <template x-if="loading">
                         <i class="fas fa-spinner fa-spin mr-2"></i>
                     </template>
@@ -316,29 +316,29 @@
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                 <div class="bg-green-50 border border-green-200 rounded-lg p-4 text-center">
-                    <div class="text-2xl font-bold text-green-600" x-text="importResult.updated"></div>
-                    <div class="text-sm text-green-800">{{ __('Assets Updated') }}</div>
+                    <div class="attention text-2xl font-bold text-green-600" x-text="importResult.updated"></div>
+                    <div class="attention text-sm text-green-800">{{ __('Assets Updated') }}</div>
                 </div>
                 <div class="bg-gray-50 border border-gray-200 rounded-lg p-4 text-center">
-                    <div class="text-2xl font-bold text-gray-600" x-text="importResult.skipped"></div>
-                    <div class="text-sm text-gray-800">{{ __('Skipped') }}</div>
+                    <div class="attention text-2xl font-bold text-gray-600" x-text="importResult.skipped"></div>
+                    <div class="attention text-sm text-gray-800">{{ __('Skipped') }}</div>
                 </div>
                 <div class="bg-red-50 border border-red-200 rounded-lg p-4 text-center">
-                    <div class="text-2xl font-bold text-red-600" x-text="importResult.errors.length"></div>
-                    <div class="text-sm text-red-800">{{ __('Errors') }}</div>
+                    <div class="attention text-2xl font-bold text-red-600" x-text="importResult.errors.length"></div>
+                    <div class="attention text-sm text-red-800">{{ __('Errors') }}</div>
                 </div>
             </div>
 
             <!-- Import Errors -->
             <template x-if="importResult.errors && importResult.errors.length > 0">
                 <div class="mb-6">
-                    <h3 class="text-md font-semibold text-red-900 mb-3">
+                    <h3 class="attention text-md font-semibold text-red-900 mb-3">
                         <i class="fas fa-exclamation-triangle mr-2"></i>{{ __('Errors') }}
                     </h3>
                     <div class="bg-red-50 border border-red-200 rounded-lg p-4">
                         <ul class="space-y-2">
                             <template x-for="err in importResult.errors" :key="err.row">
-                                <li class="text-sm text-red-800">
+                                <li class="attention text-sm text-red-800">
                                     <strong x-text="'{{ __('Row') }} ' + err.row + ' (' + err.match_value + '):'"></strong>
                                     <ul class="ml-4 mt-1">
                                         <template x-for="e in err.errors" :key="e">
@@ -353,7 +353,7 @@
             </template>
 
             <button @click="startOver"
-                    class="px-6 py-3 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center">
+                    class="px-6 py-3 text-sm bg-orca-black text-white rounded-lg hover:bg-orca-black-hover transition-colors flex items-center">
                 <i class="fas fa-redo mr-2"></i>{{ __('Start Over') }}
             </button>
         </div>
@@ -361,7 +361,7 @@
 
     <!-- Error Alert -->
     <div x-show="errorMessage" x-cloak
-         class="fixed bottom-4 right-4 bg-red-600 text-white px-6 py-3 rounded-lg shadow-lg z-50 flex items-center">
+         class="attention fixed bottom-4 right-4 bg-red-600 text-white px-6 py-3 rounded-lg shadow-lg z-50 flex items-center">
         <i class="fas fa-exclamation-circle mr-2"></i>
         <span x-text="errorMessage"></span>
         <button @click="errorMessage = ''" class="ml-4 text-white hover:text-red-200">

@@ -61,9 +61,9 @@
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-center">
                     @if($user->hasTwoFactorEnabled())
-                        <i class="attention fas fa-check-circle text-green-500" title="{{ $user->two_factor_confirmed_at->format('M j, Y') }}"></i>
+                        <i class="attention fas fa-check-circle text-green-600" title="{{ $user->two_factor_confirmed_at->format('M j, Y') }}"></i>
                     @else
-                        <i class="attention fas fa-times-circle text-red-400"></i>
+                        <i class="attention fas fa-times-circle text-red-600"></i>
                     @endif
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">

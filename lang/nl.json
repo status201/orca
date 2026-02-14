@@ -826,7 +826,7 @@
     "What stays the same:": "Wat hetzelfde blijft:",
     "What's included:": "Wat is inbegrepen:",
     "When two-factor authentication is enabled, you will be prompted for a secure code during login. You can retrieve this code from your phone's authenticator app.": "Wanneer tweefactorauthenticatie is ingeschakeld, word je gevraagd om een beveiligingscode bij het inloggen. Je kunt deze code ophalen uit de authenticator-app op je telefoon.",
-    "Whether previous versions are retained depends on your S3 bucket's versioning settings.": "Of eerdere versies bewaard blijven, hangt af van de versiebeheerin stellingen van je S3-bucket.",
+    "Whether previous versions are retained depends on your S3 bucket's versioning settings.": "Of eerdere versies bewaard blijven, hangt af van de versiebeheer instellingen van je S3-bucket.",
     "Without versioning enabled, the previous file will be permanently deleted and cannot be recovered.": "Zonder versiebeheer wordt het vorige bestand permanent verwijderd en kan het niet worden hersteld.",
     "Worker Name": "Workernaam",
     "Yes, Replace": "Ja, vervangen",

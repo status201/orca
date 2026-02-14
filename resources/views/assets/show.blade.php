@@ -100,7 +100,7 @@
                            readonly
                            class="flex-1 px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg text-sm font-mono">
                     <button @click="copyUrl('{{ $asset->url }}', 'main')"
-                            :class="copiedStates.main ? 'bg-green-600 hover:bg-green-700' : 'bg-orca-black hover:bg-orca-black-hover'"
+                            :class="copiedStates.main ? 'attention bg-green-600 hover:bg-green-700' : 'bg-orca-black hover:bg-orca-black-hover'"
                             class="px-4 py-2 text-white rounded-lg whitespace-nowrap transition-all duration-300">
                         <i :class="copiedStates.main ? 'fas fa-check' : 'fas fa-copy'" class="mr-2"></i>
                         <span x-text="copiedStates.main ? @js(__('Copied!')) : @js(__('Copy'))"></span>
@@ -116,7 +116,7 @@
                                readonly
                                class="flex-1 px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg text-sm font-mono">
                         <button @click="copyUrl('{{ $asset->thumbnail_url }}', 'thumb')"
-                                :class="copiedStates.thumb ? 'bg-green-600 hover:bg-green-700' : 'bg-gray-600 hover:bg-gray-700'"
+                                :class="copiedStates.thumb ? 'attention bg-green-600 hover:bg-green-700' : 'bg-gray-600 hover:bg-gray-700'"
                                 class="px-4 py-2 text-white rounded-lg whitespace-nowrap transition-all duration-300">
                             <i :class="copiedStates.thumb ? 'fas fa-check' : 'fas fa-copy'" class="mr-2"></i>
                             <span x-text="copiedStates.thumb ? @js(__('Copied!')) : @js(__('Copy'))"></span>
@@ -138,7 +138,7 @@
                                        readonly
                                        class="flex-1 min-w-0 px-2 py-1 bg-gray-50 border border-gray-300 rounded text-xs font-mono truncate">
                                 <button @click="copyUrl('{{ $asset->resize_s_url }}', 'resize_s')"
-                                        :class="copiedStates.resize_s ? 'bg-green-600 hover:bg-green-700' : 'bg-gray-600 hover:bg-gray-700'"
+                                        :class="copiedStates.resize_s ? 'attention bg-green-600 hover:bg-green-700' : 'bg-gray-600 hover:bg-gray-700'"
                                         class="px-2 py-1 text-white rounded text-xs whitespace-nowrap transition-all duration-300">
                                     <i :class="copiedStates.resize_s ? 'fas fa-check' : 'fas fa-copy'"></i>
                                 </button>
@@ -155,7 +155,7 @@
                                        readonly
                                        class="flex-1 min-w-0 px-2 py-1 bg-gray-50 border border-gray-300 rounded text-xs font-mono truncate">
                                 <button @click="copyUrl('{{ $asset->resize_m_url }}', 'resize_m')"
-                                        :class="copiedStates.resize_m ? 'bg-green-600 hover:bg-green-700' : 'bg-gray-600 hover:bg-gray-700'"
+                                        :class="copiedStates.resize_m ? 'attention bg-green-600 hover:bg-green-700' : 'bg-gray-600 hover:bg-gray-700'"
                                         class="px-2 py-1 text-white rounded text-xs whitespace-nowrap transition-all duration-300">
                                     <i :class="copiedStates.resize_m ? 'fas fa-check' : 'fas fa-copy'"></i>
                                 </button>
@@ -172,7 +172,7 @@
                                        readonly
                                        class="flex-1 min-w-0 px-2 py-1 bg-gray-50 border border-gray-300 rounded text-xs font-mono truncate">
                                 <button @click="copyUrl('{{ $asset->resize_l_url }}', 'resize_l')"
-                                        :class="copiedStates.resize_l ? 'bg-green-600 hover:bg-green-700' : 'bg-gray-600 hover:bg-gray-700'"
+                                        :class="copiedStates.resize_l ? 'attention bg-green-600 hover:bg-green-700' : 'bg-gray-600 hover:bg-gray-700'"
                                         class="px-2 py-1 text-white rounded text-xs whitespace-nowrap transition-all duration-300">
                                     <i :class="copiedStates.resize_l ? 'fas fa-check' : 'fas fa-copy'"></i>
                                 </button>

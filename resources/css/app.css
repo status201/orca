@@ -225,3 +225,7 @@ html.dark-mode .tag.attention.bg-blue-100 {
     color: #8ec5ff; /* text-blue-300 */
     background-color: rgba(29, 78, 216, 0.2);
 }
+
+html.dark-mode .import-result.attention {
+    background-color: #bfb;
+}
