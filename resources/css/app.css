@@ -190,6 +190,7 @@ html.light-mode {
     text-shadow: 0 0 8px rgba(0, 255, 0, 0.6);
     letter-spacing: 4px;
     margin-bottom: 12px;
+    filter: grayscale(0.65);
 }
 
 .game-loader-track {
@@ -198,6 +199,7 @@ html.light-mode {
     border: 2px solid #00ff00;
     background: #111;
     box-shadow: 0 0 8px rgba(0, 255, 0, 0.3);
+    filter: grayscale(0.65);
 }
 
 .game-loader-bar {
@@ -205,6 +207,7 @@ html.light-mode {
     background: #00ff00;
     animation: loader-fill 1.5s ease-in-out infinite;
     box-shadow: 0 0 6px rgba(0, 255, 0, 0.5);
+    filter: grayscale(0.65);
 }
 
 @keyframes loader-fill {
@@ -285,9 +288,6 @@ html.dark-mode .tag.attention.bg-blue-100 {
 html.dark-mode .import-result.attention {
     background-color: #bfb;
 }
-
-html.dark-mode .game-loader-text,
-html.dark-mode .game-loader-track,
-html.dark-mode .game-loader-bar {
+html.dark-mode #orca-game-loader {
     filter: invert(1);
 }
