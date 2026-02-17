@@ -150,6 +150,13 @@ class S3Service
                 return null;
             }
 
+            // Skip thumbnail generation for EPS files (not supported by GD)
+            if (str_ends_with(strtolower($s3Key), '.eps')) {
+                \Log::info("Skipping thumbnail generation for EPS: $s3Key");
+
+                return null;
+            }
+
             // Download original from S3
             $result = $this->s3Client->getObject([
                 'Bucket' => $this->bucket,

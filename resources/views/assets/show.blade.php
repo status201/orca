@@ -80,6 +80,7 @@
                                     'fa-file-audio' => 'text-indigo-600',
                                     'fa-file-csv' => 'text-teal-600',
                                     'fa-file-lines' => 'text-gray-500',
+                                    'fa-file-image' => 'text-emerald-600',
                                     default => 'text-gray-400'
                                 };
                             @endphp

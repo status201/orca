@@ -190,11 +190,32 @@ class Asset extends Model
     }
 
     /**
+     * Check if asset is an EPS file
+     */
+    public function isEps(): bool
+    {
+        $epsMimeTypes = [
+            'application/postscript',
+            'application/eps',
+            'image/x-eps',
+            'image/eps',
+        ];
+
+        if (in_array($this->mime_type, $epsMimeTypes)) {
+            return true;
+        }
+
+        $extension = strtolower(pathinfo($this->s3_key, PATHINFO_EXTENSION));
+
+        return $extension === 'eps';
+    }
+
+    /**
      * Check if asset is an image
      */
     public function isImage(): bool
     {
-        return str_starts_with($this->mime_type, 'image/');
+        return str_starts_with($this->mime_type, 'image/') && ! $this->isEps();
     }
 
     /**
@@ -237,6 +258,10 @@ class Asset extends Model
             'audio/mpeg' => 'fa-file-audio',
             'audio/wav' => 'fa-file-audio',
             'audio/ogg' => 'fa-file-audio',
+            'application/postscript' => 'fa-file-image',
+            'application/eps' => 'fa-file-image',
+            'image/x-eps' => 'fa-file-image',
+            'image/eps' => 'fa-file-image',
         ];
 
         if (isset($icons[$this->mime_type])) {
@@ -267,6 +292,7 @@ class Asset extends Model
             'avi' => 'fa-file-video',
             'mp3' => 'fa-file-audio',
             'wav' => 'fa-file-audio',
+            'eps' => 'fa-file-image',
         ];
 
         return $extensionIcons[$extension] ?? 'fa-file';
