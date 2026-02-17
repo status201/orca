@@ -85,44 +85,57 @@
                 </div>
             </div>
 
-            <!-- Quick Links -->
+            <!-- API Status -->
             <div class="bg-white rounded-lg shadow">
                 <div class="px-6 py-4 border-b border-gray-200">
                     <h3 class="text-lg font-semibold text-gray-900">
-                        <i class="fas fa-link mr-2"></i>{{ __('Quick Links') }}
+                        <i class="fas fa-heartbeat mr-2"></i>{{ __('API Status') }}
                     </h3>
                 </div>
-                <div class="p-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <button @click="navigateToTab('swagger')"
-                            class="flex items-center p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors text-left">
-                        <div class="flex-shrink-0 w-10 h-10 flex items-center justify-center bg-orange-100 rounded-lg mr-4">
-                            <i class="fas fa-book-open text-orange-600"></i>
+                <div class="p-6">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <!-- Sanctum Status -->
+                        <div class="flex items-center p-3 bg-gray-50 rounded-lg">
+                            <div class="attention w-3 h-3 rounded-full bg-green-500 mr-3"></div>
+                            <div>
+                                <p class="text-sm font-medium text-gray-900">{{ __('Sanctum') }}</p>
+                                <p class="attention text-xs text-green-600">{{ __('Active') }}</p>
+                            </div>
                         </div>
-                        <div>
-                            <p class="font-medium text-gray-900">{{ __('Swagger Documentation') }}</p>
-                            <p class="text-sm text-gray-500">{{ __('View interactive API docs') }}</p>
+
+                        <!-- JWT Status -->
+                        <div class="flex items-center p-3 bg-gray-50 rounded-lg">
+                            <div class="attention w-3 h-3 rounded-full mr-3"
+                                 :class="dashboardData.jwtEnvEnabled && dashboardData.jwtSettingEnabled ? 'bg-green-500' : 'bg-red-500'"></div>
+                            <div>
+                                <p class="text-sm font-medium text-gray-900">{{ __('JWT') }}</p>
+                                <p class="attention text-xs"
+                                   :class="dashboardData.jwtEnvEnabled && dashboardData.jwtSettingEnabled ? 'text-green-600' : 'text-red-600'">
+                                    <template x-if="dashboardData.jwtEnvEnabled && dashboardData.jwtSettingEnabled">
+                                        <span>{{ __('Active') }}</span>
+                                    </template>
+                                    <template x-if="!dashboardData.jwtEnvEnabled">
+                                        <span>{{ __('Disabled (env)') }}</span>
+                                    </template>
+                                    <template x-if="dashboardData.jwtEnvEnabled && !dashboardData.jwtSettingEnabled">
+                                        <span>{{ __('Disabled (setting)') }}</span>
+                                    </template>
+                                </p>
+                            </div>
                         </div>
-                    </button>
-                    <button @click="navigateToTab('tokens')"
-                            class="flex items-center p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors text-left">
-                        <div class="flex-shrink-0 w-10 h-10 flex items-center justify-center bg-purple-100 rounded-lg mr-4">
-                            <i class="fas fa-key text-purple-600"></i>
+
+                        <!-- Public Meta Status -->
+                        <div class="flex items-center p-3 bg-gray-50 rounded-lg">
+                            <div class="attention w-3 h-3 rounded-full mr-3"
+                                 :class="dashboardData.metaEndpointEnabled ? 'bg-green-500' : 'bg-red-500'"></div>
+                            <div>
+                                <p class="text-sm font-medium text-gray-900">{{ __('Public Meta') }}</p>
+                                <p class="attention text-xs"
+                                   :class="dashboardData.metaEndpointEnabled ? 'text-green-600' : 'text-red-600'"
+                                   x-text="dashboardData.metaEndpointEnabled ? @js(__('Enabled')) : @js(__('Disabled'))"></p>
+                            </div>
                         </div>
-                        <div>
-                            <p class="font-medium text-gray-900">{{ __('API Tokens') }}</p>
-                            <p class="text-sm text-gray-500">{{ __('Manage Sanctum tokens') }}</p>
-                        </div>
-                    </button>
-                    <button @click="navigateToTab('jwt')"
-                            class="flex items-center p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors text-left">
-                        <div class="flex-shrink-0 w-10 h-10 flex items-center justify-center bg-green-100 rounded-lg mr-4">
-                            <i class="fas fa-shield-alt text-green-600"></i>
-                        </div>
-                        <div>
-                            <p class="font-medium text-gray-900">{{ __('JWT Secrets') }}</p>
-                            <p class="text-sm text-gray-500">{{ __('Configure JWT auth') }}</p>
-                        </div>
-                    </button>
+                    </div>
                 </div>
             </div>
 
@@ -198,57 +211,44 @@
                 </div>
             </div>
 
-            <!-- API Status -->
+            <!-- Quick Links -->
             <div class="bg-white rounded-lg shadow">
                 <div class="px-6 py-4 border-b border-gray-200">
                     <h3 class="text-lg font-semibold text-gray-900">
-                        <i class="fas fa-heartbeat mr-2"></i>{{ __('API Status') }}
+                        <i class="fas fa-link mr-2"></i>{{ __('Quick Links') }}
                     </h3>
                 </div>
-                <div class="p-6">
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <!-- Sanctum Status -->
-                        <div class="flex items-center p-3 bg-gray-50 rounded-lg">
-                            <div class="attention w-3 h-3 rounded-full bg-green-500 mr-3"></div>
-                            <div>
-                                <p class="text-sm font-medium text-gray-900">{{ __('Sanctum') }}</p>
-                                <p class="attention text-xs text-green-600">{{ __('Active') }}</p>
-                            </div>
+                <div class="p-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <button @click="navigateToTab('swagger')"
+                            class="flex items-center p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors text-left">
+                        <div class="flex-shrink-0 w-10 h-10 flex items-center justify-center bg-orange-100 rounded-lg mr-4">
+                            <i class="fas fa-book-open text-orange-600"></i>
                         </div>
-
-                        <!-- JWT Status -->
-                        <div class="flex items-center p-3 bg-gray-50 rounded-lg">
-                            <div class="attention w-3 h-3 rounded-full mr-3"
-                                 :class="dashboardData.jwtEnvEnabled && dashboardData.jwtSettingEnabled ? 'bg-green-500' : 'bg-red-500'"></div>
-                            <div>
-                                <p class="text-sm font-medium text-gray-900">{{ __('JWT') }}</p>
-                                <p class="attention text-xs"
-                                   :class="dashboardData.jwtEnvEnabled && dashboardData.jwtSettingEnabled ? 'text-green-600' : 'text-red-600'">
-                                    <template x-if="dashboardData.jwtEnvEnabled && dashboardData.jwtSettingEnabled">
-                                        <span>{{ __('Active') }}</span>
-                                    </template>
-                                    <template x-if="!dashboardData.jwtEnvEnabled">
-                                        <span>{{ __('Disabled (env)') }}</span>
-                                    </template>
-                                    <template x-if="dashboardData.jwtEnvEnabled && !dashboardData.jwtSettingEnabled">
-                                        <span>{{ __('Disabled (setting)') }}</span>
-                                    </template>
-                                </p>
-                            </div>
+                        <div>
+                            <p class="font-medium text-gray-900">{{ __('Swagger Documentation') }}</p>
+                            <p class="text-sm text-gray-500">{{ __('View interactive API docs') }}</p>
                         </div>
-
-                        <!-- Public Meta Status -->
-                        <div class="flex items-center p-3 bg-gray-50 rounded-lg">
-                            <div class="attention w-3 h-3 rounded-full mr-3"
-                                 :class="dashboardData.metaEndpointEnabled ? 'bg-green-500' : 'bg-red-500'"></div>
-                            <div>
-                                <p class="text-sm font-medium text-gray-900">{{ __('Public Meta') }}</p>
-                                <p class="attention text-xs"
-                                   :class="dashboardData.metaEndpointEnabled ? 'text-green-600' : 'text-red-600'"
-                                   x-text="dashboardData.metaEndpointEnabled ? @js(__('Enabled')) : @js(__('Disabled'))"></p>
-                            </div>
+                    </button>
+                    <button @click="navigateToTab('tokens')"
+                            class="flex items-center p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors text-left">
+                        <div class="flex-shrink-0 w-10 h-10 flex items-center justify-center bg-purple-100 rounded-lg mr-4">
+                            <i class="fas fa-key text-purple-600"></i>
                         </div>
-                    </div>
+                        <div>
+                            <p class="font-medium text-gray-900">{{ __('API Tokens') }}</p>
+                            <p class="text-sm text-gray-500">{{ __('Manage Sanctum tokens') }}</p>
+                        </div>
+                    </button>
+                    <button @click="navigateToTab('jwt')"
+                            class="flex items-center p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors text-left">
+                        <div class="flex-shrink-0 w-10 h-10 flex items-center justify-center bg-green-100 rounded-lg mr-4">
+                            <i class="fas fa-shield-alt text-green-600"></i>
+                        </div>
+                        <div>
+                            <p class="font-medium text-gray-900">{{ __('JWT Secrets') }}</p>
+                            <p class="text-sm text-gray-500">{{ __('Configure JWT auth') }}</p>
+                        </div>
+                    </button>
                 </div>
             </div>
         </div>
