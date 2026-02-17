@@ -733,7 +733,7 @@ const token = jwt.sign(
                 <p>{{ __('JWT authentication allows external systems to generate short-lived tokens for API access. This is ideal for frontend RTE integrations where you don\'t want to expose long-lived Sanctum tokens.') }}</p>
                 <p><strong>{{ __('How it works:') }}</strong></p>
                 <ol class="list-decimal ml-4 space-y-1">
-                    <li>{{ __('Generate a JWT secret for a user (below)') }}</li>
+                    <li>{{ __('Generate a JWT secret for a user (above)') }}</li>
                     <li>{{ __('Share the secret with your external backend system') }}</li>
                     <li>{{ __('Your backend generates short-lived JWTs using the secret') }}</li>
                     <li>{{ __('Your frontend uses the JWT for ORCA API requests') }}</li>
