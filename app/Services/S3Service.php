@@ -22,6 +22,8 @@ class S3Service
 
     protected bool $hasImagick;
 
+    protected ?string $ghostscriptBin = null;
+
     public function __construct()
     {
         $this->bucket = config('filesystems.disks.s3.bucket');
@@ -39,8 +41,9 @@ class S3Service
         // Initialize Intervention Image 3.x (GD for general use)
         $this->imageManager = new ImageManager(new Driver);
 
-        // Track Imagick availability (needed for EPS support via Ghostscript)
+        // Detect Ghostscript binary (preferred for EPS) and Imagick (fallback)
         $this->hasImagick = extension_loaded('imagick');
+        $this->ghostscriptBin = $this->findGhostscriptBinary();
     }
 
     /**
@@ -155,14 +158,8 @@ class S3Service
                 return null;
             }
 
-            // EPS: use raw Imagick (needs Ghostscript delegate), skip if unavailable
+            // EPS: try Ghostscript CLI first, then Imagick fallback
             if (str_ends_with(strtolower($s3Key), '.eps')) {
-                if (! $this->hasImagick) {
-                    \Log::info("Skipping thumbnail for EPS (Imagick not available): $s3Key");
-
-                    return null;
-                }
-
                 return $this->generateEpsThumbnail($s3Key);
             }
 
@@ -207,7 +204,9 @@ class S3Service
     }
 
     /**
-     * Generate a JPEG thumbnail from an EPS file using raw Imagick + Ghostscript.
+     * Generate a JPEG thumbnail from an EPS file.
+     * Tries Ghostscript CLI first (bypasses ImageMagick policy.xml restrictions),
+     * falls back to Imagick extension, returns null if neither works.
      */
     protected function generateEpsThumbnail(string $s3Key): ?string
     {
@@ -217,17 +216,23 @@ class S3Service
         ]);
 
         $imageContent = (string) $result['Body'];
+        $thumbnailContent = null;
 
-        $imagick = new \Imagick;
-        $imagick->setResolution(150, 150);
-        $imagick->readImageBlob($imageContent);
-        $imagick->setImageFormat('jpeg');
-        $imagick->thumbnailImage(300, 300, true);
-        $imagick->setImageCompressionQuality(80);
+        // Try Ghostscript CLI first
+        if ($this->ghostscriptBin !== null) {
+            $thumbnailContent = $this->generateEpsThumbnailViaGhostscript($imageContent);
+        }
 
-        $thumbnailContent = $imagick->getImageBlob();
-        $imagick->clear();
-        $imagick->destroy();
+        // Fall back to Imagick extension
+        if ($thumbnailContent === null && $this->hasImagick) {
+            $thumbnailContent = $this->generateEpsThumbnailViaImagick($imageContent);
+        }
+
+        if ($thumbnailContent === null) {
+            \Log::info("Skipping thumbnail for EPS (no Ghostscript or Imagick available): $s3Key");
+
+            return null;
+        }
 
         // Build thumbnail S3 key (mirrors folder structure)
         $rootPrefix = self::getRootPrefix();
@@ -248,6 +253,87 @@ class S3Service
         ]);
 
         return $thumbnailKey;
+    }
+
+    /**
+     * Generate EPS thumbnail via Ghostscript CLI (bypasses ImageMagick policy.xml).
+     */
+    protected function generateEpsThumbnailViaGhostscript(string $epsContent): ?string
+    {
+        $tmpInput = tempnam(sys_get_temp_dir(), 'eps_');
+        $tmpOutput = tempnam(sys_get_temp_dir(), 'eps_thumb_').'.jpg';
+
+        try {
+            file_put_contents($tmpInput, $epsContent);
+
+            $cmd = sprintf(
+                '%s -dSAFER -dBATCH -dNOPAUSE -dEPSCrop -sDEVICE=jpeg -dJPEGQ=80 -r150 -dDEVICEWIDTHPOINTS=300 -dDEVICEHEIGHTPOINTS=300 -sOutputFile=%s %s 2>&1',
+                escapeshellarg($this->ghostscriptBin),
+                escapeshellarg($tmpOutput),
+                escapeshellarg($tmpInput)
+            );
+
+            exec($cmd, $output, $exitCode);
+
+            if ($exitCode !== 0 || ! file_exists($tmpOutput) || filesize($tmpOutput) === 0) {
+                \Log::warning('Ghostscript EPS thumbnail failed (exit '.$exitCode.'): '.implode("\n", $output));
+
+                return null;
+            }
+
+            return file_get_contents($tmpOutput);
+        } catch (\Exception $e) {
+            \Log::warning('Ghostscript EPS thumbnail exception: '.$e->getMessage());
+
+            return null;
+        } finally {
+            @unlink($tmpInput);
+            @unlink($tmpOutput);
+        }
+    }
+
+    /**
+     * Generate EPS thumbnail via Imagick extension (may fail if policy.xml blocks EPS).
+     */
+    protected function generateEpsThumbnailViaImagick(string $epsContent): ?string
+    {
+        try {
+            $imagick = new \Imagick;
+            $imagick->setResolution(150, 150);
+            $imagick->readImageBlob($epsContent);
+            $imagick->setImageFormat('jpeg');
+            $imagick->thumbnailImage(300, 300, true);
+            $imagick->setImageCompressionQuality(80);
+
+            $thumbnailContent = $imagick->getImageBlob();
+            $imagick->clear();
+            $imagick->destroy();
+
+            return $thumbnailContent;
+        } catch (\Exception $e) {
+            \Log::warning('Imagick EPS thumbnail failed (likely policy.xml restriction): '.$e->getMessage());
+
+            return null;
+        }
+    }
+
+    /**
+     * Find the Ghostscript binary path, or null if not available.
+     */
+    protected function findGhostscriptBinary(): ?string
+    {
+        $isWindows = PHP_OS_FAMILY === 'Windows';
+        $candidates = $isWindows ? ['gswin64c', 'gswin32c', 'gs'] : ['gs'];
+        $whichCmd = $isWindows ? 'where' : 'which';
+
+        foreach ($candidates as $bin) {
+            $result = @exec(sprintf('%s %s 2>&1', $whichCmd, escapeshellarg($bin)), $output, $exitCode);
+            if ($exitCode === 0 && ! empty($result)) {
+                return trim($result);
+            }
+        }
+
+        return null;
     }
 
     /**
@@ -421,36 +507,9 @@ class S3Service
      */
     public function extractImageDimensions(string $s3Key, string $mimeType): ?array
     {
-        // EPS: use raw Imagick if available (needs Ghostscript), otherwise skip
+        // EPS: dimensions are nice-to-have, skip gracefully
         if (str_ends_with(strtolower($s3Key), '.eps')) {
-            if (! $this->hasImagick) {
-                return null;
-            }
-
-            try {
-                $result = $this->s3Client->getObject([
-                    'Bucket' => $this->bucket,
-                    'Key' => $s3Key,
-                ]);
-
-                $imageData = (string) $result['Body'];
-                $imagick = new \Imagick;
-                $imagick->setResolution(72, 72);
-                $imagick->readImageBlob($imageData);
-
-                $dimensions = [
-                    'width' => $imagick->getImageWidth(),
-                    'height' => $imagick->getImageHeight(),
-                ];
-                $imagick->clear();
-                $imagick->destroy();
-
-                return $dimensions;
-            } catch (\Exception $e) {
-                \Log::warning('Failed to extract EPS dimensions: '.$e->getMessage());
-
-                return null;
-            }
+            return null;
         }
 
         // Skip GIFs - use getimagesize approach from existing code
@@ -665,30 +724,9 @@ class S3Service
             return [];
         }
 
-        // EPS: use raw Imagick if available (needs Ghostscript), otherwise skip
+        // EPS: dimensions are nice-to-have, skip gracefully
         if (str_ends_with(strtolower($file->getClientOriginalName()), '.eps')) {
-            if (! $this->hasImagick) {
-                return [];
-            }
-
-            try {
-                $imagick = new \Imagick;
-                $imagick->setResolution(72, 72);
-                $imagick->readImage($file->getRealPath());
-
-                $dimensions = [
-                    'width' => $imagick->getImageWidth(),
-                    'height' => $imagick->getImageHeight(),
-                ];
-                $imagick->clear();
-                $imagick->destroy();
-
-                return $dimensions;
-            } catch (\Exception $e) {
-                \Log::warning('Failed to get EPS dimensions: '.$e->getMessage());
-
-                return [];
-            }
+            return [];
         }
 
         // Skip dimension detection for GIFs to avoid memory issues
