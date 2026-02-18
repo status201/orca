@@ -8,7 +8,6 @@ use Aws\S3\S3Client;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Str;
 use Intervention\Image\Drivers\Gd\Driver;
-use Intervention\Image\Drivers\Imagick\Driver as ImagickDriver;
 use Intervention\Image\ImageManager;
 
 class S3Service
@@ -21,7 +20,7 @@ class S3Service
 
     protected ImageManager $imageManager;
 
-    protected ?ImageManager $imagickManager = null;
+    protected bool $hasImagick;
 
     public function __construct()
     {
@@ -40,10 +39,8 @@ class S3Service
         // Initialize Intervention Image 3.x (GD for general use)
         $this->imageManager = new ImageManager(new Driver);
 
-        // Initialize Imagick driver if available (needed for EPS thumbnail generation)
-        if (extension_loaded('imagick')) {
-            $this->imagickManager = new ImageManager(new ImagickDriver);
-        }
+        // Track Imagick availability (needed for EPS support via Ghostscript)
+        $this->hasImagick = extension_loaded('imagick');
     }
 
     /**
@@ -158,11 +155,15 @@ class S3Service
                 return null;
             }
 
-            // Skip thumbnail generation for EPS files when Imagick is not available
-            if (str_ends_with(strtolower($s3Key), '.eps') && $this->imagickManager === null) {
-                \Log::info("Skipping thumbnail for EPS (Imagick not available): $s3Key");
+            // EPS: use raw Imagick (needs Ghostscript delegate), skip if unavailable
+            if (str_ends_with(strtolower($s3Key), '.eps')) {
+                if (! $this->hasImagick) {
+                    \Log::info("Skipping thumbnail for EPS (Imagick not available): $s3Key");
 
-                return null;
+                    return null;
+                }
+
+                return $this->generateEpsThumbnail($s3Key);
             }
 
             // Download original from S3
@@ -173,11 +174,8 @@ class S3Service
 
             $imageContent = (string) $result['Body'];
 
-            // Use Imagick for EPS files, GD for everything else
-            $manager = str_ends_with(strtolower($s3Key), '.eps')
-                ? $this->imagickManager
-                : $this->imageManager;
-            $image = $manager->read($imageContent);
+            // Generate thumbnail (300x300 max, maintain aspect ratio)
+            $image = $this->imageManager->read($imageContent);
             $image->scale(width: 300, height: 300);
 
             // Convert to JPEG for consistency
@@ -206,6 +204,50 @@ class S3Service
 
             return null;
         }
+    }
+
+    /**
+     * Generate a JPEG thumbnail from an EPS file using raw Imagick + Ghostscript.
+     */
+    protected function generateEpsThumbnail(string $s3Key): ?string
+    {
+        $result = $this->s3Client->getObject([
+            'Bucket' => $this->bucket,
+            'Key' => $s3Key,
+        ]);
+
+        $imageContent = (string) $result['Body'];
+
+        $imagick = new \Imagick;
+        $imagick->setResolution(150, 150);
+        $imagick->readImageBlob($imageContent);
+        $imagick->setImageFormat('jpeg');
+        $imagick->thumbnailImage(300, 300, true);
+        $imagick->setImageCompressionQuality(80);
+
+        $thumbnailContent = $imagick->getImageBlob();
+        $imagick->clear();
+        $imagick->destroy();
+
+        // Build thumbnail S3 key (mirrors folder structure)
+        $rootPrefix = self::getRootPrefix();
+        $relativePath = ($rootPrefix !== '' && str_starts_with($s3Key, $rootPrefix))
+            ? substr($s3Key, strlen($rootPrefix))
+            : $s3Key;
+        $folder = dirname($relativePath);
+        $folder = ($folder === '.' || $folder === '') ? '' : $folder.'/';
+        $thumbnailKey = 'thumbnails/'.$folder.Str::replaceLast('.', '_thumb.', basename($s3Key));
+        // Ensure .jpg extension
+        $thumbnailKey = preg_replace('/\.[^.]+$/', '.jpg', $thumbnailKey);
+
+        $this->s3Client->putObject([
+            'Bucket' => $this->bucket,
+            'Key' => $thumbnailKey,
+            'Body' => $thumbnailContent,
+            'ContentType' => 'image/jpeg',
+        ]);
+
+        return $thumbnailKey;
     }
 
     /**
@@ -379,9 +421,9 @@ class S3Service
      */
     public function extractImageDimensions(string $s3Key, string $mimeType): ?array
     {
-        // EPS: use Imagick if available, otherwise skip
+        // EPS: use raw Imagick if available (needs Ghostscript), otherwise skip
         if (str_ends_with(strtolower($s3Key), '.eps')) {
-            if ($this->imagickManager === null) {
+            if (! $this->hasImagick) {
                 return null;
             }
 
@@ -392,12 +434,18 @@ class S3Service
                 ]);
 
                 $imageData = (string) $result['Body'];
-                $image = $this->imagickManager->read($imageData);
+                $imagick = new \Imagick;
+                $imagick->setResolution(72, 72);
+                $imagick->readImageBlob($imageData);
 
-                return [
-                    'width' => $image->width(),
-                    'height' => $image->height(),
+                $dimensions = [
+                    'width' => $imagick->getImageWidth(),
+                    'height' => $imagick->getImageHeight(),
                 ];
+                $imagick->clear();
+                $imagick->destroy();
+
+                return $dimensions;
             } catch (\Exception $e) {
                 \Log::warning('Failed to extract EPS dimensions: '.$e->getMessage());
 
@@ -617,19 +665,25 @@ class S3Service
             return [];
         }
 
-        // EPS: use Imagick if available, otherwise skip
+        // EPS: use raw Imagick if available (needs Ghostscript), otherwise skip
         if (str_ends_with(strtolower($file->getClientOriginalName()), '.eps')) {
-            if ($this->imagickManager === null) {
+            if (! $this->hasImagick) {
                 return [];
             }
 
             try {
-                $image = $this->imagickManager->read($file->getRealPath());
+                $imagick = new \Imagick;
+                $imagick->setResolution(72, 72);
+                $imagick->readImage($file->getRealPath());
 
-                return [
-                    'width' => $image->width(),
-                    'height' => $image->height(),
+                $dimensions = [
+                    'width' => $imagick->getImageWidth(),
+                    'height' => $imagick->getImageHeight(),
                 ];
+                $imagick->clear();
+                $imagick->destroy();
+
+                return $dimensions;
             } catch (\Exception $e) {
                 \Log::warning('Failed to get EPS dimensions: '.$e->getMessage());
 
