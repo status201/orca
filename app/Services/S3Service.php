@@ -20,10 +20,6 @@ class S3Service
 
     protected ImageManager $imageManager;
 
-    protected bool $hasImagick;
-
-    protected ?string $ghostscriptBin = null;
-
     public function __construct()
     {
         $this->bucket = config('filesystems.disks.s3.bucket');
@@ -40,10 +36,6 @@ class S3Service
 
         // Initialize Intervention Image 3.x (GD for general use)
         $this->imageManager = new ImageManager(new Driver);
-
-        // Detect Ghostscript binary (preferred for EPS) and Imagick (fallback)
-        $this->hasImagick = extension_loaded('imagick');
-        $this->ghostscriptBin = $this->findGhostscriptBinary();
     }
 
     /**
@@ -151,16 +143,9 @@ class S3Service
     public function generateThumbnail(string $s3Key): ?string
     {
         try {
-            // Skip thumbnail generation for GIFs to avoid memory issues
-            if (str_ends_with(strtolower($s3Key), '.gif')) {
-                \Log::info("Skipping thumbnail generation for GIF: $s3Key");
-
-                return null;
-            }
-
-            // EPS: try Ghostscript CLI first, then Imagick fallback
+            // Skip thumbnail generation for EPS (no reliable cross-server rendering)
             if (str_ends_with(strtolower($s3Key), '.eps')) {
-                return $this->generateEpsThumbnail($s3Key);
+                return null;
             }
 
             // Download original from S3
@@ -170,6 +155,13 @@ class S3Service
             ]);
 
             $imageContent = (string) $result['Body'];
+
+            // Skip animated GIFs to avoid memory issues (static GIFs are fine)
+            if (str_ends_with(strtolower($s3Key), '.gif') && $this->isAnimatedGif($imageContent)) {
+                \Log::info("Skipping thumbnail generation for animated GIF: $s3Key");
+
+                return null;
+            }
 
             // Generate thumbnail (300x300 max, maintain aspect ratio)
             $image = $this->imageManager->read($imageContent);
@@ -201,158 +193,6 @@ class S3Service
 
             return null;
         }
-    }
-
-    /**
-     * Generate a JPEG thumbnail from an EPS file.
-     * Tries Ghostscript CLI first (bypasses ImageMagick policy.xml restrictions),
-     * falls back to Imagick extension, returns null if neither works.
-     */
-    protected function generateEpsThumbnail(string $s3Key): ?string
-    {
-        $result = $this->s3Client->getObject([
-            'Bucket' => $this->bucket,
-            'Key' => $s3Key,
-        ]);
-
-        $imageContent = (string) $result['Body'];
-        $thumbnailContent = null;
-
-        // Try Ghostscript CLI first
-        if ($this->ghostscriptBin !== null) {
-            $thumbnailContent = $this->generateEpsThumbnailViaGhostscript($imageContent);
-        }
-
-        // Fall back to Imagick extension
-        if ($thumbnailContent === null && $this->hasImagick) {
-            $thumbnailContent = $this->generateEpsThumbnailViaImagick($imageContent);
-        }
-
-        if ($thumbnailContent === null) {
-            \Log::info('Skipping thumbnail for EPS (Ghostscript '
-                .($this->ghostscriptBin ? 'found but failed' : 'not found')
-                .', Imagick '.($this->hasImagick ? 'found but failed' : 'not available')
-                ."): $s3Key");
-
-            return null;
-        }
-
-        // Build thumbnail S3 key (mirrors folder structure)
-        $rootPrefix = self::getRootPrefix();
-        $relativePath = ($rootPrefix !== '' && str_starts_with($s3Key, $rootPrefix))
-            ? substr($s3Key, strlen($rootPrefix))
-            : $s3Key;
-        $folder = dirname($relativePath);
-        $folder = ($folder === '.' || $folder === '') ? '' : $folder.'/';
-        $thumbnailKey = 'thumbnails/'.$folder.Str::replaceLast('.', '_thumb.', basename($s3Key));
-        // Ensure .jpg extension
-        $thumbnailKey = preg_replace('/\.[^.]+$/', '.jpg', $thumbnailKey);
-
-        $this->s3Client->putObject([
-            'Bucket' => $this->bucket,
-            'Key' => $thumbnailKey,
-            'Body' => $thumbnailContent,
-            'ContentType' => 'image/jpeg',
-        ]);
-
-        return $thumbnailKey;
-    }
-
-    /**
-     * Generate EPS thumbnail via Ghostscript CLI (bypasses ImageMagick policy.xml).
-     */
-    protected function generateEpsThumbnailViaGhostscript(string $epsContent): ?string
-    {
-        $tmpInput = tempnam(sys_get_temp_dir(), 'eps_');
-        $tmpOutputBase = tempnam(sys_get_temp_dir(), 'eps_thumb_');
-        $tmpOutput = $tmpOutputBase.'.jpg';
-
-        try {
-            file_put_contents($tmpInput, $epsContent);
-
-            $cmd = sprintf(
-                '%s -dSAFER -dBATCH -dNOPAUSE -dEPSCrop -sDEVICE=jpeg -dJPEGQ=80 -r150 -dDEVICEWIDTHPOINTS=300 -dDEVICEHEIGHTPOINTS=300 -sOutputFile=%s %s 2>&1',
-                escapeshellarg($this->ghostscriptBin),
-                escapeshellarg($tmpOutput),
-                escapeshellarg($tmpInput)
-            );
-
-            exec($cmd, $output, $exitCode);
-
-            if ($exitCode !== 0 || ! file_exists($tmpOutput) || filesize($tmpOutput) === 0) {
-                \Log::warning('Ghostscript EPS thumbnail failed (exit '.$exitCode.'): '.implode("\n", $output));
-
-                return null;
-            }
-
-            $data = file_get_contents($tmpOutput);
-
-            // Verify output is a valid JPEG (magic bytes: FF D8 FF)
-            if (strlen($data) < 3 || $data[0] !== "\xFF" || $data[1] !== "\xD8" || $data[2] !== "\xFF") {
-                \Log::warning('Ghostscript produced invalid JPEG output for EPS thumbnail');
-
-                return null;
-            }
-
-            return $data;
-        } catch (\Throwable $e) {
-            \Log::warning('Ghostscript EPS thumbnail exception: '.$e->getMessage());
-
-            return null;
-        } finally {
-            @unlink($tmpInput);
-            @unlink($tmpOutputBase);
-            @unlink($tmpOutput);
-        }
-    }
-
-    /**
-     * Generate EPS thumbnail via Imagick extension (may fail if policy.xml blocks EPS).
-     */
-    protected function generateEpsThumbnailViaImagick(string $epsContent): ?string
-    {
-        try {
-            $imagick = new \Imagick;
-            $imagick->setResolution(150, 150);
-            $imagick->readImageBlob($epsContent);
-            $imagick->setImageFormat('jpeg');
-            $imagick->thumbnailImage(300, 300, true);
-            $imagick->setImageCompressionQuality(80);
-
-            $thumbnailContent = $imagick->getImageBlob();
-            $imagick->clear();
-            $imagick->destroy();
-
-            return $thumbnailContent;
-        } catch (\Throwable $e) {
-            \Log::warning('Imagick EPS thumbnail failed (likely policy.xml restriction): '.$e->getMessage());
-
-            return null;
-        }
-    }
-
-    /**
-     * Find the Ghostscript binary path, or null if not available.
-     */
-    protected function findGhostscriptBinary(): ?string
-    {
-        try {
-            $isWindows = PHP_OS_FAMILY === 'Windows';
-            $candidates = $isWindows ? ['gswin64c', 'gswin32c', 'gs'] : ['gs'];
-            $whichCmd = $isWindows ? 'where' : 'which';
-
-            foreach ($candidates as $bin) {
-                $output = [];
-                $result = @exec(sprintf('%s %s 2>&1', $whichCmd, escapeshellarg($bin)), $output, $exitCode);
-                if ($exitCode === 0 && ! empty($result)) {
-                    return trim($result);
-                }
-            }
-        } catch (\Throwable $e) {
-            // exec() may be disabled via php.ini disable_functions
-        }
-
-        return null;
     }
 
     /**
@@ -390,6 +230,13 @@ class S3Service
                 'Key' => $s3Key,
             ]);
             $imageContent = (string) $result['Body'];
+
+            // Skip animated GIFs to avoid memory issues (static GIFs are fine)
+            if ($extension === 'gif' && $this->isAnimatedGif($imageContent)) {
+                \Log::info("Skipping resize generation for animated GIF: $s3Key");
+
+                return [];
+            }
 
             // Build relative path for S3 key generation (same logic as generateThumbnail)
             $rootPrefix = self::getRootPrefix();
@@ -778,6 +625,31 @@ class S3Service
 
             return [];
         }
+    }
+
+    /**
+     * Check whether raw GIF data contains multiple frames (i.e. is animated).
+     * Scans for image descriptor blocks (0x2C); two or more means animated.
+     */
+    protected function isAnimatedGif(string $imageData): bool
+    {
+        $count = 0;
+        $offset = 0;
+        $len = strlen($imageData);
+
+        while ($offset < $len) {
+            $pos = strpos($imageData, "\x2C", $offset);
+            if ($pos === false) {
+                break;
+            }
+            $count++;
+            if ($count >= 2) {
+                return true;
+            }
+            $offset = $pos + 1;
+        }
+
+        return false;
     }
 
     /**
