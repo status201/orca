@@ -532,7 +532,8 @@ Access the admin panel at: `https://your-domain.com/system`
 
 **Application Health:**
 ```bash
-curl https://your-domain.com
+curl https://your-domain.com/api/health
+# Returns {"status":"ok","database":"ok"} with 200, or 503 if degraded
 ```
 
 **Queue Worker Health:**

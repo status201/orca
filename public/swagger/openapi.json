@@ -35,6 +35,10 @@
     {
       "name": "Chunked Upload",
       "description": "Large file upload endpoints (files >= 10MB)"
+    },
+    {
+      "name": "Health",
+      "description": "Application health check endpoint"
     }
   ],
   "paths": {
@@ -912,6 +916,57 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/health": {
+      "get": {
+        "tags": ["Health"],
+        "summary": "Health check",
+        "description": "Public endpoint to check application and database health. No authentication required.",
+        "operationId": "healthCheck",
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Application is healthy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "ok"
+                    },
+                    "database": {
+                      "type": "string",
+                      "example": "ok"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Application is degraded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "error"
+                    },
+                    "database": {
+                      "type": "string",
+                      "example": "error"
+                    }
+                  }
                 }
               }
             }

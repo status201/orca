@@ -94,6 +94,7 @@ Middleware `SetLocale`: User preference -> Global setting (`settings.locale`) ->
 | DELETE | `/api/assets/{id}` | Delete asset |
 | GET | `/api/assets/search` | Search with filters and sorting |
 | GET | `/api/assets/meta` | **Public** (no auth) - metadata by URL |
+| GET | `/api/health` | **Public** (no auth) - health check (200/503) |
 | GET | `/api/tags` | List tags (optional type filter) |
 
 **Sort values**: `date_desc` (default), `date_asc`, `upload_desc`, `upload_asc`, `size_desc`, `size_asc`, `name_asc`, `name_desc`, `s3key_asc`, `s3key_desc`

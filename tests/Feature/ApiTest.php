@@ -398,6 +398,24 @@ test('api folders endpoint requires authentication', function () {
     $response->assertUnauthorized();
 });
 
+test('health endpoint returns ok', function () {
+    $response = $this->getJson('/api/health');
+
+    $response->assertOk();
+    $response->assertExactJson([
+        'status' => 'ok',
+        'database' => 'ok',
+    ]);
+});
+
+test('health endpoint is public and requires no authentication', function () {
+    // No Sanctum::actingAs — should still succeed
+    $response = $this->getJson('/api/health');
+
+    $response->assertOk();
+    $response->assertJsonPath('status', 'ok');
+});
+
 test('api assets index defaults to newest first when no sort specified', function () {
     $user = User::factory()->create();
     Sanctum::actingAs($user);

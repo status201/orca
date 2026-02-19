@@ -217,6 +217,7 @@ PATCH  /api/assets/{id}         - Update asset metadata (alt_text, caption, lice
 DELETE /api/assets/{id}         - Delete asset
 GET    /api/assets/search       - Search with filters
 GET    /api/assets/meta         - Get metadata by URL (PUBLIC, no auth)
+GET    /api/health              - Health check (PUBLIC, no auth, 200/503)
 GET    /api/tags                - List tags for autocomplete
 GET    /api/folders             - List available S3 folders
 ```
@@ -229,7 +230,7 @@ POST   /api/chunked-upload/complete - Complete upload and create asset
 POST   /api/chunked-upload/abort    - Cancel and cleanup failed upload
 ```
 
-Authentication: Laravel Sanctum (SPA token) or JWT bearer token - except `/api/assets/meta` which is public
+Authentication: Laravel Sanctum (SPA token) or JWT bearer token - except `/api/assets/meta` and `/api/health` which are public
 
 ## Testing
 

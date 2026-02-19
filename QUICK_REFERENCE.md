@@ -226,6 +226,7 @@ GET    /api/assets             # List assets (supports ?sort=)
 POST   /api/assets             # Upload assets
 GET    /api/assets/search      # Search assets (supports ?sort=)
 GET    /api/assets/meta        # Get metadata by URL (PUBLIC, no auth)
+GET    /api/health             # Health check (PUBLIC, no auth, 200/503)
 GET    /api/assets/{id}        # Get asset
 PATCH  /api/assets/{id}        # Update asset
 DELETE /api/assets/{id}        # Delete asset

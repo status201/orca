@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Route;
 
 // Public API endpoints (no authentication required)
 Route::get('assets/meta', [AssetApiController::class, 'getMeta']);
+Route::get('health', \App\Http\Controllers\Api\HealthController::class);
 
 Route::middleware('auth.multi')->group(function () {
     // Asset API
