@@ -75,6 +75,7 @@
              class="bg-white rounded-lg shadow hover:shadow-lg transition-shadow p-4">
             <div class="flex items-start justify-between mb-2 gap-3">
                 <a href="{{ route('assets.index', ['tags' => [$tag->id]]) }}"
+                   title="{{ $tag->name }}"
                    class="flex-1 min-w-0">
                     <h3 class="text-lg font-semibold text-gray-900 hover:text-blue-600 truncate">{{ $tag->name }}</h3>
                 </a>
