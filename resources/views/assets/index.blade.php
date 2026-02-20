@@ -436,7 +436,7 @@
                                              class="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded shadow-lg max-h-40 overflow-y-auto">
                                             <template x-for="(suggestion, index) in filteredSuggestions" :key="suggestion">
                                                 <button type="button"
-                                                        @click="selectSuggestion(suggestion)"
+                                                        @mousedown.prevent="selectSuggestion(suggestion)"
                                                         :class="selectedSuggestionIndex === index ? 'bg-blue-100' : 'hover:bg-gray-100'"
                                                         class="w-full text-left px-3 py-1.5 text-xs text-gray-700 border-b border-gray-100 last:border-b-0"
                                                         x-text="suggestion">
@@ -721,8 +721,7 @@ function assetRow(assetId, initialTags, initialLicense, assetUrl) {
             this.newTagName = suggestion;
             this.showSuggestions = false;
             this.selectedSuggestionIndex = -1;
-            // Focus back on input so user can press Enter to add
-            this.$refs.tagInput.focus();
+            this.addTag();
         },
 
         selectNextSuggestion() {

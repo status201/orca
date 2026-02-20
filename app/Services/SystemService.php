@@ -677,6 +677,10 @@ class SystemService
         try {
             $status = app(\App\Services\S3Service::class)->getBucketVersioning();
 
+            if ($status === null) {
+                return null;
+            }
+
             return $status === 'Enabled';
         } catch (\Exception $e) {
             return null;

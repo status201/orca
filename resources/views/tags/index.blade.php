@@ -54,11 +54,11 @@
                 {{ __('All Tags') }} @if(!request('type'))<span>(<span x-text="matchingCount"></span>)</span>@endif
             </a>
             <a href="{{ route('tags.index', array_filter(['type' => 'user', 'sort' => request('sort')])) }}"
-               class="py-4 px-1 border-b-2 {{ request('type') === 'user' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }} font-medium text-sm">
+               class="attention py-4 px-1 border-b-2 {{ request('type') === 'user' ? 'border-blue-500 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }} font-medium text-sm">
                 {{ __('User Tags') }} @if(request('type') === 'user')<span>(<span x-text="matchingCount"></span>)</span>@endif
             </a>
             <a href="{{ route('tags.index', array_filter(['type' => 'ai', 'sort' => request('sort')])) }}"
-               class="py-4 px-1 border-b-2 {{ request('type') === 'ai' ? 'border-purple-500 text-purple-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }} font-medium text-sm">
+               class="attention py-4 px-1 border-b-2 {{ request('type') === 'ai' ? 'border-purple-500 text-purple-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }} font-medium text-sm">
                 {{ __('AI Tags') }} @if(request('type') === 'ai')<span>(<span x-text="matchingCount"></span>)</span>@endif
             </a>
         </nav>
