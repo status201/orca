@@ -297,21 +297,23 @@ class AssetController extends Controller
             ['last_modified_by' => Auth::id()]
         ));
 
-        // Handle tags - always sync, even if empty (to allow removing all tags)
-        $tagIds = [];
-        $tags = $request->input('tags', []);
+        // Handle tags only if explicitly included in request
+        if ($request->has('tags')) {
+            $tagIds = [];
+            $tags = $request->input('tags', []);
 
-        foreach ($tags as $tagName) {
-            $tag = Tag::firstOrCreate(
-                ['name' => strtolower(trim($tagName))],
-                ['type' => 'user']
-            );
-            $tagIds[] = $tag->id;
+            foreach ($tags as $tagName) {
+                $tag = Tag::firstOrCreate(
+                    ['name' => strtolower(trim($tagName))],
+                    ['type' => 'user']
+                );
+                $tagIds[] = $tag->id;
+            }
+
+            // Keep AI tags, replace user tags
+            $aiTagIds = $asset->aiTags()->pluck('tags.id')->toArray();
+            $asset->tags()->sync(array_merge($aiTagIds, $tagIds));
         }
-
-        // Keep AI tags, replace user tags
-        $aiTagIds = $asset->aiTags()->pluck('tags.id')->toArray();
-        $asset->tags()->sync(array_merge($aiTagIds, $tagIds));
 
         if ($request->expectsJson()) {
             return response()->json([
