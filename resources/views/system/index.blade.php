@@ -151,52 +151,6 @@
             </div>
         </div>
 
-        <!-- S3 Integrity -->
-        <div class="bg-white rounded-lg shadow">
-            <div class="px-6 py-4 border-b border-gray-200">
-                <h3 class="text-lg font-semibold text-gray-900">
-                    <i class="fas fa-shield-halved mr-2"></i>{{ __('S3 Integrity') }}
-                </h3>
-            </div>
-            <div class="p-6">
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center gap-2">
-                        <template x-if="integrityCheckQueued">
-                            <p class="text-sm text-blue-600">
-                                <i class="fas fa-clock mr-1"></i>
-                                <span x-text="@js(__('Integrity check queued for :count assets. Refresh to see results.')).replace(':count', integrityQueuedCount)"></span>
-                            </p>
-                        </template>
-                        <template x-if="!integrityCheckQueued && missingAssetsCount > 0">
-                            <p class="attention text-sm text-red-700">
-                                <i class="fas fa-triangle-exclamation mr-1"></i>
-                                <span x-text="missingAssetsCount + ' ' + (missingAssetsCount === 1 ? @js(__('asset has a missing S3 object')) : @js(__('assets have missing S3 objects')))"></span>
-                            </p>
-                        </template>
-                        <template x-if="!integrityCheckQueued && missingAssetsCount === 0">
-                            <p class="text-sm text-gray-600">{{ __('No missing assets detected.') }}</p>
-                        </template>
-                        <button @click="refreshIntegrityStatus()"
-                                :disabled="refreshingIntegrity"
-                                class="text-gray-400 hover:text-gray-600 transition-colors"
-                                :title="@js(__('Refresh'))">
-                            <i class="fas fa-arrows-rotate" :class="refreshingIntegrity && 'fa-spin'"></i>
-                        </button>
-                    </div>
-                    <button @click="verifyIntegrity()"
-                            :disabled="verifyingIntegrity"
-                            class="px-4 py-2 bg-orca-black text-white rounded-lg hover:bg-orca-black-hover disabled:opacity-50 disabled:cursor-not-allowed transition-all text-sm">
-                        <template x-if="!verifyingIntegrity">
-                            <span><i class="fas fa-shield-halved mr-2"></i>{{ __('Verify S3 Integrity') }}</span>
-                        </template>
-                        <template x-if="verifyingIntegrity">
-                            <span><i class="fas fa-spinner fa-spin mr-2"></i>{{ __('Verifying...') }}</span>
-                        </template>
-                    </button>
-                </div>
-            </div>
-        </div>
-
         <!-- API Status -->
         <div class="bg-white rounded-lg shadow">
             <div class="px-6 py-4 border-b border-gray-200">
@@ -295,276 +249,285 @@
 
     <!-- Settings Tab -->
     <div x-show="activeTab === 'settings'" class="space-y-6">
-        <div class="bg-white rounded-lg shadow">
-            <div class="px-6 py-6 border-b border-gray-200">
-                <h3 class="text-lg font-semibold text-gray-900">
-                    <i class="fas fa-sliders-h mr-2"></i>{{ __('Application Settings') }}
-                </h3>
-                <p class="text-sm text-gray-500 mt-1">{{ __('Configure global application settings') }}</p>
+        <!-- Status Messages -->
+        <div x-show="settingsSaved" x-transition class="attention p-3 bg-green-50 border border-green-200 rounded-lg text-green-700 text-sm">
+            <i class="fas fa-check-circle mr-2"></i>{{ __('Settings saved successfully') }}
+        </div>
+        <div x-show="settingsError" x-transition class="attention p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+            <i class="fas fa-exclamation-circle mr-2"></i><span x-text="settingsError"></span>
+        </div>
+
+        <!-- S3 Storage Settings -->
+        <div class="bg-white rounded-lg shadow overflow-hidden">
+            <div class="bg-gray-50 border-b border-gray-200 px-6 py-4">
+                <h4 class="text-base font-semibold text-gray-900">
+                    <i class="fab fa-aws mr-2 text-orange-500"></i>{{ __('S3 Storage') }}
+                </h4>
+                <p class="text-sm text-gray-500 mt-1">{{ __('Configure your S3 bucket connection and CDN settings') }}</p>
             </div>
-            <div class="grid gap-6 p-6 space-y-6">
+            <div class="p-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- S3 Root Folder -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            {{ __('Root folder prefix') }}
+                        </label>
+                        <input type="text"
+                               x-model="settings.s3_root_folder"
+                               @change="updateSetting('s3_root_folder', settings.s3_root_folder)"
+                               placeholder=""
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orca-black focus:border-transparent">
+                        <p class="text-xs text-gray-500 mt-1">{{ __('S3 prefix for root folder view & uploads. Leave empty for bucket root.') }}</p>
+                        <p class="text-xs text-amber-600 mt-1"><i class="fas fa-exclamation-triangle mr-1"></i>{{ __('Changing this does not move existing assets.') }}</p>
+                    </div>
 
-                <!-- S3 Storage Settings -->
-                <div>
-                    <h4 class="text-md font-semibold text-gray-800 mb-4 pb-2 border-b border-gray-200">
-                        <i class="fab fa-aws mr-2 text-gray-500"></i>{{ __('S3 Storage') }}
-                    </h4>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <!-- S3 Root Folder -->
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">
-                                {{ __('Root folder prefix') }}
-                            </label>
-                            <input type="text"
-                                   x-model="settings.s3_root_folder"
-                                   @change="updateSetting('s3_root_folder', settings.s3_root_folder)"
-                                   placeholder=""
-                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orca-black focus:border-transparent">
-                            <p class="text-xs text-gray-500 mt-1">{{ __('S3 prefix for root folder view & uploads. Leave empty for bucket root.') }}</p>
-                            <p class="text-xs text-amber-600 mt-1"><i class="fas fa-exclamation-triangle mr-1"></i>{{ __('Changing this does not move existing assets.') }}</p>
-                        </div>
-
-                        <!-- Custom Domain -->
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">
-                                {{ __('Custom domain') }}
-                            </label>
-                            <input type="text"
-                                   x-model="settings.custom_domain"
-                                   @change="updateSetting('custom_domain', settings.custom_domain)"
-                                   placeholder="https://cdn.example.com"
-                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orca-black focus:border-transparent">
-                            <p class="text-xs text-gray-500 mt-1">{{ __('Replaces the S3 bucket domain in asset URLs. Leave empty to use the default S3 URL.') }}</p>
-                        </div>
+                    <!-- Custom Domain -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            {{ __('Custom domain') }}
+                        </label>
+                        <input type="text"
+                               x-model="settings.custom_domain"
+                               @change="updateSetting('custom_domain', settings.custom_domain)"
+                               placeholder="https://cdn.example.com"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orca-black focus:border-transparent">
+                        <p class="text-xs text-gray-500 mt-1">{{ __('Replaces the S3 bucket domain in asset URLs. Leave empty to use the default S3 URL.') }}</p>
                     </div>
                 </div>
+            </div>
+        </div>
 
-                <!-- Display Settings -->
-                <div>
-                    <h4 class="text-md font-semibold text-gray-800 mb-4 pb-2 border-b border-gray-200">
-                        <i class="fas fa-desktop mr-2 text-gray-500"></i>{{ __('Display Settings') }}
-                    </h4>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <!-- Items Per Page -->
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">
-                                {{ __('Items per page') }}
-                            </label>
-                            <select x-model="settings.items_per_page"
-                                    @change="updateSetting('items_per_page', settings.items_per_page)"
-                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orca-black focus:border-transparent">
-                                <option value="12">12</option>
-                                <option value="24">24</option>
-                                <option value="36">36</option>
-                                <option value="48">48</option>
-                                <option value="60">60</option>
-                                <option value="72">72</option>
-                                <option value="96">96</option>
-                            </select>
-                            <p class="text-xs text-gray-500 mt-1">{{ __('Number of assets displayed per page in the asset grid') }}</p>
-                        </div>
+        <!-- Display Settings -->
+        <div class="bg-white rounded-lg shadow overflow-hidden">
+            <div class="bg-gray-50 border-b border-gray-200 px-6 py-4">
+                <h4 class="text-base font-semibold text-gray-900">
+                    <i class="fas fa-desktop mr-2 text-blue-500"></i>{{ __('Display Settings') }}
+                </h4>
+                <p class="text-sm text-gray-500 mt-1">{{ __('Customize how assets and the interface are displayed') }}</p>
+            </div>
+            <div class="p-6">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- Items Per Page -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            {{ __('Items per page') }}
+                        </label>
+                        <select x-model="settings.items_per_page"
+                                @change="updateSetting('items_per_page', settings.items_per_page)"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orca-black focus:border-transparent">
+                            <option value="12">12</option>
+                            <option value="24">24</option>
+                            <option value="36">36</option>
+                            <option value="48">48</option>
+                            <option value="60">60</option>
+                            <option value="72">72</option>
+                            <option value="96">96</option>
+                        </select>
+                        <p class="text-xs text-gray-500 mt-1">{{ __('Number of assets displayed per page in the asset grid') }}</p>
+                    </div>
 
-                        <!-- Timezone -->
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">
-                                {{ __('Timezone') }}
-                            </label>
-                            <select x-model="settings.timezone"
-                                    @change="updateSetting('timezone', settings.timezone)"
-                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orca-black focus:border-transparent">
-                                @php
-                                    $groupedTimezones = [];
-                                    foreach ($availableTimezones as $tz) {
-                                        $parts = explode('/', $tz, 2);
-                                        $region = count($parts) > 1 ? $parts[0] : 'Other';
-                                        $groupedTimezones[$region][] = $tz;
-                                    }
-                                @endphp
-                                @foreach($groupedTimezones as $region => $timezones)
-                                    <optgroup label="{{ $region }}">
-                                        @foreach($timezones as $tz)
-                                            <option value="{{ $tz }}">{{ $tz }}</option>
-                                        @endforeach
-                                    </optgroup>
-                                @endforeach
-                            </select>
-                            <p class="text-xs text-gray-500 mt-1">{{ __('Application timezone for displaying dates and timestamps') }}</p>
-                        </div>
+                    <!-- Timezone -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            {{ __('Timezone') }}
+                        </label>
+                        <select x-model="settings.timezone"
+                                @change="updateSetting('timezone', settings.timezone)"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orca-black focus:border-transparent">
+                            @php
+                                $groupedTimezones = [];
+                                foreach ($availableTimezones as $tz) {
+                                    $parts = explode('/', $tz, 2);
+                                    $region = count($parts) > 1 ? $parts[0] : 'Other';
+                                    $groupedTimezones[$region][] = $tz;
+                                }
+                            @endphp
+                            @foreach($groupedTimezones as $region => $timezones)
+                                <optgroup label="{{ $region }}">
+                                    @foreach($timezones as $tz)
+                                        <option value="{{ $tz }}">{{ $tz }}</option>
+                                    @endforeach
+                                </optgroup>
+                            @endforeach
+                        </select>
+                        <p class="text-xs text-gray-500 mt-1">{{ __('Application timezone for displaying dates and timestamps') }}</p>
+                    </div>
 
-                        <!-- UI Language -->
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">
-                                {{ __('UI Language') }}
-                            </label>
-                            <select x-model="settings.locale"
-                                    @change="updateSetting('locale', settings.locale)"
-                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orca-black focus:border-transparent">
-                                @foreach($availableUiLanguages as $code => $label)
-                                    <option value="{{ $code }}">{{ $label }}</option>
-                                @endforeach
-                            </select>
-                            <p class="text-xs text-gray-500 mt-1">{{ __('Application interface language for all users (users can override in their profile)') }}</p>
-                        </div>
+                    <!-- UI Language -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            {{ __('UI Language') }}
+                        </label>
+                        <select x-model="settings.locale"
+                                @change="updateSetting('locale', settings.locale)"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orca-black focus:border-transparent">
+                            @foreach($availableUiLanguages as $code => $label)
+                                <option value="{{ $code }}">{{ $label }}</option>
+                            @endforeach
+                        </select>
+                        <p class="text-xs text-gray-500 mt-1">{{ __('Application interface language for all users (users can override in their profile)') }}</p>
                     </div>
                 </div>
+            </div>
+        </div>
 
-                <!-- Image Resize Presets -->
-                <div>
-                    <h4 class="text-md font-semibold text-gray-800 mb-4 pb-2 border-b border-gray-200">
-                        <i class="fas fa-expand mr-2 text-gray-500"></i>{{ __('Image Resize Presets') }}
-                    </h4>
-                    <p class="text-xs text-gray-500 mb-4">{{ __('Configure dimensions for automatically generated image resize variants. Leave height empty for automatic aspect ratio. Images smaller than the target size will not be upscaled.') }}</p>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <!-- Small (S) -->
-                        <div class="space-y-3">
-                            <h5 class="text-sm font-medium text-gray-700">{{ __('Small (S)') }}</h5>
-                            <div>
-                                <label class="block text-xs text-gray-500 mb-1">{{ __('Width (px)') }}</label>
-                                <input type="number"
-                                       x-model="settings.resize_s_width"
-                                       @change="updateSetting('resize_s_width', settings.resize_s_width)"
-                                       min="50"
-                                       max="5000"
-                                       placeholder="250"
-                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orca-black focus:border-transparent">
-                            </div>
-                            <div>
-                                <label class="block text-xs text-gray-500 mb-1">{{ __('Height (px)') }}</label>
-                                <input type="number"
-                                       x-model="settings.resize_s_height"
-                                       @change="updateSetting('resize_s_height', settings.resize_s_height)"
-                                       min="50"
-                                       max="5000"
-                                       placeholder="{{ __('Auto') }}"
-                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orca-black focus:border-transparent">
-                            </div>
-                        </div>
-
-                        <!-- Medium (M) -->
-                        <div class="space-y-3">
-                            <h5 class="text-sm font-medium text-gray-700">{{ __('Medium (M)') }}</h5>
-                            <div>
-                                <label class="block text-xs text-gray-500 mb-1">{{ __('Width (px)') }}</label>
-                                <input type="number"
-                                       x-model="settings.resize_m_width"
-                                       @change="updateSetting('resize_m_width', settings.resize_m_width)"
-                                       min="50"
-                                       max="5000"
-                                       placeholder="600"
-                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orca-black focus:border-transparent">
-                            </div>
-                            <div>
-                                <label class="block text-xs text-gray-500 mb-1">{{ __('Height (px)') }}</label>
-                                <input type="number"
-                                       x-model="settings.resize_m_height"
-                                       @change="updateSetting('resize_m_height', settings.resize_m_height)"
-                                       min="50"
-                                       max="5000"
-                                       placeholder="{{ __('Auto') }}"
-                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orca-black focus:border-transparent">
-                            </div>
-                        </div>
-
-                        <!-- Large (L) -->
-                        <div class="space-y-3">
-                            <h5 class="text-sm font-medium text-gray-700">{{ __('Large (L)') }}</h5>
-                            <div>
-                                <label class="block text-xs text-gray-500 mb-1">{{ __('Width (px)') }}</label>
-                                <input type="number"
-                                       x-model="settings.resize_l_width"
-                                       @change="updateSetting('resize_l_width', settings.resize_l_width)"
-                                       min="50"
-                                       max="5000"
-                                       placeholder="1200"
-                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orca-black focus:border-transparent">
-                            </div>
-                            <div>
-                                <label class="block text-xs text-gray-500 mb-1">{{ __('Height (px)') }}</label>
-                                <input type="number"
-                                       x-model="settings.resize_l_height"
-                                       @change="updateSetting('resize_l_height', settings.resize_l_height)"
-                                       min="50"
-                                       max="5000"
-                                       placeholder="{{ __('Auto') }}"
-                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orca-black focus:border-transparent">
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Regenerate Button -->
-                    <div class="mt-4">
-                        <button @click="regenerateAllSizes()"
-                                :disabled="regenerating"
-                                class="px-4 py-2 bg-orca-black text-white rounded-lg hover:bg-orca-black-hover disabled:opacity-50 disabled:cursor-not-allowed transition-all text-sm">
-                            <template x-if="!regenerating">
-                                <span><i class="fas fa-sync-alt mr-2"></i>{{ __('Regenerate All Sizes') }}</span>
-                            </template>
-                            <template x-if="regenerating">
-                                <span><i class="fas fa-spinner fa-spin mr-2"></i>{{ __('Regenerating...') }}</span>
-                            </template>
-                        </button>
-                        <p class="text-xs text-gray-500 mt-1">{{ __('Queues regeneration of all resize variants for existing image assets. This may take a while for large libraries.') }}</p>
-                    </div>
-                </div>
-
-                <!-- AWS Rekognition Settings -->
-                <div>
-                    <h4 class="text-md font-semibold text-gray-800 mb-4 pb-2 border-b border-gray-200">
-                        <i class="fab fa-aws mr-2 text-gray-500"></i>{{ __('AWS Rekognition Settings') }}
-                    </h4>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <!-- Max Labels -->
+        <!-- Image Resize Presets -->
+        <div class="bg-white rounded-lg shadow overflow-hidden">
+            <div class="bg-gray-50 border-b border-gray-200 px-6 py-4">
+                <h4 class="text-base font-semibold text-gray-900">
+                    <i class="fas fa-expand mr-2 text-green-500"></i>{{ __('Image Resize Presets') }}
+                </h4>
+                <p class="text-sm text-gray-500 mt-1">{{ __('Configure dimensions for automatically generated image resize variants. Leave height empty for automatic aspect ratio.') }}</p>
+            </div>
+            <div class="p-6">
+                <p class="text-xs text-gray-500 mb-5">{{ __('Images smaller than the target size will not be upscaled.') }}</p>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- Small (S) -->
+                    <div class="bg-gray-50 rounded-lg border border-gray-200 p-4 space-y-3">
+                        <h5 class="text-sm font-semibold text-gray-700">{{ __('Small (S)') }}</h5>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">
-                                {{ __('Maximum AI tags per asset') }}
-                            </label>
+                            <label class="block text-xs text-gray-500 mb-1">{{ __('Width (px)') }}</label>
                             <input type="number"
-                                   x-model="settings.rekognition_max_labels"
-                                   @change="updateSetting('rekognition_max_labels', settings.rekognition_max_labels)"
-                                   min="1"
-                                   max="20"
-                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orca-black focus:border-transparent">
-                            <p class="text-xs text-gray-500 mt-1">{{ __('Maximum number of AI-generated tags per asset (1-20)') }}</p>
+                                   x-model="settings.resize_s_width"
+                                   @change="updateSetting('resize_s_width', settings.resize_s_width)"
+                                   min="50"
+                                   max="5000"
+                                   placeholder="250"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orca-black focus:border-transparent bg-white">
                         </div>
-
-                        <!-- Language -->
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">
-                                {{ __('AI tag language') }}
-                            </label>
-                            <select x-model="settings.rekognition_language"
-                                    @change="updateSetting('rekognition_language', settings.rekognition_language)"
-                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orca-black focus:border-transparent">
-                                @foreach($availableLanguages as $code => $name)
-                                    <option value="{{ $code }}">{{ $name }}</option>
-                                @endforeach
-                            </select>
-                            <p class="text-xs text-gray-500 mt-1">{{ __('Language for AI-generated tags (uses AWS Translate for non-English)') }}</p>
+                            <label class="block text-xs text-gray-500 mb-1">{{ __('Height (px)') }}</label>
+                            <input type="number"
+                                   x-model="settings.resize_s_height"
+                                   @change="updateSetting('resize_s_height', settings.resize_s_height)"
+                                   min="50"
+                                   max="5000"
+                                   placeholder="{{ __('Auto') }}"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orca-black focus:border-transparent bg-white">
                         </div>
+                    </div>
 
-                        <!-- Min Confidence -->
+                    <!-- Medium (M) -->
+                    <div class="bg-gray-50 rounded-lg border border-gray-200 p-4 space-y-3">
+                        <h5 class="text-sm font-semibold text-gray-700">{{ __('Medium (M)') }}</h5>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">
-                                {{ __('Minimum confidence threshold') }}
-                            </label>
-                            <select x-model="settings.rekognition_min_confidence"
-                                    @change="updateSetting('rekognition_min_confidence', settings.rekognition_min_confidence)"
-                                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orca-black focus:border-transparent">
-                                @for($i = 65; $i <= 99; $i++)
-                                    <option value="{{ $i }}">{{ $i }}.0%</option>
-                                @endfor
-                            </select>
-                            <p class="text-xs text-gray-500 mt-1">{{ __('Minimum confidence level for AI-detected labels (65-99%)') }}</p>
+                            <label class="block text-xs text-gray-500 mb-1">{{ __('Width (px)') }}</label>
+                            <input type="number"
+                                   x-model="settings.resize_m_width"
+                                   @change="updateSetting('resize_m_width', settings.resize_m_width)"
+                                   min="50"
+                                   max="5000"
+                                   placeholder="600"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orca-black focus:border-transparent bg-white">
+                        </div>
+                        <div>
+                            <label class="block text-xs text-gray-500 mb-1">{{ __('Height (px)') }}</label>
+                            <input type="number"
+                                   x-model="settings.resize_m_height"
+                                   @change="updateSetting('resize_m_height', settings.resize_m_height)"
+                                   min="50"
+                                   max="5000"
+                                   placeholder="{{ __('Auto') }}"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orca-black focus:border-transparent bg-white">
+                        </div>
+                    </div>
+
+                    <!-- Large (L) -->
+                    <div class="bg-gray-50 rounded-lg border border-gray-200 p-4 space-y-3">
+                        <h5 class="text-sm font-semibold text-gray-700">{{ __('Large (L)') }}</h5>
+                        <div>
+                            <label class="block text-xs text-gray-500 mb-1">{{ __('Width (px)') }}</label>
+                            <input type="number"
+                                   x-model="settings.resize_l_width"
+                                   @change="updateSetting('resize_l_width', settings.resize_l_width)"
+                                   min="50"
+                                   max="5000"
+                                   placeholder="1200"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orca-black focus:border-transparent bg-white">
+                        </div>
+                        <div>
+                            <label class="block text-xs text-gray-500 mb-1">{{ __('Height (px)') }}</label>
+                            <input type="number"
+                                   x-model="settings.resize_l_height"
+                                   @change="updateSetting('resize_l_height', settings.resize_l_height)"
+                                   min="50"
+                                   max="5000"
+                                   placeholder="{{ __('Auto') }}"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orca-black focus:border-transparent bg-white">
                         </div>
                     </div>
                 </div>
 
-                <!-- Status Messages -->
-                <div x-show="settingsSaved" x-transition class="attention mt-4 p-3 bg-green-50 border border-green-200 rounded-lg text-green-700 text-sm">
-                    <i class="fas fa-check-circle mr-2"></i>{{ __('Settings saved successfully') }}
+                <!-- Regenerate Button -->
+                <div class="mt-6 pt-4 border-t border-gray-200">
+                    <button @click="regenerateAllSizes()"
+                            :disabled="regenerating"
+                            class="px-4 py-2 bg-orca-black text-white rounded-lg hover:bg-orca-black-hover disabled:opacity-50 disabled:cursor-not-allowed transition-all text-sm">
+                        <template x-if="!regenerating">
+                            <span><i class="fas fa-sync-alt mr-2"></i>{{ __('Regenerate All Sizes') }}</span>
+                        </template>
+                        <template x-if="regenerating">
+                            <span><i class="fas fa-spinner fa-spin mr-2"></i>{{ __('Regenerating...') }}</span>
+                        </template>
+                    </button>
+                    <p class="text-xs text-gray-500 mt-1">{{ __('Queues regeneration of all resize variants for existing image assets. This may take a while for large libraries.') }}</p>
                 </div>
-                <div x-show="settingsError" x-transition class="attention mt-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
-                    <i class="fas fa-exclamation-circle mr-2"></i><span x-text="settingsError"></span>
+            </div>
+        </div>
+
+        <!-- AWS Rekognition Settings -->
+        <div class="bg-white rounded-lg shadow overflow-hidden">
+            <div class="bg-gray-50 border-b border-gray-200 px-6 py-4">
+                <h4 class="text-base font-semibold text-gray-900">
+                    <i class="fas fa-brain mr-2 text-purple-500"></i>{{ __('AWS Rekognition Settings') }}
+                </h4>
+                <p class="text-sm text-gray-500 mt-1">{{ __('Configure AI-powered image tagging via AWS Rekognition') }}</p>
+            </div>
+            <div class="p-6">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <!-- Max Labels -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            {{ __('Maximum AI tags per asset') }}
+                        </label>
+                        <input type="number"
+                               x-model="settings.rekognition_max_labels"
+                               @change="updateSetting('rekognition_max_labels', settings.rekognition_max_labels)"
+                               min="1"
+                               max="20"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orca-black focus:border-transparent">
+                        <p class="text-xs text-gray-500 mt-1">{{ __('Maximum number of AI-generated tags per asset (1-20)') }}</p>
+                    </div>
+
+                    <!-- Language -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            {{ __('AI tag language') }}
+                        </label>
+                        <select x-model="settings.rekognition_language"
+                                @change="updateSetting('rekognition_language', settings.rekognition_language)"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orca-black focus:border-transparent">
+                            @foreach($availableLanguages as $code => $name)
+                                <option value="{{ $code }}">{{ $name }}</option>
+                            @endforeach
+                        </select>
+                        <p class="text-xs text-gray-500 mt-1">{{ __('Language for AI-generated tags (uses AWS Translate for non-English)') }}</p>
+                    </div>
+
+                    <!-- Min Confidence -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            {{ __('Minimum confidence threshold') }}
+                        </label>
+                        <select x-model="settings.rekognition_min_confidence"
+                                @change="updateSetting('rekognition_min_confidence', settings.rekognition_min_confidence)"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orca-black focus:border-transparent">
+                            @for($i = 65; $i <= 99; $i++)
+                                <option value="{{ $i }}">{{ $i }}.0%</option>
+                            @endfor
+                        </select>
+                        <p class="text-xs text-gray-500 mt-1">{{ __('Minimum confidence level for AI-detected labels (65-99%)') }}</p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1020,6 +983,52 @@
                      :class="s3TestSuccess ? 'bg-green-50' : 'bg-red-50'">
                     <p class="attention text-sm" :class="s3TestSuccess ? 'text-green-800' : 'text-red-800'"
                        x-text="s3TestMessage"></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- S3 Integrity -->
+        <div class="bg-white rounded-lg shadow">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-900">
+                    <i class="fas fa-shield-halved mr-2"></i>{{ __('S3 Integrity') }}
+                </h3>
+            </div>
+            <div class="p-6">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                        <template x-if="integrityCheckQueued">
+                            <p class="text-sm text-blue-600">
+                                <i class="fas fa-clock mr-1"></i>
+                                <span x-text="@js(__('Integrity check queued for :count assets. Refresh to see results.')).replace(':count', integrityQueuedCount)"></span>
+                            </p>
+                        </template>
+                        <template x-if="!integrityCheckQueued && missingAssetsCount > 0">
+                            <p class="attention text-sm text-red-700">
+                                <i class="fas fa-triangle-exclamation mr-1"></i>
+                                <span x-text="missingAssetsCount + ' ' + (missingAssetsCount === 1 ? @js(__('asset has a missing S3 object')) : @js(__('assets have missing S3 objects')))"></span>
+                            </p>
+                        </template>
+                        <template x-if="!integrityCheckQueued && missingAssetsCount === 0">
+                            <p class="text-sm text-gray-600">{{ __('No missing assets detected.') }}</p>
+                        </template>
+                        <button @click="refreshIntegrityStatus()"
+                                :disabled="refreshingIntegrity"
+                                class="text-gray-400 hover:text-gray-600 transition-colors"
+                                :title="@js(__('Refresh'))">
+                            <i class="fas fa-arrows-rotate" :class="refreshingIntegrity && 'fa-spin'"></i>
+                        </button>
+                    </div>
+                    <button @click="verifyIntegrity()"
+                            :disabled="verifyingIntegrity"
+                            class="px-4 py-2 bg-orca-black text-white rounded-lg hover:bg-orca-black-hover disabled:opacity-50 disabled:cursor-not-allowed transition-all text-sm">
+                        <template x-if="!verifyingIntegrity">
+                            <span><i class="fas fa-shield-halved mr-2"></i>{{ __('Verify S3 Integrity') }}</span>
+                        </template>
+                        <template x-if="verifyingIntegrity">
+                            <span><i class="fas fa-spinner fa-spin mr-2"></i>{{ __('Verifying...') }}</span>
+                        </template>
+                    </button>
                 </div>
             </div>
         </div>
@@ -1629,6 +1638,7 @@ function systemAdmin() {
                     window.showToast(result.count + @js(' ' . __('integrity check(s) queued')), 'success');
                     this.integrityCheckQueued = true;
                     this.integrityQueuedCount = result.count;
+                    this.refreshQueueStatus();
                 } else {
                     window.showToast(@js(__('Failed to queue integrity check')), 'error');
                 }
@@ -1647,6 +1657,7 @@ function systemAdmin() {
                 const result = await response.json();
                 this.missingAssetsCount = result.missing;
                 this.integrityCheckQueued = false;
+                this.refreshQueueStatus();
             } catch (error) {
                 console.error('Failed to refresh integrity status:', error);
             } finally {
