@@ -517,6 +517,7 @@ Access the admin panel at: `https://your-domain.com/system`
 - Log viewer (last 20-200 lines)
 - Artisan command executor
 - System diagnostics (S3 connection test, PHP config)
+- S3 integrity verification (missing file detection)
 - Bulk metadata import from CSV (via Import page)
 
 ### Important Commands from Admin Panel
@@ -526,6 +527,7 @@ Access the admin panel at: `https://your-domain.com/system`
 - **queue:flush** - Delete all failed jobs
 - **cache:clear** - Clear application cache
 - **config:clear** - Clear configuration cache
+- **assets:verify-integrity** - Queue S3 integrity checks for all assets
 - **migrate:status** - Check migration status
 
 ### Health Checks

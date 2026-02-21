@@ -27,6 +27,7 @@ A Digital Asset Management system for AWS S3 with AI-powered tagging.
 - 🔎 Discover unmapped S3 objects
 - 🗑️ Trash & restore system with soft delete (keeps S3 objects)
 - ♻️ Permanent delete option for admins
+- ✔️ S3 integrity verification (detect missing assets in cloud storage)
 - 📱 Responsive design
 - 🌐 OpenAPI 3 for Rich Text Editor or System integration
 - 🔓 Public metadata API endpoint (no auth required)
@@ -296,7 +297,8 @@ orca-dam/
 │   │   ├── TokenListCommand.php       # List API tokens
 │   │   ├── TokenRevokeCommand.php     # Revoke API token
 │   │   ├── TwoFactorDisableCommand.php# Disable 2FA for a user
-│   │   └── TwoFactorStatusCommand.php # Check 2FA status
+│   │   ├── TwoFactorStatusCommand.php # Check 2FA status
+│   │   └── VerifyAssetIntegrity.php   # S3 integrity verification command
 │   ├── Http/Controllers/
 │   │   ├── Api/
 │   │   │   └── AssetApiController.php # REST API for assets
@@ -321,7 +323,8 @@ orca-dam/
 │   │   └── SetLocale.php             # Locale resolution middleware
 │   ├── Jobs/
 │   │   ├── GenerateAiTags.php         # AI tagging background job
-│   │   └── ProcessDiscoveredAsset.php # Discovery import job
+│   │   ├── ProcessDiscoveredAsset.php # Discovery import job
+│   │   └── VerifyAssetIntegrity.php   # S3 object existence check job
 │   ├── Models/
 │   │   ├── Asset.php
 │   │   ├── Setting.php

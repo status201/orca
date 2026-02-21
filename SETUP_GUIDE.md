@@ -331,6 +331,7 @@ Create an IAM user (e.g., `orca-dam-user`) with the following minimum permission
 - ✅ S3 connection diagnostics
 - ✅ API token management (Sanctum tokens)
 - ✅ JWT secret management (per-user secrets for frontend integrations)
+- ✅ S3 integrity verification (detect missing files)
 - ✅ Web-based test runner
 
 ---
@@ -764,6 +765,7 @@ For scheduled tasks (includes daily cleanup of stale upload sessions):
 
 Scheduled tasks include:
 - Daily cleanup of abandoned chunked upload sessions (>24 hours old)
+- Daily S3 integrity check (verifies all assets exist in S3)
 
 ### 4. API Token Management
 ```bash

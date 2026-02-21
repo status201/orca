@@ -27,6 +27,7 @@ php artisan cache:clear / config:clear / route:clear / view:clear
 
 # Maintenance
 php artisan uploads:cleanup [--hours=48]
+php artisan assets:verify-integrity      # Queue S3 integrity checks for all assets
 
 # API Tokens
 php artisan token:list [--user=email] [--role=api]
@@ -76,7 +77,7 @@ Middleware `SetLocale`: User preference -> Global setting (`settings.locale`) ->
 
 ### Models
 
-**Asset** (`app/Models/Asset.php`): Belongs to User, many-to-many Tags. Soft deletes. Computed: `url`, `thumbnail_url`, `formatted_size`, `folder`. `filename` is editable display name; `s3_key` is immutable. Scopes: search, filterByTags, type, user, `inFolder`. License fields: `license_type`, `license_expiry_date`, `copyright`, `copyright_source`.
+**Asset** (`app/Models/Asset.php`): Belongs to User, many-to-many Tags. Soft deletes. Computed: `url`, `thumbnail_url`, `formatted_size`, `folder`, `is_missing`. `filename` is editable display name; `s3_key` is immutable. Scopes: search, filterByTags, type, user, `inFolder`, `missing`. License fields: `license_type`, `license_expiry_date`, `copyright`, `copyright_source`.
 
 **Tag** (`app/Models/Tag.php`): Type `user` or `ai`, many-to-many Assets.
 
@@ -108,11 +109,12 @@ Middleware `SetLocale`: User preference -> Global setting (`settings.locale`) ->
 - `POST /assets/{asset}/ai-tag` - Trigger AI tagging
 - `GET /api/folders` | `POST /folders/scan` (admin) | `POST /folders` (admin)
 - `/api-docs/*` - Admin: dashboard, settings, tokens, JWT secrets
+- `GET /system/integrity-status` | `POST /system/verify-integrity` (admin) - S3 integrity check
 - `/system` - Admin: overview, settings, queue, logs, commands, diagnostics, tests
 
 ## Database Schema
 
-**assets**: `s3_key` (unique), `etag`, `filename`, `mime_type`, `size`, `width`, `height`, `thumbnail_s3_key`, `resize_s_s3_key`, `resize_m_s3_key`, `resize_l_s3_key`, `alt_text`, `caption`, `license_type` (public_domain, cc_by, cc_by_sa, cc_by_nd, cc_by_nc, cc_by_nc_sa, cc_by_nc_nd, fair_use, all_rights_reserved), `license_expiry_date`, `copyright`, `copyright_source`, `user_id`, `deleted_at`
+**assets**: `s3_key` (unique), `etag`, `filename`, `mime_type`, `size`, `width`, `height`, `thumbnail_s3_key`, `resize_s_s3_key`, `resize_m_s3_key`, `resize_l_s3_key`, `alt_text`, `caption`, `license_type` (public_domain, cc_by, cc_by_sa, cc_by_nd, cc_by_nc, cc_by_nc_sa, cc_by_nc_nd, fair_use, all_rights_reserved), `license_expiry_date`, `copyright`, `copyright_source`, `user_id`, `deleted_at`, `s3_missing_at`
 
 **upload_sessions**: `upload_id`, `session_token`, `filename`, `mime_type`, `file_size`, `s3_key`, `chunk_size`, `total_chunks`, `uploaded_chunks`, `part_etags` (JSON), `status` (pending/uploading/completed/failed/aborted), `user_id`, `last_activity_at`
 
@@ -172,8 +174,8 @@ PHP_CLI_PATH=/usr/bin/php
 **Factories** (`database/factories/`): AssetFactory (`image()`, `pdf()`, `withLicense()`, `withCopyright()`), TagFactory (`ai()`, `user()`), SettingFactory (`integer()`, `boolean()`)
 
 ```
-tests/Feature/  - AssetTest, TagTest, ExportTest, ImportTest, ApiTest, SystemTest, JwtAuthTest,
-                  JwtSecretManagementTest, LocaleTest, ProfileTest, TwoFactorAuthTest, Auth/
+tests/Feature/  - AssetTest, TagTest, ExportTest, ImportTest, ApiTest, SystemTest, IntegrityTest,
+                  JwtAuthTest, JwtSecretManagementTest, LocaleTest, ProfileTest, TwoFactorAuthTest, Auth/
 tests/Unit/     - AssetTest, TagTest, SettingTest, UserPreferencesTest, TwoFactorServiceTest, JwtGuardTest
 ```
 
@@ -188,6 +190,8 @@ Web-based test runner at `/system` -> Tests tab (admin only).
 **Import Metadata** (admin): Paste/upload CSV -> preview matched assets with change diffs -> import. Matches by `s3_key` or `filename`. Updates metadata fields (alt_text, caption, license, copyright). Tags are lowercased, added via `syncWithoutDetaching` (never removed). Empty CSV fields are skipped. Invalid license types and date formats are rejected.
 
 **Trash** (admin): Soft delete keeps S3 files. Restore returns to active. Force delete removes S3 objects (original + thumbnail + resized variants) + DB permanently.
+
+**S3 Integrity** (admin): `assets:verify-integrity` command dispatches `VerifyAssetIntegrity` jobs for all assets -> each job checks S3 object existence via `getObjectMetadata()` -> sets `s3_missing_at` timestamp if missing, clears if found. System page card shows live status with AJAX refresh. Assets index supports `?missing=1` filter.
 
 ## Integration & Deployment
 

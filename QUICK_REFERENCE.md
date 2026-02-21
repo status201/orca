@@ -205,6 +205,8 @@ GET  /profile                  # User profile & preferences
 PATCH /profile/preferences     # Update preferences (locale, home folder, etc.)
 GET  /users                    # User management (admin)
 GET  /system                   # System admin (admin)
+GET  /system/integrity-status  # S3 integrity status JSON (admin)
+POST /system/verify-integrity  # Queue S3 integrity checks (admin)
 POST /system/settings          # Update settings (admin)
 POST /system/run-tests         # Run automated tests (admin)
 GET  /api-docs                          # API documentation page (admin)
@@ -262,6 +264,7 @@ POST   /api/chunked-upload/abort     # Cancel upload
 - width, height, thumbnail_s3_key
 - alt_text, caption, user_id, last_modified_by
 - license_type, license_expiry_date, copyright, copyright_source
+- s3_missing_at (nullable, set when S3 object detected missing)
 - created_at, updated_at, deleted_at
 
 ### tags
@@ -468,6 +471,7 @@ php artisan two-factor:disable user@email.com  # Disable 2FA for a user
 
 # Maintenance
 php artisan uploads:cleanup              # Clean up stale chunked uploads (>24h)
+php artisan assets:verify-integrity      # Queue S3 integrity checks for all assets
 
 # Clear all caches
 php artisan optimize:clear

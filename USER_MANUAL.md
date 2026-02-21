@@ -20,10 +20,11 @@
 12. [Import Metadata (Admin Only)](#import-metadata-admin-only)
 13. [Export to CSV (Admin Only)](#export-to-csv-admin-only)
 13. [API Docs & Token Management (Admin Only)](#api-docs--token-management-admin-only)
-14. [User Preferences](#user-preferences)
-15. [Tips & Tricks](#tips--tricks)
-16. [Glossary](#glossary)
-17. [Getting Help](#getting-help)
+14. [S3 Integrity Check (Admin Only)](#s3-integrity-check-admin-only)
+15. [User Preferences](#user-preferences)
+16. [Tips & Tricks](#tips--tricks)
+17. [Glossary](#glossary)
+18. [Getting Help](#getting-help)
 
 ---
 
@@ -262,6 +263,22 @@ For frontend integrations (e.g., rich text editors). Your external backend gener
 Revoke from the list when no longer needed.
 
 > JWT authentication must be enabled (`JWT_ENABLED=true` in `.env`). You can also toggle it at runtime from the API Docs dashboard.
+
+---
+
+## S3 Integrity Check (Admin Only)
+
+Files can sometimes go missing in S3 without going through ORCA (accidental deletion, bucket issues). The integrity check detects these.
+
+1. Go to **System** page
+2. Find the **S3 Integrity** card
+3. Click **Verify S3 Integrity** — this queues a background check for every asset
+4. The status text confirms how many checks were queued
+5. Click the **refresh** button to update the missing count as jobs complete
+
+**Viewing missing assets:** Go to the Assets page and filter with `?missing=1` in the URL. Missing assets show a warning indicator.
+
+**What to do with missing assets:** Investigate why they're missing, then either restore from backup or permanently delete the orphaned records via Trash.
 
 ---
 
