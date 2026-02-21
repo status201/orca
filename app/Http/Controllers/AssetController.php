@@ -104,7 +104,7 @@ class AssetController extends Controller
         if (! $perPage || ! in_array((int) $perPage, $allowedPerPage)) {
             $perPage = Auth::user()->getItemsPerPage();
         }
-        $assets = $query->paginate((int) $perPage)->withQueryString();
+        $assets = $query->paginate((int) $perPage)->onEachSide(2)->withQueryString();
         $tags = Tag::orderBy('name')->get();
         $folders = Setting::get('s3_folders', $rootFolder !== '' ? [$rootFolder] : []);
         if (empty($folders) && $rootFolder !== '') {

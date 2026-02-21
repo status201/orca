@@ -19,8 +19,12 @@
                            x-model="search"
                            @keyup.enter="applyFilters"
                            placeholder="{{ __('Search assets...') }}"
-                           class="w-full pl-10 pr-4 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orca-black focus:border-transparent">
+                           class="w-full pl-10 pr-10 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orca-black focus:border-transparent">
                     <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                    <button @click="applyFilters"
+                            class="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-arrow-right text-sm"></i>
+                    </button>
                 </div>
 
                 <!-- Row 2: Filters and Upload -->
@@ -141,7 +145,21 @@
     </div>
 
     <!-- View Toggle -->
-    <div class="mb-4 flex justify-end">
+    <div class="mb-4 flex justify-end gap-2">
+        <!-- Fit Mode Toggle -->
+        <div class="inline-flex rounded-md shadow-sm" role="group">
+            <button @click="fitMode = 'cover'; saveFitMode()"
+                    :class="fitMode === 'cover' ? 'bg-orca-black text-white' : 'bg-white text-gray-700 hover:bg-gray-50'"
+                    class="px-4 py-2 text-xs font-medium border border-gray-300 rounded-l-lg transition-colors">
+                <i class="fas fa-crop-alt mr-2"></i> {{ __('Crop') }}
+            </button>
+            <button @click="fitMode = 'contain'; saveFitMode()"
+                    :class="fitMode === 'contain' ? 'bg-orca-black text-white' : 'bg-white text-gray-700 hover:bg-gray-50'"
+                    class="px-4 py-2 text-xs font-medium border border-gray-300 rounded-r-lg transition-colors">
+                <i class="fas fa-expand mr-2"></i> {{ __('Fit') }}
+            </button>
+        </div>
+
         <div class="inline-flex rounded-md shadow-sm" role="group">
             <button @click="viewMode = 'grid'; saveViewMode()"
                     :class="viewMode === 'grid' ? 'bg-orca-black text-white' : 'bg-white text-gray-700 hover:bg-gray-50'"
@@ -169,12 +187,12 @@
                 @if($asset->isImage() && $asset->thumbnail_url)
                     <img src="{{ $asset->thumbnail_url }}"
                          alt="{{ $asset->filename }}"
-                         class="w-full h-full object-cover"
+                         :class="fitMode === 'cover' ? 'w-full h-full object-cover' : 'w-full h-full object-contain'"
                          loading="lazy">
                 @elseif($asset->isVideo() && $asset->thumbnail_url)
                     <img src="{{ $asset->thumbnail_url }}"
                          alt="{{ $asset->filename }}"
-                         class="w-full h-full object-cover"
+                         :class="fitMode === 'cover' ? 'w-full h-full object-cover' : 'w-full h-full object-contain'"
                          loading="lazy">
                     <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
                         <div class="w-10 h-10 bg-black/50 rounded-full flex items-center justify-center">
@@ -300,12 +318,12 @@
                                     @if($asset->isImage() && $asset->thumbnail_url)
                                         <img src="{{ $asset->thumbnail_url }}"
                                              alt="{{ $asset->filename }}"
-                                             class="w-full h-full object-cover"
+                                             :class="fitMode === 'cover' ? 'w-full h-full object-cover' : 'w-full h-full object-contain'"
                                              loading="lazy">
                                     @elseif($asset->isVideo() && $asset->thumbnail_url)
                                         <img src="{{ $asset->thumbnail_url }}"
                                              alt="{{ $asset->filename }}"
-                                             class="w-full h-full object-cover"
+                                             :class="fitMode === 'cover' ? 'w-full h-full object-cover' : 'w-full h-full object-contain'"
                                              loading="lazy">
                                         <div class="absolute inset-0 flex items-center justify-center">
                                             <div class="w-6 h-6 bg-black/50 rounded-full flex items-center justify-center">
@@ -541,6 +559,7 @@ function assetGrid() {
         initialTags: @json(request('tags', [])),
         showTagFilter: false,
         viewMode: localStorage.getItem('orcaAssetViewMode') || 'grid',
+        fitMode: localStorage.getItem('orcaAssetFitMode') || 'cover',
         perPage: localStorage.getItem('orcaAssetsPerPage') || '{{ $perPage }}',
         tagSearch: '',
         allTagsData: @json($tags->map(fn($t) => ['id' => (string)$t->id, 'name' => $t->name, 'type' => $t->type])),
@@ -557,6 +576,10 @@ function assetGrid() {
 
         saveViewMode() {
             localStorage.setItem('orcaAssetViewMode', this.viewMode);
+        },
+
+        saveFitMode() {
+            localStorage.setItem('orcaAssetFitMode', this.fitMode);
         },
 
         savePerPage() {
