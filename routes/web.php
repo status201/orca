@@ -19,6 +19,16 @@ Route::get('/', function () {
     return redirect()->route('assets.index');
 });
 
+// Test error pages (admin only)
+Route::middleware(['auth', 'can:access,App\Http\Controllers\SystemController'])->get('/test-error/{code}', function ($code) {
+    abort((int) $code);
+});
+
+// CSRF token refresh endpoint (keeps session alive)
+Route::middleware(['web'])->get('/csrf-token', function () {
+    return response()->json(['token' => csrf_token()]);
+});
+
 Route::get('/dashboard', [DashboardController::class, 'index'])
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
