@@ -98,6 +98,8 @@ Route::middleware(['auth'])->group(function () {
         Route::post('system/settings', [SystemController::class, 'updateSetting'])->name('system.update-setting');
         Route::get('system/documentation', [SystemController::class, 'documentation'])->name('system.documentation');
         Route::post('system/regenerate-resized-images', [SystemController::class, 'regenerateResizedImages'])->name('system.regenerate-resized-images');
+        Route::get('system/integrity-status', [SystemController::class, 'integrityStatus'])->name('system.integrity-status');
+        Route::post('system/verify-integrity', [SystemController::class, 'verifyIntegrity'])->name('system.verify-integrity');
         Route::post('system/run-tests', [SystemController::class, 'runTests'])->name('system.run-tests');
 
         // Import metadata

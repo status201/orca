@@ -38,6 +38,7 @@ class SystemController extends Controller
             'availableLanguages' => $this->systemService->getAvailableLanguages(),
             'availableUiLanguages' => $this->systemService->getAvailableUiLanguages(),
             'availableTimezones' => timezone_identifiers_list(),
+            'missingAssetsCount' => Asset::missing()->count(),
         ];
 
         return view('system.index', $data);
@@ -258,6 +259,37 @@ class SystemController extends Controller
             'success' => true,
             'count' => $assetIds->count(),
             'message' => $assetIds->count().' resize job(s) dispatched',
+        ]);
+    }
+
+    /**
+     * Get S3 integrity status (AJAX)
+     */
+    public function integrityStatus()
+    {
+        $this->authorize('access', SystemController::class);
+
+        return response()->json([
+            'missing' => Asset::missing()->count(),
+            'total' => Asset::count(),
+        ]);
+    }
+
+    /**
+     * Verify S3 integrity for all assets (AJAX)
+     */
+    public function verifyIntegrity()
+    {
+        $this->authorize('access', SystemController::class);
+
+        \Artisan::call('assets:verify-integrity');
+
+        $count = Asset::count();
+
+        return response()->json([
+            'success' => true,
+            'count' => $count,
+            'message' => $count.' integrity check(s) queued',
         ]);
     }
 

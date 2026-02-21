@@ -151,6 +151,52 @@
             </div>
         </div>
 
+        <!-- S3 Integrity -->
+        <div class="bg-white rounded-lg shadow">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-900">
+                    <i class="fas fa-shield-halved mr-2"></i>{{ __('S3 Integrity') }}
+                </h3>
+            </div>
+            <div class="p-6">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                        <template x-if="integrityCheckQueued">
+                            <p class="text-sm text-blue-600">
+                                <i class="fas fa-clock mr-1"></i>
+                                <span x-text="@js(__('Integrity check queued for :count assets. Refresh to see results.')).replace(':count', integrityQueuedCount)"></span>
+                            </p>
+                        </template>
+                        <template x-if="!integrityCheckQueued && missingAssetsCount > 0">
+                            <p class="attention text-sm text-red-700">
+                                <i class="fas fa-triangle-exclamation mr-1"></i>
+                                <span x-text="missingAssetsCount + ' ' + (missingAssetsCount === 1 ? @js(__('asset has a missing S3 object')) : @js(__('assets have missing S3 objects')))"></span>
+                            </p>
+                        </template>
+                        <template x-if="!integrityCheckQueued && missingAssetsCount === 0">
+                            <p class="text-sm text-gray-600">{{ __('No missing assets detected.') }}</p>
+                        </template>
+                        <button @click="refreshIntegrityStatus()"
+                                :disabled="refreshingIntegrity"
+                                class="text-gray-400 hover:text-gray-600 transition-colors"
+                                :title="@js(__('Refresh'))">
+                            <i class="fas fa-arrows-rotate" :class="refreshingIntegrity && 'fa-spin'"></i>
+                        </button>
+                    </div>
+                    <button @click="verifyIntegrity()"
+                            :disabled="verifyingIntegrity"
+                            class="px-4 py-2 bg-orca-black text-white rounded-lg hover:bg-orca-black-hover disabled:opacity-50 disabled:cursor-not-allowed transition-all text-sm">
+                        <template x-if="!verifyingIntegrity">
+                            <span><i class="fas fa-shield-halved mr-2"></i>{{ __('Verify S3 Integrity') }}</span>
+                        </template>
+                        <template x-if="verifyingIntegrity">
+                            <span><i class="fas fa-spinner fa-spin mr-2"></i>{{ __('Verifying...') }}</span>
+                        </template>
+                    </button>
+                </div>
+            </div>
+        </div>
+
         <!-- API Status -->
         <div class="bg-white rounded-lg shadow">
             <div class="px-6 py-4 border-b border-gray-200">
@@ -1269,6 +1315,11 @@ function systemAdmin() {
         settingsError: '',
         savingSettings: false,
         regenerating: false,
+        verifyingIntegrity: false,
+        missingAssetsCount: {{ $missingAssetsCount }},
+        integrityCheckQueued: false,
+        integrityQueuedCount: 0,
+        refreshingIntegrity: false,
 
         systemInfo: {
           jwtEnvEnabled: '{{$systemInfo['jwt_enabled']}}',
@@ -1518,6 +1569,51 @@ function systemAdmin() {
                 window.showToast(@js(__('Failed to queue regeneration')), 'error');
             } finally {
                 this.regenerating = false;
+            }
+        },
+
+        async verifyIntegrity() {
+            if (!confirm(@js(__('Are you sure? This will check every asset\'s S3 object.')))) {
+                return;
+            }
+
+            this.verifyingIntegrity = true;
+            try {
+                const response = await fetch('{{ route('system.verify-integrity') }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    },
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    window.showToast(result.count + @js(' ' . __('integrity check(s) queued')), 'success');
+                    this.integrityCheckQueued = true;
+                    this.integrityQueuedCount = result.count;
+                } else {
+                    window.showToast(@js(__('Failed to queue integrity check')), 'error');
+                }
+            } catch (error) {
+                console.error('Failed to verify integrity:', error);
+                window.showToast(@js(__('Failed to queue integrity check')), 'error');
+            } finally {
+                this.verifyingIntegrity = false;
+            }
+        },
+
+        async refreshIntegrityStatus() {
+            this.refreshingIntegrity = true;
+            try {
+                const response = await fetch('{{ route('system.integrity-status') }}');
+                const result = await response.json();
+                this.missingAssetsCount = result.missing;
+                this.integrityCheckQueued = false;
+            } catch (error) {
+                console.error('Failed to refresh integrity status:', error);
+            } finally {
+                this.refreshingIntegrity = false;
             }
         },
 

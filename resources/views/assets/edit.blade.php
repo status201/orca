@@ -34,6 +34,13 @@
         </div>
         @endif
 
+        @if($asset->is_missing)
+        <div class="attention mb-6 p-4 bg-red-50 border border-red-200 text-red-800 rounded-lg">
+            <i class="fas fa-triangle-exclamation mr-2"></i>
+            {{ __('This asset\'s S3 object is missing. The file may have been deleted from the S3 bucket.') }}
+        </div>
+        @endif
+
         @if(request()->has('replaced'))
         <div class="attention mb-6 p-4 bg-blue-50 border border-blue-200 text-blue-800 rounded-lg">
             <i class="fas fa-info-circle mr-2"></i>

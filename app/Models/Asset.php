@@ -31,6 +31,7 @@ class Asset extends Model
         'license_expiry_date',
         'copyright',
         'copyright_source',
+        's3_missing_at',
         'user_id',
         'last_modified_by',
     ];
@@ -40,6 +41,7 @@ class Asset extends Model
         'width' => 'integer',
         'height' => 'integer',
         'license_expiry_date' => 'date',
+        's3_missing_at' => 'datetime',
     ];
 
     protected $appends = [
@@ -366,5 +368,21 @@ class Asset extends Model
         }
 
         return $query->where('s3_key', 'like', rtrim($folder, '/').'/%');
+    }
+
+    /**
+     * Scope: Filter assets with missing S3 objects
+     */
+    public function scopeMissing($query)
+    {
+        return $query->whereNotNull('s3_missing_at');
+    }
+
+    /**
+     * Check if the asset's S3 object is missing
+     */
+    public function getIsMissingAttribute(): bool
+    {
+        return $this->s3_missing_at !== null;
     }
 }

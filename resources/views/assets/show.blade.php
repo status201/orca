@@ -31,6 +31,13 @@
     </div>
     @endif
 
+    @if($asset->is_missing)
+    <div class="attention mb-6 p-4 border border-red-200 text-red-800 rounded-lg">
+        <i class="fas fa-triangle-exclamation mr-2"></i>
+        {{ __('This asset\'s S3 object is missing. The file may have been deleted from the S3 bucket.') }}
+    </div>
+    @endif
+
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <!-- Preview column -->
         <div class="lg:col-span-2">

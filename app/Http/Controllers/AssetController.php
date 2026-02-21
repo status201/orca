@@ -61,6 +61,11 @@ class AssetController extends Controller
             $query->byUser($userId);
         }
 
+        // Apply missing filter
+        if ($request->boolean('missing')) {
+            $query->missing();
+        }
+
         // Apply sorting
         $sort = $request->input('sort', 'date_desc');
         switch ($sort) {
@@ -114,7 +119,9 @@ class AssetController extends Controller
             array_unshift($folders, '');
         }
 
-        return view('assets.index', compact('assets', 'tags', 'perPage', 'folders', 'rootFolder', 'folder'));
+        $missingCount = Asset::missing()->count();
+
+        return view('assets.index', compact('assets', 'tags', 'perPage', 'folders', 'rootFolder', 'folder', 'missingCount'));
     }
 
     /**

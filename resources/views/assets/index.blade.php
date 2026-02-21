@@ -174,6 +174,19 @@
         </div>
     </div>
 
+    <!-- Missing assets warning bar -->
+    @if($missingCount > 0)
+    <div class="attention mb-4 p-3 border border-red-800 rounded-lg flex items-center justify-between">
+        <span class="text-sm text-red-800">
+            <i class="fas fa-triangle-exclamation mr-2"></i>
+            {{ trans_choice(':count asset has a missing S3 object|:count assets have missing S3 objects', $missingCount) }}
+        </span>
+        <a href="?missing=1" class="text-sm text-red-800 font-medium hover:text-red-700">
+            {{ __('View') }} <i class="fas fa-arrow-right ml-1"></i>
+        </a>
+    </div>
+    @endif
+
     <!-- Asset grid -->
     @if($assets->count() > 0)
     <!-- Grid View -->
@@ -184,6 +197,13 @@
              @click="window.location.href = '{{ route('assets.show', $asset) }}'">
             <!-- Thumbnail -->
             <div class="aspect-square bg-gray-100 relative">
+                @if($asset->is_missing)
+                <div class="absolute top-1 right-1 z-10">
+                    <span class="inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium bg-red-600 text-white">
+                        <i class="fas fa-triangle-exclamation mr-1"></i>{{ __('Missing') }}
+                    </span>
+                </div>
+                @endif
                 @if($asset->isImage() && $asset->thumbnail_url)
                     <img src="{{ $asset->thumbnail_url }}"
                          alt="{{ $asset->filename }}"
@@ -315,6 +335,13 @@
                         <td class="px-4 py-3">
                             <a href="{{ route('assets.show', $asset) }}" class="block">
                                 <div class="w-16 h-16 bg-gray-100 rounded flex items-center justify-center overflow-hidden hover:ring-2 hover:ring-orca-500 transition-all relative">
+                                    @if($asset->is_missing)
+                                    <div class="absolute top-0 right-0 z-10">
+                                        <span class="inline-flex items-center px-1 py-0.5 rounded text-[0.6rem] font-medium bg-red-600 text-white">
+                                            <i class="fas fa-triangle-exclamation"></i>
+                                        </span>
+                                    </div>
+                                    @endif
                                     @if($asset->isImage() && $asset->thumbnail_url)
                                         <img src="{{ $asset->thumbnail_url }}"
                                              alt="{{ $asset->filename }}"
