@@ -18,7 +18,6 @@
 
                 <!-- Left Column: Statistics -->
                 <div>
-                    <!--<h2 class="text-2xl font-bold text-gray-900 mb-4">Statistics</h2>-->
                     <div class="grid grid-cols-1 gap-4 mb-6">
                         <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                             <div class="p-6 h-full">
@@ -109,6 +108,54 @@
                             </div>
                         </div>
 
+                        @if(!$isAdmin)
+                            <!-- My Tags -->
+                            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                                <div class="p-6 h-full">
+                                    <div class="flex items-center h-full">
+                                        <div class="flex-shrink-0 bg-teal-500 rounded-md p-3 w-14 text-center">
+                                            <i class="fas fa-tag text-white text-2xl"></i>
+                                        </div>
+                                        <div class="ml-5 w-0 flex-1">
+                                            <dl>
+                                                <dt class="text-sm font-medium text-gray-500 truncate">{{ __('My Tags') }}</dt>
+                                                <dd class="text-3xl font-semibold text-gray-900">{{ number_format($stats['my_tags']) }}</dd>
+                                                <dd class="text-xs text-gray-500 mt-1">
+                                                    {{ __(':count user', ['count' => number_format($stats['my_user_tags'])]) }} • {{ __(':count AI', ['count' => number_format($stats['my_ai_tags'])]) }}
+                                                </dd>
+                                            </dl>
+                                        </div>
+                                        <a href="{{ route('tags.index') }}" class="text-teal-600 hover:text-teal-800">
+                                            <i class="fas fa-arrow-right"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Results per page -->
+                            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                                <div class="p-6 h-full">
+                                    <div class="flex items-center h-full">
+                                        <div class="flex-shrink-0 bg-indigo-500 rounded-md p-3 w-14 text-center">
+                                            <i class="fas fa-table-list text-white text-2xl"></i>
+                                        </div>
+                                        <div class="ml-5 w-0 flex-1">
+                                            <dl>
+                                                <dt class="text-sm font-medium text-gray-500 truncate">{{ __('Results per page') }}</dt>
+                                                <dd class="text-3xl font-semibold text-gray-900">{{ $stats['items_per_page'] }}</dd>
+                                                <dd class="text-xs text-gray-500 mt-1">
+                                                    {{ $stats['items_per_page_is_default'] ? __('Default') : __('Custom') }}
+                                                </dd>
+                                            </dl>
+                                        </div>
+                                        <a href="{{ route('profile.edit') }}" class="text-indigo-600 hover:text-indigo-800">
+                                            <i class="fas fa-arrow-right"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        @endif
+
                         @if($isAdmin)
                             <!-- Admin Stats -->
                             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
@@ -153,11 +200,11 @@
                 </div>
 
                 <!-- Right Column: Feature Tour -->
-                <div>
+                <div class="flex flex-col">
                     <!-- <h2 class="text-2xl font-bold text-gray-900 mb-4">Feature Tour</h2>-->
 
-                    <div x-data="featureTour(@js($isAdmin))" class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                        <div class="p-6">
+                    <div x-data="featureTour(@js($isAdmin))" class="bg-white overflow-hidden shadow-sm sm:rounded-lg flex-1 flex flex-col">
+                        <div class="p-6 flex-1 flex flex-col justify-center">
                             <!-- Slideshow -->
                             <div class="relative min-h-[320px] flex items-center bg-white">
                                 <template x-for="(feature, index) in features" :key="index">

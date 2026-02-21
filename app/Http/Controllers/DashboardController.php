@@ -26,7 +26,19 @@ class DashboardController extends Controller
         $stats['total_storage'] = $this->formatBytes($totalSize);
 
         // Get user role
-        $isAdmin = Auth::user()->isAdmin();
+        $user = Auth::user();
+        $isAdmin = $user->isAdmin();
+
+        // Editor-only stats
+        if (! $isAdmin) {
+            $myTags = Tag::whereHas('assets', fn ($q) => $q->where('user_id', $user->id))->get();
+            $stats['my_tags'] = $myTags->count();
+            $stats['my_user_tags'] = $myTags->where('type', 'user')->count();
+            $stats['my_ai_tags'] = $myTags->where('type', 'ai')->count();
+
+            $stats['items_per_page'] = $user->getItemsPerPage();
+            $stats['items_per_page_is_default'] = $user->getPreference('items_per_page') === null;
+        }
 
         return view('dashboard', compact('stats', 'isAdmin'));
     }
