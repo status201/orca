@@ -211,8 +211,9 @@
                                     <div class="absolute inset-0 bg-white space-y-4 flex flex-col justify-center px-4"
                                          :style="{
                                              opacity: currentSlide === index || (isTransitioning && prevSlide === index) ? 1 : 0,
+                                             filter: currentSlide === index ? 'blur(0px)' : 'blur(8px)',
                                              zIndex: currentSlide === index ? 20 : (isTransitioning && prevSlide === index ? 10 : 1),
-                                             transition: 'opacity 500ms ease-in-out',
+                                             transition: 'opacity 500ms ease-in-out, filter 500ms ease-in-out',
                                              pointerEvents: currentSlide === index ? 'auto' : 'none'
                                          }">
 
