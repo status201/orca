@@ -79,20 +79,41 @@ html.light-mode {
 }
 
 
-/* Logo orca */
-.dashboard-logo svg {
-    animation: logo-orca-swim 2.5s ease-in-out infinite;
+/* Logo Dashboard Orca */
+
+.dashboard-logo .orca-floating {
+    animation: orca-bob 4s ease-in-out infinite;
 }
-.dashboard-logo:hover svg {
-    animation: logo-orca-swim 1.5s ease-in-out infinite;
+.dashboard-logo .orca-eye-blink {
+    transform-origin: 68px 48px;
+    animation: orca-blink 6s ease-in-out infinite;
+}
+.dashboard-logo:hover .orca-eye-blink {
+    animation: orca-blink-hover 6s ease-in-out infinite;
 }
 
-@keyframes logo-orca-swim {
-    0%, 100% { transform: rotate(0deg) scaleX(1); }
-    25% { transform: rotate(2deg) scaleX(1.02); }
-    50% { transform: rotate(-1deg) scaleX(0.98); }
-    75% { transform: rotate(1deg) scaleX(1.01); }
+@keyframes orca-bob {
+    0%   { transform: translateY(0) rotate(0deg); }
+    30%  { transform: translateY(-5px) rotate(1.5deg); }
+    60%  { transform: translateY(5px) rotate(-1deg); }
+    100% { transform: translateY(0) rotate(0deg); }
 }
+@keyframes orca-blink {
+    0%   { transform: scaleY(1); }
+    48%  { transform: scaleY(1); }
+    50%  { transform: scaleY(0.1); }
+    52%  { transform: scaleY(1); }
+    100% { transform: scaleY(1); }
+}
+@keyframes orca-blink-hover {
+    0%   { transform: scaleY(1); }
+    2%  { transform: scaleY(1); }
+    4%  { transform: scaleY(0.1); }
+    8%  { transform: scaleY(0.1); }
+    10%  { transform: scaleY(1); }
+    100% { transform: scaleY(1); }
+}
+
 
 /* Wave pattern footer */
 .wave-footer {

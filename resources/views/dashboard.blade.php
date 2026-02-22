@@ -6,7 +6,30 @@
                 <div class="flex items-center justify-center mb-6">
                     <div class="dashboard-logo bg-white rounded-full p-2 shadow-lg cursor-pointer"
                          onclick="const footerOrca = document.querySelector('.footer-logo-container svg'); if(footerOrca) { footerOrca.classList.add('orca-jump'); setTimeout(() => footerOrca.classList.remove('orca-jump'), 1100); }">
-                        <x-application-logo class="h-48 w-48 fill-current text-gray-800" style="width: 6rem; height: 6rem;" />
+
+                        <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" class="h-48 w-48 fill-current text-gray-800 orca-floating">
+                            <!-- Body -->
+                            <ellipse cx="50" cy="55" rx="35" ry="25" fill="#1a1a1a"/>
+                            <!-- Tail -->
+                            <path d="M 15 60 Q 5 50, 8 42 Q 16 48, 16 50 Z" fill="#1a1a1a"/>
+                            <path d="M 15 50 Q 5 60, 8 68 Q 16 62, 16 60 Z" fill="#1a1a1a"/>
+                            <!-- Dorsal fin -->
+                            <path d="M 44 40 L 42 15 L 48 30 Z" fill="#1a1a1a"/>
+                            <!-- White belly patch -->
+                            <ellipse cx="60" cy="58" rx="15" ry="10" fill="white"/>
+                            <!-- White eye patch -->
+                            <ellipse cx="68" cy="48" rx="8" ry="10" fill="white" transform="rotate(-20 68 48)"/>
+                            <!-- Eye (with blink) -->
+                            <g class="orca-eye-blink">
+                                <circle cx="68" cy="48" r="3" fill="#1a1a1a"/>
+                                <circle cx="69" cy="47" r="1" fill="white"/>
+                            </g>
+                            <!-- Smile -->
+                            <path d="M 72 55 Q 78 58, 82 55" stroke="#1a1a1a" stroke-width="2" fill="none" stroke-linecap="round"/>
+                            <!-- Pectoral fin -->
+                            <ellipse cx="48" cy="70" rx="7" ry="15" fill="#1a1a1a" transform="rotate(30 48 70)"/>
+                        </svg>
+
                     </div>
                 </div>
                 <h1 class="text-4xl font-bold text-gray-900 mb-3">ORCA DAM</h1>
