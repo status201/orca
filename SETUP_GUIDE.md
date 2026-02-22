@@ -656,7 +656,7 @@ By default, asset URLs use your S3 bucket domain (e.g., `https://bucket.s3.amazo
 
 The application supports files up to 500MB by default using chunked uploads for files ≥10MB.
 
-In `AssetController.php` and `Api/AssetApiController.php`:
+In `AssetController.php` and `Api/AssetApiController.php` (validation), and `AssetProcessingService.php` (processing):
 ```php
 'files.*' => 'required|file|max:512000', // 500MB (in KB)
 ```

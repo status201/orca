@@ -273,13 +273,13 @@ Find your path via SSH: `which php`
 ## Architecture
 
 - **Backend:** Laravel 12 with AWS SDK v3
-- **Frontend:** Blade templates + Alpine.js
+- **Frontend:** Blade templates + Alpine.js (modular, 14 components in `resources/js/alpine/`)
 - **Styling:** Tailwind CSS with custom ORCA theme
-- **Image Processing:** Intervention Image 3.x
+- **Image Processing:** Intervention Image 3.x (GD driver)
 - **AI Tagging:** AWS Rekognition (with job queue for background processing)
 - **Translation:** AWS Translate (for multilingual AI tags)
 - **Storage:** AWS S3 (public-read bucket via bucket policy)
-- **Queue:** Database driver for background jobs (AI tagging)
+- **Queue:** Database driver for background jobs (AI tagging, integrity checks, image resizing)
 
 ## File Structure
 
@@ -301,7 +301,8 @@ orca-dam/
 │   │   └── VerifyAssetIntegrity.php   # S3 integrity verification command
 │   ├── Http/Controllers/
 │   │   ├── Api/
-│   │   │   └── AssetApiController.php # REST API for assets
+│   │   │   ├── AssetApiController.php # REST API for assets
+│   │   │   └── HealthController.php   # Health check endpoint
 │   │   ├── Auth/                      # Laravel Breeze auth controllers
 │   │   │   └── TwoFactorAuthController.php # 2FA setup & verification
 │   │   ├── ApiDocsController.php      # OpenAPI docs page
@@ -310,7 +311,7 @@ orca-dam/
 │   │   ├── DashboardController.php    # Dashboard stats
 │   │   ├── DiscoverController.php     # S3 discovery (admin)
 │   │   ├── ExportController.php       # CSV export (admin)
-│   │   ├── ImportController.php      # CSV metadata import (admin)
+│   │   ├── ImportController.php       # CSV metadata import (admin)
 │   │   ├── FolderController.php       # Folder list, scan & create
 │   │   ├── JwtSecretController.php    # JWT secret management (admin)
 │   │   ├── ProfileController.php      # User profile & preferences
@@ -320,10 +321,11 @@ orca-dam/
 │   │   └── UserController.php         # User management (admin)
 │   ├── Http/Middleware/
 │   │   ├── AuthenticateMultiple.php   # Sanctum + JWT dual auth
-│   │   └── SetLocale.php             # Locale resolution middleware
+│   │   └── SetLocale.php              # Locale resolution middleware
 │   ├── Jobs/
 │   │   ├── GenerateAiTags.php         # AI tagging background job
 │   │   ├── ProcessDiscoveredAsset.php # Discovery import job
+│   │   ├── RegenerateResizedImage.php # Bulk image resize regeneration
 │   │   └── VerifyAssetIntegrity.php   # S3 object existence check job
 │   ├── Models/
 │   │   ├── Asset.php
@@ -336,38 +338,49 @@ orca-dam/
 │   │   ├── SystemPolicy.php           # System admin authorization
 │   │   └── UserPolicy.php             # User management authorization
 │   └── Services/
+│       ├── AssetProcessingService.php # Shared asset processing logic
 │       ├── ChunkedUploadService.php   # S3 multipart uploads
 │       ├── RekognitionService.php     # AWS Rekognition AI tagging
 │       ├── S3Service.php              # S3 operations, thumbnails & URLs
 │       ├── SystemService.php          # System admin utilities
 │       └── TwoFactorService.php       # 2FA TOTP management
 ├── config/
-│   └── jwt.php                        # JWT authentication config
+│   ├── jwt.php                        # JWT authentication config
+│   └── two-factor.php                 # 2FA configuration
 ├── database/
 │   ├── factories/                     # Test factories
-│   └── migrations/
-├── resources/views/
-│   ├── api/                           # OpenAPI documentation view
-│   ├── assets/                        # Asset views (index, show, edit, create, replace, trash)
-│   ├── auth/                          # Authentication views
-│   ├── components/                    # Blade components
-│   ├── discover/                      # S3 discovery view
-│   ├── export/                        # Export view
-│   ├── import/                        # Metadata import view
-│   ├── layouts/                       # App & guest layouts
-│   ├── profile/                       # Profile management
-│   ├── system/                        # System admin view
-│   ├── tags/                          # Tag management view
-│   ├── users/                         # User management views
-│   ├── vendor/pagination/             # Custom pagination templates
-│   ├── dashboard.blade.php
-│   └── welcome.blade.php              # Landing page
+│   └── migrations/                    # 25 migrations
+├── resources/
+│   ├── js/
+│   │   ├── app.js                     # App init & Alpine registration
+│   │   ├── bootstrap.js               # Bootstrap script
+│   │   └── alpine/                    # Alpine.js modules (14 components)
+│   │       ├── api-docs.js, asset-detail.js, asset-editor.js, asset-grid.js
+│   │       ├── asset-uploader.js, asset-replacer.js, dashboard.js, discover.js
+│   │       ├── export.js, import.js, preferences.js, system-admin.js
+│   │       └── tags.js, trash.js
+│   ├── css/app.css
+│   └── views/
+│       ├── api/                       # OpenAPI documentation view
+│       ├── assets/                    # Asset views (index, show, edit, create, replace, trash)
+│       ├── auth/                      # Authentication & 2FA views
+│       ├── components/                # Blade components
+│       ├── discover/, export/, import/, tags/, users/
+│       ├── errors/                    # 404, 419, 500, 503 error pages
+│       ├── layouts/                   # App & guest layouts
+│       ├── profile/                   # Profile management & preferences
+│       ├── system/                    # System admin view
+│       ├── vendor/pagination/         # Custom pagination templates
+│       └── dashboard.blade.php
 ├── routes/
 │   ├── api.php                        # API routes
-│   └── web.php                        # Web routes
+│   ├── web.php                        # Web routes
+│   ├── auth.php                       # Authentication routes
+│   └── console.php                    # Artisan command routes
 ├── tests/
-│   ├── Feature/                       # Feature tests
-│   └── Unit/                          # Unit tests
+│   ├── Feature/                       # 17 feature test files
+│   │   └── Auth/                      # Authentication test suite
+│   └── Unit/                          # 10 unit test files
 └── bootstrap/
     └── app.php                        # Scheduled tasks config
 ```

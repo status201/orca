@@ -4,7 +4,7 @@
 
 ORCA DAM (ORCA Retrieves Cloud Assets) is a Digital Asset Management system built with Laravel 12 with AWS S3 integration, AI-powered tagging via AWS Rekognition, role-based access control, and a RESTful API for Rich Text Editor integration.
 
-**Frontend Stack**: Blade + Alpine.js, Tailwind CSS, Font Awesome 6.4.0, Vite, Intervention Image 3.x (GD driver)
+**Frontend Stack**: Blade + Alpine.js (modular, 14 components in `resources/js/alpine/`), Tailwind CSS, Font Awesome 6.4.0, Vite, Intervention Image 3.x (GD driver)
 
 ## Common Commands
 
@@ -49,9 +49,15 @@ php artisan queue:work --tries=3
 
 **S3Service** - All S3 operations (upload/delete/list). Streams files to avoid memory issues. Generates JPEG thumbnails (skips GIFs). Thumbnails mirror folder structure (`assets/folder/img.jpg` -> `thumbnails/folder/img_thumb.jpg`). `generateResizedImages()` creates S/M/L presets at configurable dimensions (stored in `thumbnails/S|M|L/`), keeping original format (GIFs→JPEG). `deleteResizedImages()` removes all resize variants. Discovery finds unmapped S3 objects. Supports custom domain for CDN URLs via `getPublicBaseUrl()`.
 
+**AssetProcessingService** - Extracted shared asset processing logic used by multiple controllers. Handles thumbnail generation, resized image creation, dimension extraction, and AI tag dispatching. Called from `AssetController`, `AssetApiController`, `ChunkedUploadController`, and `ProcessDiscoveredAsset` job.
+
 **ChunkedUploadService** - Large file uploads (>=10MB, up to 500MB) via S3 Multipart Upload API. Splits into 10MB chunks, streams directly to S3. Manages sessions via `upload_sessions` table. Idempotent chunk uploads with retry support.
 
 **RekognitionService** - AI tagging via AWS Rekognition. Configurable max labels, min confidence, language. Multilingual via AWS Translate (when language != 'en'). Background processing via `GenerateAiTags` job. Settings read dynamically from database.
+
+**SystemService** - Extracted system administration logic from `SystemController`. Handles diagnostics, environment checks, S3 connectivity testing, queue status, and system health reporting.
+
+**TwoFactorService** - Two-factor authentication setup, verification, and recovery code management.
 
 ### Authentication
 
@@ -62,7 +68,13 @@ php artisan queue:work --tries=3
   - Required claims: `sub` (user ID), `exp`, `iat`. Optional: `iss`
   - Per-user secrets stored encrypted in `users.jwt_secret`
 
-### Authorization (`app/Policies/AssetPolicy.php`)
+### Authorization (`app/Policies/`)
+
+**AssetPolicy** (`AssetPolicy.php`): Controls asset CRUD, trash, and discovery operations.
+**SystemPolicy** (`SystemPolicy.php`): Controls access to system admin features.
+**UserPolicy** (`UserPolicy.php`): Controls user management operations.
+
+#### Authorization Rules
 
 **Roles** (`users.role`):
 - `editor`: View, upload, edit, soft delete all assets
@@ -157,7 +169,9 @@ PHP_CLI_PATH=/usr/bin/php
 
 ## Key Conventions
 
-**File organization**: Controllers in `app/Http/Controllers/` (API in `Api/`), Services in `app/Services/`, Middleware in `app/Http/Middleware/`, Policies in `app/Policies/`
+**File organization**: Controllers in `app/Http/Controllers/` (API in `Api/`, Auth in `Auth/`), Services in `app/Services/`, Middleware in `app/Http/Middleware/`, Policies in `app/Policies/`, Jobs in `app/Jobs/`, Console Commands in `app/Console/Commands/`
+
+**Frontend modules**: Alpine.js components extracted into `resources/js/alpine/` (14 modules: `api-docs`, `asset-detail`, `asset-editor`, `asset-grid`, `asset-uploader`, `asset-replacer`, `dashboard`, `discover`, `export`, `import`, `preferences`, `system-admin`, `tags`, `trash`). Registered in `resources/js/app.js`. Blade views reference these via `x-data` directives.
 
 **Naming**: S3 keys `assets/{folder}/{uuid}.{ext}`, thumbnails `thumbnails/{folder}/{uuid}_thumb.{ext}` (JPEG). RESTful routes, snake_case columns.
 
@@ -175,8 +189,10 @@ PHP_CLI_PATH=/usr/bin/php
 
 ```
 tests/Feature/  - AssetTest, TagTest, ExportTest, ImportTest, ApiTest, SystemTest, IntegrityTest,
-                  JwtAuthTest, JwtSecretManagementTest, LocaleTest, ProfileTest, TwoFactorAuthTest, Auth/
-tests/Unit/     - AssetTest, TagTest, SettingTest, UserPreferencesTest, TwoFactorServiceTest, JwtGuardTest
+                  JwtAuthTest, JwtSecretManagementTest, LocaleTest, ProfileTest, TwoFactorAuthTest,
+                  Auth/ (Authentication, Registration, PasswordReset, PasswordUpdate, PasswordConfirmation, EmailVerification)
+tests/Unit/     - AssetTest, TagTest, SettingTest, UserPreferencesTest, TwoFactorServiceTest, JwtGuardTest,
+                  AssetProcessingServiceTest, S3ServiceTest, AssetSortScopeTest
 ```
 
 Web-based test runner at `/system` -> Tests tab (admin only).
@@ -192,6 +208,75 @@ Web-based test runner at `/system` -> Tests tab (admin only).
 **Trash** (admin): Soft delete keeps S3 files. Restore returns to active. Force delete removes S3 objects (original + thumbnail + resized variants) + DB permanently.
 
 **S3 Integrity** (admin): `assets:verify-integrity` command dispatches `VerifyAssetIntegrity` jobs for all assets -> each job checks S3 object existence via `getObjectMetadata()` -> sets `s3_missing_at` timestamp if missing, clears if found. System page card shows live status with AJAX refresh. Assets index supports `?missing=1` filter.
+
+## File Structure
+
+```
+app/
+├── Auth/
+│   └── JwtGuard.php
+├── Console/Commands/
+│   ├── CleanupStaleUploads.php
+│   ├── JwtGenerateCommand.php, JwtListCommand.php, JwtRevokeCommand.php
+│   ├── TokenCreateCommand.php, TokenListCommand.php, TokenRevokeCommand.php
+│   ├── TwoFactorDisableCommand.php, TwoFactorStatusCommand.php
+│   └── VerifyAssetIntegrity.php
+├── Http/
+│   ├── Controllers/
+│   │   ├── Api/ (AssetApiController, HealthController)
+│   │   ├── Auth/ (AuthenticatedSession, Registration, Password*, Email*, TwoFactorAuth)
+│   │   ├── AssetController, DashboardController, DiscoverController
+│   │   ├── ExportController, ImportController, FolderController
+│   │   ├── ProfileController, SystemController, TagController
+│   │   ├── UserController, ApiDocsController, TokenController
+│   │   ├── JwtSecretController, ChunkedUploadController
+│   │   └── Controller (base)
+│   ├── Middleware/ (AuthenticateMultiple, SetLocale)
+│   └── Requests/ (ProfileUpdateRequest, Auth/LoginRequest)
+├── Jobs/
+│   ├── GenerateAiTags, ProcessDiscoveredAsset
+│   ├── RegenerateResizedImage, VerifyAssetIntegrity
+├── Models/ (Asset, Tag, User, Setting, UploadSession)
+├── Policies/ (AssetPolicy, SystemPolicy, UserPolicy)
+├── Services/
+│   ├── S3Service, AssetProcessingService, ChunkedUploadService
+│   ├── RekognitionService, SystemService, TwoFactorService
+└── View/Components/ (AppLayout, GuestLayout)
+
+resources/
+├── css/app.css
+├── js/
+│   ├── app.js, bootstrap.js
+│   └── alpine/
+│       ├── api-docs.js, asset-detail.js, asset-editor.js, asset-grid.js
+│       ├── asset-uploader.js, asset-replacer.js, dashboard.js, discover.js
+│       ├── export.js, import.js, preferences.js, system-admin.js
+│       ├── tags.js, trash.js
+└── views/
+    ├── assets/ (index, create, show, edit, replace, trash)
+    ├── auth/ (login, register, forgot-password, reset-password, confirm-password,
+    │          verify-email, two-factor-setup, two-factor-challenge, two-factor-recovery-codes)
+    ├── profile/ (edit, partials/*)
+    ├── discover/, import/, export/, tags/, users/ (index, create, edit)
+    ├── system/index, api/index, dashboard
+    ├── layouts/ (app, guest, navigation)
+    ├── components/ (app-layout, modal, dropdown, buttons, inputs, footer, etc.)
+    ├── errors/ (404, 419, 500, 503)
+    └── vendor/pagination/ (tailwind, bootstrap, etc.)
+
+tests/
+├── Feature/ (Asset, Tag, Export, Import, Api, System, Integrity,
+│             JwtAuth, JwtSecretManagement, Locale, Profile, TwoFactorAuth)
+├── Feature/Auth/ (Authentication, Registration, PasswordReset, etc.)
+└── Unit/ (Asset, Tag, Setting, UserPreferences, TwoFactorService,
+           JwtGuard, AssetProcessingService, S3Service, AssetSortScope)
+
+config/ (app, auth, cache, database, filesystems, jwt, logging, mail, queue, services, session, two-factor)
+database/migrations/ (25 migrations)
+database/factories/ (Asset, Tag, User, Setting)
+database/seeders/ (Database, AdminUser)
+routes/ (web, api, auth, console)
+```
 
 ## Integration & Deployment
 

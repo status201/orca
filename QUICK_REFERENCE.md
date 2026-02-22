@@ -84,10 +84,12 @@ orca-dam/
 │   │   ├── TokenListCommand.php      # List API tokens
 │   │   ├── TokenRevokeCommand.php    # Revoke API token
 │   │   ├── TwoFactorDisableCommand.php # Disable 2FA
-│   │   └── TwoFactorStatusCommand.php  # Check 2FA status
+│   │   ├── TwoFactorStatusCommand.php  # Check 2FA status
+│   │   └── VerifyAssetIntegrity.php  # S3 integrity verification
 │   ├── Http/Controllers/
 │   │   ├── Api/
-│   │   │   └── AssetApiController.php # REST API endpoints
+│   │   │   ├── AssetApiController.php # REST API endpoints
+│   │   │   └── HealthController.php   # Health check endpoint
 │   │   ├── Auth/                      # Laravel Breeze + 2FA controllers
 │   │   ├── ApiDocsController.php      # OpenAPI docs page
 │   │   ├── AssetController.php        # Asset CRUD & management
@@ -95,7 +97,7 @@ orca-dam/
 │   │   ├── DashboardController.php    # Dashboard stats
 │   │   ├── DiscoverController.php     # S3 discovery (admin)
 │   │   ├── ExportController.php       # CSV export (admin)
-│   │   ├── ImportController.php      # CSV metadata import (admin)
+│   │   ├── ImportController.php       # CSV metadata import (admin)
 │   │   ├── FolderController.php       # Folder list, scan & create
 │   │   ├── JwtSecretController.php    # JWT secret management
 │   │   ├── ProfileController.php      # User profile & preferences
@@ -105,10 +107,12 @@ orca-dam/
 │   │   └── UserController.php         # User management (admin)
 │   ├── Http/Middleware/
 │   │   ├── AuthenticateMultiple.php   # Sanctum + JWT dual auth
-│   │   └── SetLocale.php             # Locale resolution middleware
+│   │   └── SetLocale.php              # Locale resolution middleware
 │   ├── Jobs/
 │   │   ├── GenerateAiTags.php         # AI tagging background job
-│   │   └── ProcessDiscoveredAsset.php # Discovery import job
+│   │   ├── ProcessDiscoveredAsset.php # Discovery import job
+│   │   ├── RegenerateResizedImage.php # Bulk image resize regeneration
+│   │   └── VerifyAssetIntegrity.php   # S3 object existence check job
 │   ├── Models/
 │   │   ├── Asset.php                  # Asset model
 │   │   ├── Setting.php                # Application settings
@@ -120,37 +124,47 @@ orca-dam/
 │   │   ├── SystemPolicy.php           # System admin authorization
 │   │   └── UserPolicy.php             # User management authorization
 │   └── Services/
+│       ├── AssetProcessingService.php # Shared asset processing logic
 │       ├── ChunkedUploadService.php   # S3 multipart uploads
 │       ├── RekognitionService.php     # AWS Rekognition AI tagging
 │       ├── S3Service.php              # S3 operations, thumbnails & URLs
 │       ├── SystemService.php          # System admin utilities
 │       └── TwoFactorService.php       # 2FA TOTP management
 ├── config/
-│   └── jwt.php                        # JWT authentication config
-├── database/migrations/               # Database schema
-├── resources/views/
-│   ├── api/                           # OpenAPI documentation view
-│   ├── assets/                        # Asset views (index, show, edit, create, replace, trash)
-│   ├── auth/                          # Authentication & 2FA views
-│   ├── components/                    # Blade components
-│   ├── discover/                      # S3 discovery view
-│   ├── export/                        # Export view
-│   ├── import/                        # Metadata import view
-│   ├── layouts/                       # App & guest layouts
-│   ├── profile/                       # Profile & preferences
-│   ├── system/                        # System admin view
-│   ├── tags/                          # Tag management view
-│   ├── users/                         # User management views
-│   └── vendor/pagination/             # Custom pagination templates
+│   ├── jwt.php                        # JWT authentication config
+│   └── two-factor.php                 # 2FA configuration
+├── database/migrations/               # 25 migrations
+├── resources/
+│   ├── js/
+│   │   ├── app.js                     # App init & Alpine registration
+│   │   └── alpine/                    # Alpine.js modules (14 components)
+│   │       ├── api-docs.js, asset-detail.js, asset-editor.js, asset-grid.js
+│   │       ├── asset-uploader.js, asset-replacer.js, dashboard.js, discover.js
+│   │       ├── export.js, import.js, preferences.js, system-admin.js
+│   │       └── tags.js, trash.js
+│   └── views/
+│       ├── api/                       # OpenAPI documentation view
+│       ├── assets/                    # Asset views (index, show, edit, create, replace, trash)
+│       ├── auth/                      # Authentication & 2FA views
+│       ├── components/                # Blade components
+│       ├── discover/, export/, import/, tags/, users/
+│       ├── errors/                    # 404, 419, 500, 503 error pages
+│       ├── layouts/                   # App & guest layouts
+│       ├── profile/                   # Profile & preferences
+│       ├── system/                    # System admin view
+│       └── vendor/pagination/         # Custom pagination templates
 ├── routes/
 │   ├── web.php                        # Web routes
-│   └── api.php                        # API routes
+│   ├── api.php                        # API routes
+│   ├── auth.php                       # Authentication routes
+│   └── console.php                    # Artisan command routes
 ├── tests/
 │   ├── Feature/
 │   │   ├── ApiTest.php                # API endpoints, sorting, meta
 │   │   ├── AssetTest.php              # Asset CRUD, sorting, permissions
 │   │   ├── ExportTest.php             # CSV export
 │   │   ├── ImportTest.php             # CSV metadata import
+│   │   ├── IntegrityTest.php          # S3 integrity verification
 │   │   ├── JwtAuthTest.php            # JWT authentication
 │   │   ├── JwtSecretManagementTest.php# JWT secret management
 │   │   ├── LocaleTest.php             # Language/locale
@@ -158,10 +172,13 @@ orca-dam/
 │   │   ├── SystemTest.php             # System settings
 │   │   ├── TagTest.php                # Tag management
 │   │   ├── TwoFactorAuthTest.php      # 2FA functionality
-│   │   └── Auth/                      # Authentication tests
+│   │   └── Auth/                      # Authentication tests (6 files)
 │   └── Unit/
 │       ├── AssetTest.php              # Model relationships, scopes
+│       ├── AssetProcessingServiceTest.php # Asset processing logic
+│       ├── AssetSortScopeTest.php     # Asset sorting scopes
 │       ├── JwtGuardTest.php           # JWT guard
+│       ├── S3ServiceTest.php          # S3 service tests
 │       ├── SettingTest.php            # Setting model, caching
 │       ├── TagTest.php                # Tag model
 │       ├── TwoFactorServiceTest.php   # 2FA service
@@ -262,6 +279,7 @@ POST   /api/chunked-upload/abort     # Cancel upload
 ### assets
 - id, s3_key, filename, mime_type, size, etag
 - width, height, thumbnail_s3_key
+- resize_s_s3_key, resize_m_s3_key, resize_l_s3_key
 - alt_text, caption, user_id, last_modified_by
 - license_type, license_expiry_date, copyright, copyright_source
 - s3_missing_at (nullable, set when S3 object detected missing)
@@ -432,18 +450,21 @@ $user->getItemsPerPage();    // Falls back to global
 
 ```
 your-bucket/
-│   {uuid}.jpg              # Original files (when settings/s3 root folder is empty) 
+│   {uuid}.jpg              # Original files (when settings/s3 root folder is empty)
 ├── {assets}/
 │   ├── {uuid}.jpg          # Original files
 │   ├── {uuid}.png
 │   └── ...
 └── thumbnails/
     ├── {uuid}_thumb.jpg    # Generated thumbnails
-    ├── {uuid}_thumb.png
-    ├── ...
-    └── {assets}/
-        ├── {uuid}.png
-        └── ...
+    ├── {assets}/
+    │   └── {uuid}_thumb.jpg
+    ├── S/                   # Small resize preset
+    │   └── {assets}/{uuid}.jpg
+    ├── M/                   # Medium resize preset
+    │   └── {assets}/{uuid}.jpg
+    └── L/                   # Large resize preset
+        └── {assets}/{uuid}.jpg
 ```
 
 ---
