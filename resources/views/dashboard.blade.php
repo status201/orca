@@ -212,7 +212,7 @@
                                          :style="{
                                              opacity: currentSlide === index || (isTransitioning && prevSlide === index) ? 1 : 0,
                                              zIndex: currentSlide === index ? 20 : (isTransitioning && prevSlide === index ? 10 : 1),
-                                             transition: currentSlide === index ? 'opacity 500ms ease-in-out' : 'none',
+                                             transition: 'opacity 500ms ease-in-out',
                                              pointerEvents: currentSlide === index ? 'auto' : 'none'
                                          }">
 
