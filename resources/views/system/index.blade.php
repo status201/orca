@@ -1276,7 +1276,7 @@
 window.__systemPageData = {
     queueStats: @json($queueStats),
     missingAssetsCount: {{ $missingAssetsCount }},
-    jwtEnvEnabled: @js($systemInfo['jwt_enabled']),
+    jwtEnvEnabled: '{{ $systemInfo['jwt_enabled'] ? '1' : '0' }}',
     settings: {
         items_per_page: '{{ collect($settings)->firstWhere('key', 'items_per_page')['value'] ?? '24' }}',
         timezone: '{{ collect($settings)->firstWhere('key', 'timezone')['value'] ?? 'UTC' }}',
@@ -1292,8 +1292,8 @@ window.__systemPageData = {
         resize_m_height: '{{ collect($settings)->firstWhere('key', 'resize_m_height')['value'] ?? '' }}',
         resize_l_width: '{{ collect($settings)->firstWhere('key', 'resize_l_width')['value'] ?? '1200' }}',
         resize_l_height: '{{ collect($settings)->firstWhere('key', 'resize_l_height')['value'] ?? '' }}',
-        jwtSettingEnabled: '{{ collect($settings)->firstWhere('key', 'jwt_enabled_override')['value'] ?? '0' }}',
-        metaEndpointEnabled: '{{ collect($settings)->firstWhere('key', 'api_meta_endpoint_enabled')['value'] ?? '0' }}',
+        jwtSettingEnabled: '{{ filter_var(collect($settings)->firstWhere('key', 'jwt_enabled_override')['value'] ?? '0', FILTER_VALIDATE_BOOLEAN) ? '1' : '0' }}',
+        metaEndpointEnabled: '{{ filter_var(collect($settings)->firstWhere('key', 'api_meta_endpoint_enabled')['value'] ?? '0', FILTER_VALIDATE_BOOLEAN) ? '1' : '0' }}',
     },
     routes: {
         queueStatus: '{{ route('system.queue-status') }}',
