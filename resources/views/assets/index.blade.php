@@ -150,13 +150,15 @@
         <div class="inline-flex rounded-md shadow-sm" role="group">
             <button @click="fitMode = 'cover'; saveFitMode()"
                     :class="fitMode === 'cover' ? 'bg-orca-black text-white' : 'bg-white text-gray-700 hover:bg-gray-50'"
-                    class="px-4 py-2 text-xs font-medium border border-gray-300 rounded-l-lg transition-colors">
-                <i class="fas fa-crop-alt mr-2"></i> {{ __('Crop') }}
+                    class="px-3 py-2 text-xs font-medium border border-gray-300 rounded-l-lg transition-colors"
+                    title="{{ __('Zoom and crop') }}">
+                <i class="fas fa-crop-alt"></i>
             </button>
             <button @click="fitMode = 'contain'; saveFitMode()"
                     :class="fitMode === 'contain' ? 'bg-orca-black text-white' : 'bg-white text-gray-700 hover:bg-gray-50'"
-                    class="px-4 py-2 text-xs font-medium border border-gray-300 rounded-r-lg transition-colors">
-                <i class="fas fa-expand mr-2"></i> {{ __('Fit') }}
+                    class="px-3 py-2 text-xs font-medium border border-gray-300 rounded-r-lg transition-colors"
+                    title="{{ __('Fit to keep proportions') }}">
+                <i class="fas fa-expand"></i>
             </button>
         </div>
 

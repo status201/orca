@@ -199,7 +199,6 @@
     "Created": "Aangemaakt",
     "Creation and update timestamps": "Aanmaak- en bijwerktijdstempels",
     "CSV Data": "CSV-gegevens",
-    "Crop": "Bijsnijden",
     "CSV (Comma-Separated Values)": "CSV (kommagescheiden waarden)",
     "CSV exports contain metadata only. Actual files remain in S3 storage.": "CSV-exports bevatten alleen metadata. De bestanden blijven in S3-opslag.",
     "Current Asset": "Huidig asset",
@@ -372,7 +371,7 @@
     "files accepted (max 500MB)": "bestanden geaccepteerd (max 500MB)",
     "Files will be uploaded to:": "Bestanden worden geupload naar:",
     "First row must be the header row": "De eerste rij moet de koprij zijn",
-    "Fit": "Passend",
+    "Fit to keep proportions": "Passend met proporties",
     "Filter by file type (e.g., image, video, application)": "Filteren op bestandstype (bijv. afbeelding, video, applicatie)",
     "Filter by name...": "Filteren op naam...",
     "Filter by S3 folder (leave empty for all)": "Filteren op S3-map (laat leeg voor alles)",
@@ -902,5 +901,6 @@
     "Your email address is unverified.": "Je e-mailadres is niet geverifieerd.",
     "Width (px)": "Breedte (px)",
     "Your frontend uses the JWT for ORCA API requests": "Je frontend gebruikt de JWT voor ORCA API-verzoeken",
-    "Your session has expired. Refreshing the page...": "Je sessie is verlopen. Pagina wordt ververst..."
+    "Your session has expired. Refreshing the page...": "Je sessie is verlopen. Pagina wordt ververst...",
+    "Zoom and crop": "Inzoomen en bijsnijden"
 }
