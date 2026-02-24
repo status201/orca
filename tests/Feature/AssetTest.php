@@ -40,6 +40,43 @@ test('assets index can filter by search', function () {
     $response->assertDontSee('other.pdf');
 });
 
+test('assets search strips S3 URL prefix to match s3_key', function () {
+    $user = User::factory()->create();
+    $asset = Asset::factory()->create([
+        's3_key' => 'assets/photos/test-image.jpg',
+        'filename' => 'test-image.jpg',
+    ]);
+    Asset::factory()->create(['filename' => 'other.pdf']);
+
+    // Set S3 URL config
+    config(['filesystems.disks.s3.url' => 'https://my-bucket.s3.amazonaws.com']);
+
+    // Search with full S3 URL should find the asset
+    $response = $this->actingAs($user)->get(route('assets.index', [
+        'search' => 'https://my-bucket.s3.amazonaws.com/assets/photos/test-image.jpg',
+    ]));
+    $response->assertStatus(200);
+    $response->assertSee('test-image.jpg');
+    $response->assertDontSee('other.pdf');
+
+    // Search with custom domain URL should also find the asset
+    Setting::set('custom_domain', 'https://cdn.example.com');
+    $response = $this->actingAs($user)->get(route('assets.index', [
+        'search' => 'https://cdn.example.com/assets/photos/test-image.jpg',
+    ]));
+    $response->assertStatus(200);
+    $response->assertSee('test-image.jpg');
+    $response->assertDontSee('other.pdf');
+
+    // Plain s3_key search still works as before
+    $response = $this->actingAs($user)->get(route('assets.index', [
+        'search' => 'assets/photos/test-image.jpg',
+    ]));
+    $response->assertStatus(200);
+    $response->assertSee('test-image.jpg');
+    $response->assertDontSee('other.pdf');
+});
+
 test('assets index can filter by type', function () {
     $user = User::factory()->create();
     Asset::factory()->image()->create(['filename' => 'image.jpg']);

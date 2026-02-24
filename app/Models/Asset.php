@@ -301,6 +301,29 @@ class Asset extends Model
     }
 
     /**
+     * Strip known URL prefixes from a search term so it matches S3 keys.
+     */
+    private static function normalizeSearchTerm(string $search): string
+    {
+        // Strip the S3 bucket URL prefix (e.g. "https://bucket.s3.amazonaws.com/")
+        $s3Url = rtrim(config('filesystems.disks.s3.url'), '/').'/';
+        if (str_starts_with($search, $s3Url)) {
+            return substr($search, strlen($s3Url));
+        }
+
+        // Strip the custom domain prefix if configured (e.g. "https://cdn.example.com/")
+        $customDomain = Setting::get('custom_domain', '');
+        if ($customDomain !== '' && $customDomain !== null) {
+            $customUrl = rtrim($customDomain, '/').'/';
+            if (str_starts_with($search, $customUrl)) {
+                return substr($search, strlen($customUrl));
+            }
+        }
+
+        return $search;
+    }
+
+    /**
      * Scope: Search assets
      */
     public function scopeSearch($query, ?string $search)
@@ -308,6 +331,8 @@ class Asset extends Model
         if (! $search) {
             return $query;
         }
+
+        $search = self::normalizeSearchTerm($search);
 
         return $query->where(function ($q) use ($search) {
             $q->where('filename', 'like', "%{$search}%")
