@@ -47,7 +47,7 @@
                     <!-- Folder filter -->
                     <select x-model="folder"
                             @change="applyFilters"
-                            :class="folder && folderCount > 1 ? 'ring-2 ring-orca-black border-orca-black' : ''"
+                            :class="folder && folder !== rootFolder && folderCount > 1 ? 'ring-2 ring-orca-black border-orca-black' : ''"
                             class="pr-dropdown px-4 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-orca-black focus:border-transparent font-mono">
                         <x-folder-tree-options :folders="$folders" :root-folder="$rootFolder" />
                     </select>
@@ -166,11 +166,11 @@
     </div>
 
     <!-- Active Filters Bar -->
-    <div x-show="(folder && folderCount > 1) || type || selectedTags.length > 0" x-cloak class="mb-4 flex flex-wrap items-center gap-2">
+    <div x-show="!navigating && ((folder && folder !== rootFolder && folderCount > 1) || type || selectedTags.length > 0)" x-cloak class="mb-4 flex flex-wrap items-center gap-2">
         <span class="text-sm text-gray-500 font-medium">{{ __('Active filters') }}:</span>
 
         <!-- Folder pill -->
-        <template x-if="folder && folderCount > 1">
+        <template x-if="folder && folder !== rootFolder && folderCount > 1">
             <span class="inline-flex items-center gap-1 px-3 py-1 bg-gray-200 text-orca-black text-sm rounded-full">
                 <i class="fas fa-folder text-xs"></i>
                 <span x-text="folder"></span>
@@ -597,7 +597,7 @@
             <label for="perPageSelect" class="text-sm text-gray-600">{{ __('Results per page:') }}</label>
             <select id="perPageSelect"
                     x-model="perPage"
-                    @change="savePerPage(); applyFilters()"
+                    @change="applyFilters()"
                     class="text-sm border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
                 <option value="12">12</option>
                 <option value="24">24</option>
@@ -645,6 +645,7 @@ window.assetGridConfig = {
     search: @json(request('search', '')),
     type: @json(request('type', '')),
     folder: @json($folder),
+    rootFolder: @json($rootFolder),
     folderCount: {{ count($folders) }},
     sort: @json(request('sort', 'date_desc')),
     selectedTags: @json(request('tags', [])),

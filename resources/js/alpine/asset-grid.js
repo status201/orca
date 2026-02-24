@@ -4,27 +4,21 @@ export function assetGrid() {
         search: config.search || '',
         type: config.type || '',
         folder: config.folder || '',
+        rootFolder: config.rootFolder || '',
+        navigating: false,
         sort: config.sort || 'date_desc',
         selectedTags: config.selectedTags || [],
         initialTags: config.initialTags || [],
         showTagFilter: false,
         viewMode: localStorage.getItem('orcaAssetViewMode') || 'grid',
         fitMode: localStorage.getItem('orcaAssetFitMode') || 'cover',
-        perPage: localStorage.getItem('orcaAssetsPerPage') || config.perPage || '24',
+        perPage: config.perPage || '24',
         tagSearch: '',
         tagSort: 'name_asc',
         allTagsData: config.allTagsData || [],
         folderCount: config.folderCount || 1,
 
-        init() {
-            // If user has a stored preference and URL doesn't have per_page, apply it
-            const storedPerPage = localStorage.getItem('orcaAssetsPerPage');
-            const urlParams = new URLSearchParams(window.location.search);
-            if (storedPerPage && !urlParams.has('per_page') && storedPerPage !== config.perPage) {
-                urlParams.set('per_page', storedPerPage);
-                window.location.href = config.indexRoute + '?' + urlParams.toString();
-            }
-        },
+        init() {},
 
         saveViewMode() {
             localStorage.setItem('orcaAssetViewMode', this.viewMode);
@@ -34,9 +28,6 @@ export function assetGrid() {
             localStorage.setItem('orcaAssetFitMode', this.fitMode);
         },
 
-        savePerPage() {
-            localStorage.setItem('orcaAssetsPerPage', this.perPage);
-        },
 
         tagsChanged() {
             // Check if the selected tags differ from initial tags
@@ -56,11 +47,12 @@ export function assetGrid() {
             if (this.type) params.append('type', this.type);
             if (this.folder) params.append('folder', this.folder);
             if (this.sort) params.append('sort', this.sort);
-            if (this.perPage) params.append('per_page', this.perPage);
+            if (this.perPage && this.perPage !== config.perPage) params.append('per_page', this.perPage);
             if (this.selectedTags.length > 0) {
                 this.selectedTags.forEach(tag => params.append('tags[]', tag));
             }
 
+            this.navigating = true;
             window.location.href = config.indexRoute + (params.toString() ? '?' + params.toString() : '');
         },
 
