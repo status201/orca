@@ -21,6 +21,15 @@
             75%  { transform: translate(-2px, -1px); }
             100% { transform: translate(0, 0); }
         }
+        @keyframes orca-bob {
+            0%   { transform: scaleX(-1) translateY(0) rotate(180deg); }
+            30%  { transform: scaleX(-1) translateY(3px) rotate(181.5deg); }
+            60%  { transform: scaleX(-1) translateY(-3px) rotate(179deg); }
+            100% { transform: scaleX(-1) translateY(0) rotate(180deg); }
+        }
+        .orca-floating {
+            animation: orca-bob 6s ease-in-out infinite;
+        }
         .orca-eye-spiral {
             transform-origin: 68px 48px;
             animation: dizzy-eye 2s linear infinite;
@@ -33,7 +42,7 @@
 <body class="font-sans antialiased bg-gray-100 flex items-center justify-center min-h-screen">
     <div class="text-center px-6">
         <div class="flex justify-center mb-6">
-            <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" class="h-24 w-24 opacity-30" style="transform: scaleX(-1) rotate(180deg)">
+            <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" class="orca-floating h-24 w-24 opacity-30" style="transform: scaleX(-1) rotate(180deg)">
                 <!-- Body -->
                 <ellipse cx="50" cy="55" rx="35" ry="25" fill="#1a1a1a"/>
                 <!-- Tail -->

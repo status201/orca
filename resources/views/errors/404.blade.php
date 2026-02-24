@@ -13,13 +13,22 @@
         @keyframes fin-peek {
             0%   { transform: rotate(0deg); }
             5%   { transform: rotate(0deg); }
-            15%  { transform: rotate(-140deg); }
+            10%  { transform: rotate(-140deg); }
             30%  { transform: rotate(-140deg); }
             55%  { transform: rotate(-110deg); }
             65%  { transform: rotate(-140deg); }
             80%  { transform: rotate(-135deg); }
             85%  { transform: rotate(-110deg); }
             100% { transform: rotate(0deg); }
+        }
+        @keyframes orca-bob {
+            0%   { transform: translateY(0) rotate(0deg); }
+            30%  { transform: translateY(-6px) rotate(1.5deg); }
+            60%  { transform: translateY(2px) rotate(-1deg); }
+            100% { transform: translateY(0) rotate(0deg); }
+        }
+        .orca-floating {
+            animation: orca-bob 4s ease-in-out infinite;
         }
         .orca-fin {
             transform-origin: 55px 58px;
@@ -30,7 +39,7 @@
 <body class="font-sans antialiased bg-gray-100 flex items-center justify-center min-h-screen">
     <div class="text-center px-6">
         <div class="flex justify-center mb-6">
-            <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" class="h-24 w-24 opacity-30">
+            <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" class="orca-floating h-24 w-24 opacity-30">
                 <!-- Body -->
                 <ellipse cx="50" cy="55" rx="35" ry="25" fill="#1a1a1a"/>
                 <!-- Tail -->
