@@ -18,7 +18,7 @@
                     <div class="relative inline-flex items-stretch" x-data="{ submenu: false }" @mouseenter="submenu = true" @mouseleave="submenu = false">
                         <x-nav-link :href="route('assets.index')" :active="request()->routeIs('assets.*')">
                             {{ __('Assets') }}
-                            <svg class="ml-1 h-3 w-3 fill-current {{ request()->routeIs('assets.*') ? 'text-gray-700' : '' }}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                            <svg class="ms-1 h-4 w-4 fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
                                 <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
                             </svg>
                         </x-nav-link>
@@ -79,31 +79,29 @@
                     </x-slot>
 
                     <x-slot name="content">
-                        <x-dropdown-link :href="route('profile.edit')">
-                            <i class="fas fa-user mr-2"></i>{{ __('Profile') }}
-                        </x-dropdown-link>
+                        <a href="{{ route('profile.edit') }}" class="block w-full px-4 py-2 text-start text-sm leading-5 {{ request()->routeIs('profile.*') ? 'bg-gray-100 text-orca-teal-hover font-medium' : 'text-gray-700 hover:bg-gray-100' }} focus:outline-none transition duration-150 ease-in-out">
+                            <i class="fas fa-user mr-2 {{ request()->routeIs('profile.*') ? 'text-orca-teal' : 'text-gray-400' }}"></i>{{ __('Profile') }}
+                        </a>
 
                         @can('access', App\Http\Controllers\SystemController::class)
-                            <x-dropdown-link :href="route('system.index')">
-                                <i class="fas fa-cog mr-2"></i>{{ __('System') }}
-                            </x-dropdown-link>
-                            <x-dropdown-link :href="route('api.index')">
-                                <i class="fas fa-code mr-2"></i>{{ __('API') }}
-                            </x-dropdown-link>
-                            <x-dropdown-link :href="route('import.index')">
-                                <i class="fas fa-file-import mr-2"></i>{{ __('Import') }}
-                            </x-dropdown-link>
+                            <a href="{{ route('system.index') }}" class="block w-full px-4 py-2 text-start text-sm leading-5 {{ request()->routeIs('system.*') ? 'bg-gray-100 text-orca-teal-hover font-medium' : 'text-gray-700 hover:bg-gray-100' }} focus:outline-none transition duration-150 ease-in-out">
+                                <i class="fas fa-cog mr-2 {{ request()->routeIs('system.*') ? 'text-orca-teal' : 'text-gray-400' }}"></i>{{ __('System') }}
+                            </a>
+                            <a href="{{ route('api.index') }}" class="block w-full px-4 py-2 text-start text-sm leading-5 {{ request()->routeIs('api.*') ? 'bg-gray-100 text-orca-teal-hover font-medium' : 'text-gray-700 hover:bg-gray-100' }} focus:outline-none transition duration-150 ease-in-out">
+                                <i class="fas fa-code mr-2 {{ request()->routeIs('api.*') ? 'text-orca-teal' : 'text-gray-400' }}"></i>{{ __('API') }}
+                            </a>
+                            <a href="{{ route('import.index') }}" class="block w-full px-4 py-2 text-start text-sm leading-5 {{ request()->routeIs('import.*') ? 'bg-gray-100 text-orca-teal-hover font-medium' : 'text-gray-700 hover:bg-gray-100' }} focus:outline-none transition duration-150 ease-in-out">
+                                <i class="fas fa-file-import mr-2 {{ request()->routeIs('import.*') ? 'text-orca-teal' : 'text-gray-400' }}"></i>{{ __('Import') }}
+                            </a>
                         @endcan
 
                         <!-- Authentication -->
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
 
-                            <x-dropdown-link :href="route('logout')"
-                                    onclick="event.preventDefault();
-                                                this.closest('form').submit();">
-                                <i class="fas fa-arrow-right-from-bracket mr-2"></i>{{ __('Log Out') }}
-                            </x-dropdown-link>
+                            <a href="{{ route('logout') }}" onclick="event.preventDefault(); this.closest('form').submit();" class="block w-full px-4 py-2 text-start text-sm leading-5 text-gray-700 hover:bg-gray-100 focus:outline-none transition duration-150 ease-in-out">
+                                <i class="fas fa-arrow-right-from-bracket mr-2 text-gray-400"></i>{{ __('Log Out') }}
+                            </a>
                         </form>
                     </x-slot>
                 </x-dropdown>
@@ -166,18 +164,18 @@
             </div>
 
             <div class="mt-3 space-y-1">
-                <x-responsive-nav-link :href="route('profile.edit')">
+                <x-responsive-nav-link :href="route('profile.edit')" :active="request()->routeIs('profile.*')">
                     <i class="fas fa-user mr-2"></i>{{ __('Profile') }}
                 </x-responsive-nav-link>
 
                 @can('access', App\Http\Controllers\SystemController::class)
-                    <x-responsive-nav-link :href="route('system.index')">
+                    <x-responsive-nav-link :href="route('system.index')" :active="request()->routeIs('system.*')">
                         <i class="fas fa-cog mr-2"></i>{{ __('System') }}
                     </x-responsive-nav-link>
-                    <x-responsive-nav-link :href="route('api.index')">
+                    <x-responsive-nav-link :href="route('api.index')" :active="request()->routeIs('api.*')">
                         <i class="fas fa-code mr-2"></i>{{ __('API') }}
                     </x-responsive-nav-link>
-                    <x-responsive-nav-link :href="route('import.index')">
+                    <x-responsive-nav-link :href="route('import.index')" :active="request()->routeIs('import.*')">
                         <i class="fas fa-file-import mr-2"></i>{{ __('Import') }}
                     </x-responsive-nav-link>
                 @endcan
