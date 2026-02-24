@@ -13,6 +13,7 @@ export function assetGrid() {
         perPage: localStorage.getItem('orcaAssetsPerPage') || config.perPage || '24',
         tagSearch: '',
         allTagsData: config.allTagsData || [],
+        folderCount: config.folderCount || 1,
 
         init() {
             // If user has a stored preference and URL doesn't have per_page, apply it
