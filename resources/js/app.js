@@ -19,6 +19,47 @@ import './alpine/dashboard';
 
 window.Alpine = Alpine;
 
+// Register bulk selection store
+Alpine.store('bulkSelection', {
+    selected: [],
+    toggle(id) {
+        const idx = this.selected.indexOf(id);
+        if (idx === -1) {
+            this.selected.push(id);
+        } else {
+            this.selected.splice(idx, 1);
+        }
+    },
+    isSelected(id) {
+        return this.selected.includes(id);
+    },
+    clear() {
+        this.selected = [];
+    },
+    selectAll(ids) {
+        ids.forEach(id => {
+            if (!this.selected.includes(id)) {
+                this.selected.push(id);
+            }
+        });
+    },
+    get hasSelection() {
+        return this.selected.length > 0;
+    },
+    get allOnPageSelected() {
+        const pageIds = window.currentPageAssetIds || [];
+        return pageIds.length > 0 && pageIds.every(id => this.selected.includes(id));
+    },
+    toggleSelectAll() {
+        const pageIds = window.currentPageAssetIds || [];
+        if (this.allOnPageSelected) {
+            this.selected = this.selected.filter(id => !pageIds.includes(id));
+        } else {
+            this.selectAll(pageIds);
+        }
+    }
+});
+
 // Defer Alpine start until DOM is fully loaded
 document.addEventListener('DOMContentLoaded', () => {
     Alpine.start();

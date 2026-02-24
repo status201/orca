@@ -39,6 +39,11 @@ Route::middleware(['auth'])->group(function () {
     Route::patch('/profile/preferences', [ProfileController::class, 'updatePreferences'])->name('profile.preferences.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
+    // Bulk asset tag management (must be before resource route)
+    Route::post('assets/bulk/tags', [AssetController::class, 'bulkAddTags'])->name('assets.bulk.tags.add');
+    Route::post('assets/bulk/tags/remove', [AssetController::class, 'bulkRemoveTags'])->name('assets.bulk.tags.remove');
+    Route::post('assets/bulk/tags/list', [AssetController::class, 'bulkGetTags'])->name('assets.bulk.tags.list');
+
     // Asset routes
     Route::resource('assets', AssetController::class);
 

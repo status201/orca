@@ -251,3 +251,130 @@ test('can remove tag from asset', function () {
     $asset->refresh();
     expect($asset->tags)->toHaveCount(0);
 });
+
+// Bulk tag management tests
+
+test('can bulk add tags to multiple assets', function () {
+    $user = User::factory()->create();
+    $assets = Asset::factory()->count(3)->create();
+
+    $response = $this->actingAs($user)
+        ->postJson(route('assets.bulk.tags.add'), [
+            'asset_ids' => $assets->pluck('id')->toArray(),
+            'tags' => ['bulk-tag-1', 'bulk-tag-2'],
+        ]);
+
+    $response->assertOk();
+    $response->assertJsonFragment(['message' => '3 asset(s) updated']);
+
+    foreach ($assets as $asset) {
+        $asset->refresh();
+        expect($asset->tags)->toHaveCount(2);
+        expect($asset->tags->pluck('name')->toArray())->toContain('bulk-tag-1', 'bulk-tag-2');
+    }
+});
+
+test('bulk add tags does not duplicate existing tags', function () {
+    $user = User::factory()->create();
+    $asset = Asset::factory()->create();
+    $existingTag = Tag::factory()->create(['name' => 'existing']);
+    $asset->tags()->attach($existingTag);
+
+    $response = $this->actingAs($user)
+        ->postJson(route('assets.bulk.tags.add'), [
+            'asset_ids' => [$asset->id],
+            'tags' => ['existing', 'new-tag'],
+        ]);
+
+    $response->assertOk();
+    $asset->refresh();
+    expect($asset->tags)->toHaveCount(2);
+});
+
+test('can bulk remove tags from multiple assets', function () {
+    $user = User::factory()->create();
+    $assets = Asset::factory()->count(3)->create();
+    $tag = Tag::factory()->create(['name' => 'remove-me']);
+
+    foreach ($assets as $asset) {
+        $asset->tags()->attach($tag);
+    }
+
+    $response = $this->actingAs($user)
+        ->postJson(route('assets.bulk.tags.remove'), [
+            'asset_ids' => $assets->pluck('id')->toArray(),
+            'tag_ids' => [$tag->id],
+        ]);
+
+    $response->assertOk();
+
+    foreach ($assets as $asset) {
+        $asset->refresh();
+        expect($asset->tags)->toHaveCount(0);
+    }
+});
+
+test('bulk get tags returns correct counts', function () {
+    $user = User::factory()->create();
+    $assets = Asset::factory()->count(3)->create();
+    $tagA = Tag::factory()->create(['name' => 'common']);
+    $tagB = Tag::factory()->create(['name' => 'rare']);
+
+    // Attach tagA to all 3 assets, tagB to only 1
+    foreach ($assets as $asset) {
+        $asset->tags()->attach($tagA);
+    }
+    $assets->first()->tags()->attach($tagB);
+
+    $response = $this->actingAs($user)
+        ->postJson(route('assets.bulk.tags.list'), [
+            'asset_ids' => $assets->pluck('id')->toArray(),
+        ]);
+
+    $response->assertOk();
+    $response->assertJsonFragment(['total_assets' => 3]);
+
+    $tags = $response->json('tags');
+    $commonTag = collect($tags)->firstWhere('name', 'common');
+    $rareTag = collect($tags)->firstWhere('name', 'rare');
+
+    expect($commonTag['count'])->toBe(3);
+    expect($rareTag['count'])->toBe(1);
+});
+
+test('bulk add tags validates required fields', function () {
+    $user = User::factory()->create();
+
+    $response = $this->actingAs($user)
+        ->postJson(route('assets.bulk.tags.add'), []);
+
+    $response->assertStatus(422);
+    $response->assertJsonValidationErrors(['asset_ids', 'tags']);
+});
+
+test('bulk remove tags validates required fields', function () {
+    $user = User::factory()->create();
+
+    $response = $this->actingAs($user)
+        ->postJson(route('assets.bulk.tags.remove'), []);
+
+    $response->assertStatus(422);
+    $response->assertJsonValidationErrors(['asset_ids', 'tag_ids']);
+});
+
+test('bulk tag operations require authentication', function () {
+    $response = $this->postJson(route('assets.bulk.tags.add'), [
+        'asset_ids' => [1],
+        'tags' => ['test'],
+    ]);
+
+    $response->assertUnauthorized();
+});
+
+test('bulk get tags requires authentication', function () {
+    $response = $this->postJson(route('assets.bulk.tags.list'), [
+        'asset_ids' => [1],
+    ]);
+
+    $response->assertUnauthorized();
+});

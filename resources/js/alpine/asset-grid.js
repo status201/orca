@@ -18,6 +18,15 @@ export function assetGrid() {
         allTagsData: config.allTagsData || [],
         folderCount: config.folderCount || 1,
 
+        // Bulk tag management state
+        bulkTagInput: '',
+        bulkShowSuggestions: false,
+        bulkFilteredSuggestions: [],
+        bulkSelectedSuggestionIndex: -1,
+        bulkRemoveTags: [],
+        bulkShowRemovePanel: false,
+        bulkLoading: false,
+
         init() {},
 
         saveViewMode() {
@@ -89,6 +98,144 @@ export function assetGrid() {
                 return true;
             }
             return tag.name.toLowerCase().includes(this.tagSearch.toLowerCase());
+        },
+
+        // Bulk tag management methods
+        getCsrfToken() {
+            return document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        },
+
+        bulkFilterTagSuggestions() {
+            const input = this.bulkTagInput.toLowerCase().trim();
+            if (input === '') {
+                this.bulkFilteredSuggestions = (window.allTags || []).slice(0, 10);
+            } else {
+                this.bulkFilteredSuggestions = (window.allTags || [])
+                    .filter(tag => tag.toLowerCase().includes(input))
+                    .slice(0, 10);
+            }
+            this.bulkShowSuggestions = true;
+            this.bulkSelectedSuggestionIndex = -1;
+        },
+
+        bulkSelectSuggestion(suggestion) {
+            this.bulkTagInput = suggestion;
+            this.bulkShowSuggestions = false;
+            this.bulkSelectedSuggestionIndex = -1;
+            this.bulkAddTag();
+        },
+
+        bulkSelectNextSuggestion() {
+            if (this.bulkFilteredSuggestions.length === 0) return;
+            this.bulkSelectedSuggestionIndex =
+                (this.bulkSelectedSuggestionIndex + 1) % this.bulkFilteredSuggestions.length;
+            this.bulkTagInput = this.bulkFilteredSuggestions[this.bulkSelectedSuggestionIndex];
+        },
+
+        bulkSelectPrevSuggestion() {
+            if (this.bulkFilteredSuggestions.length === 0) return;
+            this.bulkSelectedSuggestionIndex =
+                this.bulkSelectedSuggestionIndex <= 0
+                    ? this.bulkFilteredSuggestions.length - 1
+                    : this.bulkSelectedSuggestionIndex - 1;
+            this.bulkTagInput = this.bulkFilteredSuggestions[this.bulkSelectedSuggestionIndex];
+        },
+
+        async bulkAddTag() {
+            const tagName = this.bulkTagInput.trim();
+            if (this.bulkLoading || !tagName) return;
+
+            this.bulkLoading = true;
+            try {
+                const response = await fetch('/assets/bulk/tags', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': this.getCsrfToken(),
+                        'Accept': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        asset_ids: Alpine.store('bulkSelection').selected,
+                        tags: [tagName],
+                    }),
+                });
+
+                if (!response.ok) throw new Error('Failed to add tags');
+
+                const data = await response.json();
+                window.showToast(data.message, 'success');
+                this.bulkTagInput = '';
+                this.bulkShowSuggestions = false;
+
+                setTimeout(() => window.location.reload(), 800);
+            } catch (error) {
+                console.error('Bulk add tag failed:', error);
+                window.showToast(window.assetTranslations?.tagAddFailed || 'Failed to add tag', 'error');
+            } finally {
+                this.bulkLoading = false;
+            }
+        },
+
+        async bulkLoadRemoveTags() {
+            if (this.bulkLoading) return;
+
+            this.bulkLoading = true;
+            try {
+                const response = await fetch('/assets/bulk/tags/list', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': this.getCsrfToken(),
+                        'Accept': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        asset_ids: Alpine.store('bulkSelection').selected,
+                    }),
+                });
+
+                if (!response.ok) throw new Error('Failed to load tags');
+
+                const data = await response.json();
+                this.bulkRemoveTags = data.tags;
+                this.bulkShowRemovePanel = true;
+            } catch (error) {
+                console.error('Bulk load tags failed:', error);
+                window.showToast('Failed to load tags', 'error');
+            } finally {
+                this.bulkLoading = false;
+            }
+        },
+
+        async bulkRemoveTag(tagId) {
+            if (this.bulkLoading) return;
+
+            this.bulkLoading = true;
+            try {
+                const response = await fetch('/assets/bulk/tags/remove', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': this.getCsrfToken(),
+                        'Accept': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        asset_ids: Alpine.store('bulkSelection').selected,
+                        tag_ids: [tagId],
+                    }),
+                });
+
+                if (!response.ok) throw new Error('Failed to remove tag');
+
+                const data = await response.json();
+                window.showToast(data.message, 'success');
+
+                setTimeout(() => window.location.reload(), 800);
+            } catch (error) {
+                console.error('Bulk remove tag failed:', error);
+                window.showToast(window.assetTranslations?.tagRemoveFailed || 'Failed to remove tag', 'error');
+            } finally {
+                this.bulkLoading = false;
+            }
         }
     };
 }

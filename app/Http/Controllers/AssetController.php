@@ -512,6 +512,91 @@ class AssetController extends Controller
     }
 
     /**
+     * Add tags to multiple assets at once
+     */
+    public function bulkAddTags(Request $request)
+    {
+        $request->validate([
+            'asset_ids' => 'required|array|max:500',
+            'asset_ids.*' => 'integer|exists:assets,id',
+            'tags' => 'required|array',
+            'tags.*' => 'string|max:50',
+        ]);
+
+        $tagIds = Tag::resolveUserTagIds($request->tags);
+        $assets = Asset::whereIn('id', $request->asset_ids)->get();
+
+        foreach ($assets as $asset) {
+            $this->authorize('update', $asset);
+            $asset->tags()->syncWithoutDetaching($tagIds);
+            $asset->update(['last_modified_by' => Auth::id()]);
+        }
+
+        return response()->json([
+            'message' => __(':count asset(s) updated', ['count' => $assets->count()]),
+        ]);
+    }
+
+    /**
+     * Remove tags from multiple assets at once
+     */
+    public function bulkRemoveTags(Request $request)
+    {
+        $request->validate([
+            'asset_ids' => 'required|array|max:500',
+            'asset_ids.*' => 'integer|exists:assets,id',
+            'tag_ids' => 'required|array',
+            'tag_ids.*' => 'integer|exists:tags,id',
+        ]);
+
+        $assets = Asset::whereIn('id', $request->asset_ids)->get();
+
+        foreach ($assets as $asset) {
+            $this->authorize('update', $asset);
+            $asset->tags()->detach($request->tag_ids);
+            $asset->update(['last_modified_by' => Auth::id()]);
+        }
+
+        return response()->json([
+            'message' => __(':count asset(s) updated', ['count' => $assets->count()]),
+        ]);
+    }
+
+    /**
+     * Get all tags across multiple assets with per-tag count
+     */
+    public function bulkGetTags(Request $request)
+    {
+        $request->validate([
+            'asset_ids' => 'required|array|max:500',
+            'asset_ids.*' => 'integer|exists:assets,id',
+        ]);
+
+        $assets = Asset::with('tags')->whereIn('id', $request->asset_ids)->get();
+
+        // Count how many of the selected assets have each tag
+        $tagCounts = [];
+        foreach ($assets as $asset) {
+            foreach ($asset->tags as $tag) {
+                if (! isset($tagCounts[$tag->id])) {
+                    $tagCounts[$tag->id] = [
+                        'id' => $tag->id,
+                        'name' => $tag->name,
+                        'type' => $tag->type,
+                        'count' => 0,
+                    ];
+                }
+                $tagCounts[$tag->id]['count']++;
+            }
+        }
+
+        return response()->json([
+            'tags' => array_values($tagCounts),
+            'total_assets' => $assets->count(),
+        ]);
+    }
+
+    /**
      * Add tags to an asset
      */
     public function addTags(Request $request, Asset $asset)

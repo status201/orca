@@ -205,6 +205,16 @@
 
     <!-- View Toggle -->
     <div class="mb-4 flex justify-end gap-2">
+        <!-- Select All (grid mode) -->
+        <button x-show="viewMode === 'grid'"
+                @click="$store.bulkSelection.toggleSelectAll()"
+                :class="$store.bulkSelection.allOnPageSelected ? 'bg-orca-black text-white' : 'bg-white text-gray-700 hover:bg-gray-50'"
+                class="px-3 py-2 text-xs font-medium border border-gray-300 rounded-lg transition-colors"
+                :title="$store.bulkSelection.allOnPageSelected ? @js(__('Deselect all')) : @js(__('Select all'))">
+            <i class="fas fa-check-double mr-1"></i>
+            <span x-text="$store.bulkSelection.allOnPageSelected ? @js(__('Deselect all')) : @js(__('Select all'))"></span>
+        </button>
+
         <!-- Fit Mode Toggle -->
         <div class="inline-flex rounded-md shadow-sm" role="group">
             <button @click="fitMode = 'cover'; saveFitMode()"
@@ -255,7 +265,17 @@
         @foreach($assets as $asset)
         <div class="group relative bg-white rounded-lg shadow hover:shadow-lg transition-shadow overflow-hidden cursor-pointer"
              x-data="assetCard({{ $asset->id }})"
-             @click="window.location.href = '{{ route('assets.show', $asset) }}'">
+             @click="if ($store.bulkSelection.hasSelection) { $store.bulkSelection.toggle({{ $asset->id }}); } else { window.location.href = '{{ route('assets.show', $asset) }}'; }">
+            <!-- Selection checkbox -->
+            <div class="absolute top-2 left-2 z-20"
+                 :class="$store.bulkSelection.hasSelection || $store.bulkSelection.isSelected({{ $asset->id }}) ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'"
+                 @click.stop="$store.bulkSelection.toggle({{ $asset->id }})">
+                <div :class="$store.bulkSelection.isSelected({{ $asset->id }}) ? 'bg-orca-black border-orca-black' : 'bg-white/80 border-gray-400'"
+                     class="w-6 h-6 rounded border-2 flex items-center justify-center cursor-pointer hover:border-orca-black transition-colors">
+                    <i x-show="$store.bulkSelection.isSelected({{ $asset->id }})" class="fas fa-check text-white text-xs"></i>
+                </div>
+            </div>
+
             <!-- Thumbnail -->
             <div class="aspect-square bg-gray-100 relative">
                 @if($asset->is_missing)
@@ -364,6 +384,13 @@
             <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
                     <tr>
+                        <th class="px-4 py-3 text-center w-10">
+                            <div @click="$store.bulkSelection.toggleSelectAll()"
+                                 :class="$store.bulkSelection.allOnPageSelected ? 'bg-orca-black border-orca-black' : 'bg-white border-gray-400'"
+                                 class="w-5 h-5 rounded border-2 flex items-center justify-center cursor-pointer hover:border-orca-black transition-colors mx-auto">
+                                <i x-show="$store.bulkSelection.allOnPageSelected" class="fas fa-check text-white text-xs"></i>
+                            </div>
+                        </th>
                         <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-20">
                             {{ __('Thumbnail') }}
                         </th>
@@ -391,6 +418,15 @@
                     @foreach($assets as $asset)
                     <tr x-data="assetRow({{ $asset->id }}, @js($asset->tags->map(fn($t) => ['id' => $t->id, 'name' => $t->name, 'type' => $t->type])->toArray()), '{{ $asset->license_type }}', '{{ $asset->url }}')"
                         class="hover:bg-gray-50 transition-colors">
+
+                        <!-- Selection checkbox -->
+                        <td class="px-4 py-3 text-center">
+                            <div @click="$store.bulkSelection.toggle({{ $asset->id }})"
+                                 :class="$store.bulkSelection.isSelected({{ $asset->id }}) ? 'bg-orca-black border-orca-black' : 'bg-white border-gray-400'"
+                                 class="w-5 h-5 rounded border-2 flex items-center justify-center cursor-pointer hover:border-orca-black transition-colors mx-auto">
+                                <i x-show="$store.bulkSelection.isSelected({{ $asset->id }})" class="fas fa-check text-white text-xs"></i>
+                            </div>
+                        </td>
 
                         <!-- Thumbnail -->
                         <td class="px-4 py-3">
@@ -613,6 +649,110 @@
         </div>
     </div>
 
+    <!-- Floating Bulk Action Bar -->
+    <div x-show="$store.bulkSelection.hasSelection"
+         x-cloak
+         x-transition:enter="transition ease-out duration-200"
+         x-transition:enter-start="translate-y-full opacity-0"
+         x-transition:enter-end="translate-y-0 opacity-100"
+         x-transition:leave="transition ease-in duration-150"
+         x-transition:leave-start="translate-y-0 opacity-100"
+         x-transition:leave-end="translate-y-full opacity-0"
+         class="fixed bottom-0 left-0 right-0 z-40 bg-gray-900 text-white shadow-2xl border-t border-gray-700">
+        <div class="max-w-7xl mx-auto px-4 py-3">
+            <div class="flex flex-wrap items-center gap-3">
+                <!-- Selected count -->
+                <span class="text-sm font-medium whitespace-nowrap">
+                    <i class="fas fa-check-circle mr-1"></i>
+                    <span x-text="$store.bulkSelection.selected.length"></span> {{ __('selected') }}
+                </span>
+
+                <div class="w-px h-6 bg-gray-600 hidden sm:block"></div>
+
+                <!-- Add tag input with autocomplete -->
+                <div class="relative flex items-center gap-2">
+                    <div class="relative">
+                        <input type="text"
+                               x-model="bulkTagInput"
+                               @input="bulkFilterTagSuggestions()"
+                               @keydown.enter="if(bulkTagInput.trim()) { bulkAddTag(); }"
+                               @keydown.escape="bulkShowSuggestions = false"
+                               @keydown.arrow-down.prevent="bulkSelectNextSuggestion()"
+                               @keydown.arrow-up.prevent="bulkSelectPrevSuggestion()"
+                               @blur="setTimeout(() => bulkShowSuggestions = false, 200)"
+                               @focus="bulkFilterTagSuggestions()"
+                               :disabled="bulkLoading"
+                               placeholder="{{ __('Add tag') }}..."
+                               class="px-3 py-1.5 text-sm text-gray-900 border border-gray-300 rounded-lg focus:ring-2 focus:ring-white focus:border-transparent w-40 disabled:opacity-50">
+
+                        <!-- Autocomplete dropdown (opens upward) -->
+                        <div x-show="bulkShowSuggestions && bulkFilteredSuggestions.length > 0"
+                             x-cloak
+                             class="absolute bottom-full mb-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-40 overflow-y-auto">
+                            <template x-for="(suggestion, index) in bulkFilteredSuggestions" :key="suggestion">
+                                <button type="button"
+                                        @mousedown.prevent="bulkSelectSuggestion(suggestion)"
+                                        :class="bulkSelectedSuggestionIndex === index ? 'bg-blue-100' : 'hover:bg-gray-100'"
+                                        class="w-full text-left px-3 py-1.5 text-xs text-gray-700 border-b border-gray-100 last:border-b-0"
+                                        x-text="suggestion">
+                                </button>
+                            </template>
+                        </div>
+                    </div>
+                    <button @click="bulkAddTag()"
+                            :disabled="!bulkTagInput.trim() || bulkLoading"
+                            class="px-3 py-1.5 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 disabled:opacity-50 whitespace-nowrap">
+                        <i class="fas fa-plus mr-1"></i> {{ __('Add tag') }}
+                    </button>
+                </div>
+
+                <div class="w-px h-6 bg-gray-600 hidden sm:block"></div>
+
+                <!-- Remove tags button -->
+                <div class="relative">
+                    <button @click="bulkShowRemovePanel ? (bulkShowRemovePanel = false) : bulkLoadRemoveTags()"
+                            :disabled="bulkLoading"
+                            class="attention px-3 py-1.5 bg-red-600 text-white text-sm rounded-lg hover:bg-red-700 disabled:opacity-50 whitespace-nowrap">
+                        <i class="fas fa-tags mr-1"></i> {{ __('Remove tags') }}
+                        <i :class="bulkLoading ? 'fas fa-spinner fa-spin ml-1' : ''"></i>
+                    </button>
+
+                    <!-- Remove tags panel (opens upward) -->
+                    <div x-show="bulkShowRemovePanel"
+                         x-cloak
+                         @click.away="bulkShowRemovePanel = false"
+                         class="absolute bottom-full mb-2 left-0 w-72 bg-white border border-gray-300 rounded-lg shadow-xl p-3 invert-scrollbar-colors">
+                        <p class="text-xs text-gray-500 mb-2">{{ __('Click a tag to remove it from all selected assets') }}</p>
+                        <div class="flex flex-wrap gap-1.5 max-h-48 overflow-y-auto">
+                            <template x-if="bulkRemoveTags.length === 0">
+                                <p class="text-xs text-gray-400">{{ __('No tags found on selected assets') }}</p>
+                            </template>
+                            <template x-for="tag in bulkRemoveTags" :key="tag.id">
+                                <button @click="bulkRemoveTag(tag.id)"
+                                        :disabled="bulkLoading"
+                                        :class="tag.type === 'ai' ? 'bg-purple-100 text-purple-700 hover:bg-purple-200' : 'bg-blue-100 text-blue-700 hover:bg-blue-200'"
+                                        class="inline-flex items-center px-2 py-1 rounded text-xs font-medium disabled:opacity-50 transition-colors">
+                                    <span x-text="tag.name"></span>
+                                    <span class="ml-1 text-[0.65rem] opacity-70" x-text="'(' + tag.count + ')'"></span>
+                                    <i class="fas fa-times ml-1.5 text-xs"></i>
+                                </button>
+                            </template>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Spacer -->
+                <div class="flex-1"></div>
+
+                <!-- Clear selection -->
+                <button @click="$store.bulkSelection.clear(); bulkShowRemovePanel = false"
+                        class="px-3 py-1.5 bg-gray-700 text-white text-sm rounded-lg hover:bg-gray-600 whitespace-nowrap">
+                    <i class="fas fa-times mr-1"></i> {{ __('Clear selection') }}
+                </button>
+            </div>
+        </div>
+    </div>
+
     @else
     <div class="text-center py-12">
         <i class="fas fa-images text-6xl text-gray-300 mb-4"></i>
@@ -640,6 +780,7 @@
 <script>
 // Page data for Alpine.js components
 window.allTags = @json($tags->pluck('name')->toArray());
+window.currentPageAssetIds = @json($assets->pluck('id')->toArray());
 
 window.assetGridConfig = {
     search: @json(request('search', '')),
