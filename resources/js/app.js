@@ -22,6 +22,7 @@ window.Alpine = Alpine;
 // Register bulk selection store
 Alpine.store('bulkSelection', {
     selected: [],
+    lastClickedIndex: null,
     toggle(id) {
         const idx = this.selected.indexOf(id);
         if (idx === -1) {
@@ -30,11 +31,34 @@ Alpine.store('bulkSelection', {
             this.selected.splice(idx, 1);
         }
     },
+    shiftToggle(id, event) {
+        this.toggle(id);
+        const pageIds = window.currentPageAssetIds || [];
+        const currentIndex = pageIds.indexOf(id);
+
+        if (event.shiftKey && this.lastClickedIndex !== null && currentIndex !== this.lastClickedIndex) {
+            const isNowSelected = this.isSelected(id);
+            const start = Math.min(this.lastClickedIndex, currentIndex);
+            const end = Math.max(this.lastClickedIndex, currentIndex);
+            for (let i = start; i <= end; i++) {
+                const itemId = pageIds[i];
+                if (itemId === id) continue;
+                const alreadySelected = this.isSelected(itemId);
+                if (isNowSelected && !alreadySelected) {
+                    this.selected.push(itemId);
+                } else if (!isNowSelected && alreadySelected) {
+                    this.selected.splice(this.selected.indexOf(itemId), 1);
+                }
+            }
+        }
+        this.lastClickedIndex = currentIndex;
+    },
     isSelected(id) {
         return this.selected.includes(id);
     },
     clear() {
         this.selected = [];
+        this.lastClickedIndex = null;
     },
     selectAll(ids) {
         ids.forEach(id => {

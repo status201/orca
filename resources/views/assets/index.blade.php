@@ -421,7 +421,7 @@
 
                         <!-- Selection checkbox -->
                         <td class="px-4 py-3 text-center">
-                            <div @click="$store.bulkSelection.toggle({{ $asset->id }})"
+                            <div @click="$store.bulkSelection.shiftToggle({{ $asset->id }}, $event)"
                                  :class="$store.bulkSelection.isSelected({{ $asset->id }}) ? 'bg-orca-black border-orca-black' : 'bg-white border-gray-400'"
                                  class="w-5 h-5 rounded border-2 flex items-center justify-center cursor-pointer hover:border-orca-black transition-colors mx-auto">
                                 <i x-show="$store.bulkSelection.isSelected({{ $asset->id }})" class="fas fa-check text-white text-xs"></i>
@@ -731,7 +731,7 @@
                                 <button @click="bulkRemoveTag(tag.id)"
                                         :disabled="bulkLoading"
                                         :class="tag.type === 'ai' ? 'bg-purple-100 text-purple-700 hover:bg-purple-200' : 'bg-blue-100 text-blue-700 hover:bg-blue-200'"
-                                        class="inline-flex items-center px-2 py-1 rounded text-xs font-medium disabled:opacity-50 transition-colors">
+                                        class="attention inline-flex items-center px-2 py-1 rounded text-xs font-medium disabled:opacity-50 transition-colors">
                                     <span x-text="tag.name"></span>
                                     <span class="ml-1 text-[0.65rem] opacity-70" x-text="'(' + tag.count + ')'"></span>
                                     <i class="fas fa-times ml-1.5 text-xs"></i>
