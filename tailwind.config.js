@@ -23,8 +23,10 @@ export default {
                     'black-hover': '#2d2d2d',
                     gray: '#4a4a4a',
                     'gray-light': '#6b7280',
-                    teal: '#14b8a6',
-                    'teal-hover': '#0d9488',
+                    //teal: '#14b8a6',
+                    teal: '#66b2b2',
+                    //'teal-hover': '#0d9488',
+                    'teal-hover': '#006666',
                 },
             },
             screens: {
