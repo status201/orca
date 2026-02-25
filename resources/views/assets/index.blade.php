@@ -354,8 +354,8 @@
                 </p>
                 <div class="text-xs text-gray-500 mt-1 space-y-0.5">
                     <p><i class="fas fa-hdd mr-1"></i>{{ $asset->formatted_size }}</p>
-                    <p title="{{ $asset->updated_at }}"><i class="fas fa-clock mr-1"></i>{{ $asset->updated_at->diffForHumans() }}</p>
-                    <p class="truncate" title="{{ $asset->user->name }}"><i class="fas fa-user mr-1"></i>{{ $asset->user->name }}</p>
+                    <p title="{{ __('Last modified') }} {{ $asset->updated_at }}"><i class="fas fa-clock mr-1"></i>{{ $asset->updated_at->diffForHumans() }}</p>
+                    <p class="truncate" title="{{ __('Uploaded by') }} {{ $asset->user->name  }}"><i class="fas fa-user mr-1"></i>{{ $asset->user->name }}</p>
                 </div>
 
                 @if($asset->tags->count() > 0)
