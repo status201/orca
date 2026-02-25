@@ -99,7 +99,10 @@ After upload, your file is stored in S3, a thumbnail is generated (for images), 
 
 View assets in **Grid View** (visual thumbnails) or **List View** (detailed table) — toggle with the buttons in the top right.
 
-**Search:** Type any part of a filename, tag, folder, S3 key, alt text, or caption.
+**Search:** Type any part of a filename, tag, folder, S3 key, alt text, or caption. Use search operators for precision:
+- `+term` — **require** this term (must appear in results)
+- `-term` — **exclude** this term (must not appear in results)
+- Example: `landscape +mountain -snow` finds "landscape" assets that must include "mountain" but not "snow"
 
 **Filters:** File type (images/videos/documents), folder, tags (multi-select).
 
@@ -110,6 +113,10 @@ View assets in **Grid View** (visual thumbnails) or **List View** (detailed tabl
 Hover over any asset to see: **👁 View**, **📋 Copy URL**, **✏️ Edit**, **⇄ Replace**, **🗑 Delete**.
 
 In List View, you can edit tags and license info directly inline.
+
+### Selecting Multiple Assets
+
+Click checkboxes to select individual assets. Hold **Shift** and click to select a range. Once selected, a toolbar appears with bulk actions including **bulk tag management** (add or remove tags from all selected assets at once).
 
 ---
 
@@ -127,6 +134,8 @@ Tags are labels that help you organize and find assets. They come in two types:
 **Adding tags:** On the Edit page, type a tag name and press Enter. In List View, click the **+** button in the Tags column.
 
 **Removing tags:** Click the **×** next to any tag. This only removes the connection — the tag itself still exists.
+
+**Bulk tagging:** Select multiple assets (use Shift+click for ranges), then use the bulk tag toolbar to add or remove tags across all selected assets at once.
 
 > **Tags showing "0 assets" might not be empty!** They could still be attached to trashed assets. When restoring from Trash, tags still attached are preserved, but tags you removed before restoring are gone forever.
 

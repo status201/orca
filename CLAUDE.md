@@ -89,7 +89,7 @@ Middleware `SetLocale`: User preference -> Global setting (`settings.locale`) ->
 
 ### Models
 
-**Asset** (`app/Models/Asset.php`): Belongs to User, many-to-many Tags. Soft deletes. Computed: `url`, `thumbnail_url`, `formatted_size`, `folder`, `is_missing`. `filename` is editable display name; `s3_key` is immutable. Scopes: search, filterByTags, type, user, `inFolder`, `missing`. License fields: `license_type`, `license_expiry_date`, `copyright`, `copyright_source`.
+**Asset** (`app/Models/Asset.php`): Belongs to User, many-to-many Tags. Soft deletes. Computed: `url`, `thumbnail_url`, `formatted_size`, `folder`, `is_missing`. `filename` is editable display name; `s3_key` is immutable. Scopes: search, filterByTags, type, user, `inFolder`, `missing`. Search supports operators: `+term` (required), `-term` (excluded). License fields: `license_type`, `license_expiry_date`, `copyright`, `copyright_source`.
 
 **Tag** (`app/Models/Tag.php`): Type `user` or `ai`, many-to-many Assets.
 
@@ -117,6 +117,9 @@ Middleware `SetLocale`: User preference -> Global setting (`settings.locale`) ->
 
 ### Web Routes (`routes/web.php`, session auth)
 - `POST/DELETE /assets/{asset}/tags[/{tag}]` - Manage tags
+- `POST /assets/bulk/tags` - Bulk add tags to multiple assets
+- `POST /assets/bulk/tags/remove` - Bulk remove tags from multiple assets
+- `POST /assets/bulk/tags/list` - Get tags for selected assets
 - `PATCH/DELETE /assets/{asset}` - Update/delete asset
 - `POST /assets/{asset}/ai-tag` - Trigger AI tagging
 - `GET /api/folders` | `POST /folders/scan` (admin) | `POST /folders` (admin)

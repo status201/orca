@@ -99,7 +99,10 @@ Na het uploaden wordt je bestand opgeslagen in S3, een thumbnail gegenereerd (vo
 
 Bekijk assets in **Rasterweergave** (visuele thumbnails) of **Lijstweergave** (gedetailleerde tabel) — schakel met de knoppen rechtsboven.
 
-**Zoeken:** Typ een deel van een bestandsnaam, tag, map, S3 key, alt-tekst of bijschrift.
+**Zoeken:** Typ een deel van een bestandsnaam, tag, map, S3 key, alt-tekst of bijschrift. Gebruik zoekoperatoren voor precisie:
+- `+term` — **verplicht** deze term (moet voorkomen in resultaten)
+- `-term` — **sluit uit** deze term (mag niet voorkomen in resultaten)
+- Voorbeeld: `landschap +berg -sneeuw` vindt "landschap"-assets die "berg" moeten bevatten maar niet "sneeuw"
 
 **Filters:** Bestandstype (afbeeldingen/video's/documenten), map, tags (meervoudige selectie).
 
@@ -110,6 +113,10 @@ Bekijk assets in **Rasterweergave** (visuele thumbnails) of **Lijstweergave** (g
 Beweeg over een asset om te zien: **👁 Bekijken**, **📋 URL kopiëren**, **✏️ Bewerken**, **⇄ Vervangen**, **🗑 Verwijderen**.
 
 In Lijstweergave kun je tags en licentie-info direct inline bewerken.
+
+### Meerdere assets selecteren
+
+Klik op checkboxes om individuele assets te selecteren. Houd **Shift** ingedrukt en klik om een reeks te selecteren. Eenmaal geselecteerd verschijnt een werkbalk met bulkacties, waaronder **bulksgewijs tags beheren** (tags toevoegen aan of verwijderen van alle geselecteerde assets tegelijk).
 
 ---
 
@@ -127,6 +134,8 @@ Tags zijn labels waarmee je assets organiseert en vindt. Er zijn twee typen:
 **Tags toevoegen:** Op de Bewerk-pagina typ je een tagnaam en druk je op Enter. In Lijstweergave klik je op de **+** knop in de Tags-kolom.
 
 **Tags verwijderen:** Klik op de **×** naast een tag. Dit verwijdert alleen de koppeling — de tag zelf blijft bestaan.
+
+**Bulksgewijs taggen:** Selecteer meerdere assets (gebruik Shift+klik voor reeksen) en gebruik de bulktag-werkbalk om tags toe te voegen aan of te verwijderen van alle geselecteerde assets tegelijk.
 
 > **Tags met "0 assets" zijn misschien niet echt leeg!** Ze kunnen nog gekoppeld zijn aan assets in de Prullenbak. Bij herstellen uit de Prullenbak blijven nog gekoppelde tags behouden, maar tags die je vóór het herstellen hebt verwijderd zijn voorgoed verdwenen.
 

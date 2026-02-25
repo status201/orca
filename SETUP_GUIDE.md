@@ -247,7 +247,8 @@ Create an IAM user (e.g., `orca-dam-user`) with the following minimum permission
 - ✅ Automatic thumbnail generation
 - ✅ Image dimension detection
 - ✅ File size tracking
-- ✅ Grid view with pagination
+- ✅ Grid view and list view with pagination
+- ✅ Multi-select with Shift+click range selection
 - ✅ Quick URL copying
 - ✅ License type and copyright fields
 - ✅ Alt text and captions for accessibility
@@ -262,9 +263,10 @@ Create an IAM user (e.g., `orca-dam-user`) with the following minimum permission
 - ✅ Tag browsing page
 - ✅ Remove AI tags from assets
 - ✅ Delete both user and AI tags
+- ✅ Bulk add/remove tags on multiple selected assets
 
 ### 3. Search & Filter
-- ✅ Full-text search
+- ✅ Full-text search with operators (`+require`, `-exclude`)
 - ✅ Filter by tags
 - ✅ Filter by file type
 - ✅ Filter by uploader (admin)
