@@ -150,7 +150,7 @@
                                 <div class="flex items-center gap-1.5">
                                     <span :class="tag.type === 'ai' ? 'bg-purple-100 text-purple-700' : (tag.type === 'reference' ? 'bg-orange-100 text-orange-700' : 'bg-blue-100 text-blue-700')"
                                           class="tag attention text-xs px-2 py-0.5 rounded-full inline-block w-fit"
-                                          x-text="tag.type"></span>
+                                          x-text="tag.type === 'reference' ? 'ref' : tag.type"></span>
                                     <span class="text-xs text-gray-400" x-text="tag.assets_count"></span>
                                 </div>
                             </div>

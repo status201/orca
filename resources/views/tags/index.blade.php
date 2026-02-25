@@ -85,7 +85,7 @@
                 </a>
                 <div class="flex items-center gap-2 flex-shrink-0">
                     <span class="tag attention px-2 py-1 text-xs font-semibold rounded-full whitespace-nowrap {{ $tag->type === 'ai' ? 'bg-purple-100 text-purple-700' : ($tag->type === 'reference' ? 'bg-orange-100 text-orange-700' : 'bg-blue-100 text-blue-700') }}">
-                        {{ $tag->type }}
+                        {{ $tag->type === 'reference' ? 'ref' : $tag->type }}
                         @if($tag->type === 'ai')
                         <i class="fas fa-robot ml-1"></i>
                         @elseif($tag->type === 'reference')
