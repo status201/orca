@@ -278,7 +278,7 @@
                                placeholder=""
                                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orca-black focus:border-transparent">
                         <p class="text-xs text-gray-500 mt-1">{{ __('S3 prefix for root folder view & uploads. Leave empty for bucket root.') }}</p>
-                        <p class="text-xs text-amber-600 mt-1"><i class="fas fa-exclamation-triangle mr-1"></i>{{ __('Changing this does not move existing assets.') }}</p>
+                        <p class="text-xs text-amber-600 mt-1"><i class="fas fa-exclamation-triangle mr-1"></i>{{ __('Changing this does not move existing assets, but does change new thumb and resize paths!') }}</p>
                     </div>
 
                     <!-- Custom Domain -->
