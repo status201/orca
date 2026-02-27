@@ -337,6 +337,29 @@ html.dark-mode #orca-game-loader {
     filter: invert(1);
 }
 
+/* Bulk move loading animation */
+.animate-orca-swim {
+    animation: orca-swim 2s ease-in-out infinite;
+}
+
+@keyframes orca-swim {
+    0%   { transform: translateX(-8px) translateY(0) rotate(0deg); }
+    25%  { transform: translateX(8px) translateY(-6px) rotate(3deg); }
+    50%  { transform: translateX(-8px) translateY(0) rotate(0deg); }
+    75%  { transform: translateX(8px) translateY(6px) rotate(-3deg); }
+    100% { transform: translateX(-8px) translateY(0) rotate(0deg); }
+}
+
+.animate-orca-progress {
+    animation: orca-progress 2.5s ease-in-out infinite;
+}
+
+@keyframes orca-progress {
+    0%   { width: 5%; }
+    50%  { width: 85%; }
+    100% { width: 5%; }
+}
+
 /* Maintenance mode caution tape */
 nav.maintenance-mode {
     background-image: linear-gradient(

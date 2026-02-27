@@ -784,6 +784,39 @@
         </div>
     </div>
 
+    <!-- Bulk move loading modal -->
+    <div x-show="bulkMoving"
+         x-cloak
+         class="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+        <div class="bg-white rounded-lg shadow-xl max-w-sm w-full mx-4 p-8 text-center">
+            <!-- Animated orca logo -->
+            <div class="mb-6 flex justify-center">
+                <div class="relative w-24 h-24">
+                    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" class="w-24 h-24 animate-orca-swim">
+                        <ellipse cx="50" cy="55" rx="35" ry="25" fill="#1a1a1a"/>
+                        <path d="M 15 60 Q 5 50, 8 42 Q 16 48, 16 50 Z" fill="#1a1a1a"/>
+                        <path d="M 15 50 Q 5 60, 8 68 Q 16 62, 16 60 Z" fill="#1a1a1a"/>
+                        <path d="M 44 40 L 42 15 L 48 30 Z" fill="#1a1a1a"/>
+                        <ellipse cx="60" cy="58" rx="15" ry="10" fill="white"/>
+                        <ellipse cx="68" cy="48" rx="8" ry="10" fill="white" transform="rotate(-20 68 48)"/>
+                        <circle cx="68" cy="48" r="3" fill="#1a1a1a"/>
+                        <circle cx="69" cy="47" r="1" fill="white"/>
+                        <path d="M 72 55 Q 78 58, 82 55" stroke="#1a1a1a" stroke-width="2" fill="none" stroke-linecap="round"/>
+                        <ellipse cx="48" cy="70" rx="7" ry="15" fill="#1a1a1a" transform="rotate(30 48 70)"/>
+                    </svg>
+                </div>
+            </div>
+
+            <h3 class="text-lg font-semibold text-gray-900 mb-2">{{ __('Moving assets') }}...</h3>
+            <p class="text-sm text-gray-500 mb-5">{{ __('This may take a while depending on the number of selected assets.') }}</p>
+
+            <!-- Animated progress bar -->
+            <div class="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+                <div class="h-full bg-amber-500 rounded-full animate-orca-progress"></div>
+            </div>
+        </div>
+    </div>
+
     <!-- Bulk move summary modal -->
     <div x-show="bulkMoveShowSummary"
          x-cloak
