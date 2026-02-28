@@ -31,6 +31,9 @@ export function assetGrid() {
         bulkMoving: false,
         bulkMoveResults: null,
         bulkMoveShowSummary: false,
+        bulkDeleting: false,
+        bulkDeleteResults: null,
+        bulkDeleteShowSummary: false,
 
         init() {},
 
@@ -272,6 +275,68 @@ export function assetGrid() {
         bulkMoveDismissSummary() {
             this.bulkMoveShowSummary = false;
             this.bulkMoveResults = null;
+            window.location.reload();
+        },
+
+        async bulkForceDelete() {
+            const translations = window.assetTranslations || {};
+            if (!confirm(translations.forceDeleteConfirm || 'This will PERMANENTLY delete the selected assets, their thumbnails, and all resized formats from S3. External links will no longer work. This action cannot be undone. Are you sure?')) {
+                return;
+            }
+
+            this.bulkDeleting = true;
+            try {
+                const response = await fetch('/assets/bulk/force-delete', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': this.getCsrfToken(),
+                        'Accept': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        _method: 'DELETE',
+                        asset_ids: Alpine.store('bulkSelection').selected,
+                    }),
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({}));
+                    throw new Error(errorData.message || 'Failed to delete assets');
+                }
+
+                const data = await response.json();
+                window.showToast(data.message, 'success');
+
+                if (data.deleted_keys && data.deleted_keys.length > 0) {
+                    this.bulkDeleteResults = data;
+                    this.bulkDeleteShowSummary = true;
+                } else {
+                    setTimeout(() => window.location.reload(), 800);
+                }
+            } catch (error) {
+                console.error('Bulk force delete failed:', error);
+                window.showToast(translations.forceDeleteFailed || 'Failed to permanently delete assets', 'error');
+            } finally {
+                this.bulkDeleting = false;
+            }
+        },
+
+        get bulkDeleteSummaryText() {
+            if (!this.bulkDeleteResults || !this.bulkDeleteResults.deleted_keys) return '';
+            return this.bulkDeleteResults.deleted_keys.join('\n');
+        },
+
+        bulkDeleteCopySummary() {
+            if (window.copyToClipboard) {
+                window.copyToClipboard(this.bulkDeleteSummaryText);
+            } else {
+                navigator.clipboard.writeText(this.bulkDeleteSummaryText);
+            }
+        },
+
+        bulkDeleteDismissSummary() {
+            this.bulkDeleteShowSummary = false;
+            this.bulkDeleteResults = null;
             window.location.reload();
         },
 

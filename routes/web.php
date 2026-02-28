@@ -44,6 +44,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('assets/bulk/tags/remove', [AssetController::class, 'bulkRemoveTags'])->name('assets.bulk.tags.remove');
     Route::post('assets/bulk/tags/list', [AssetController::class, 'bulkGetTags'])->name('assets.bulk.tags.list');
     Route::post('assets/bulk/move', [AssetController::class, 'bulkMoveAssets'])->name('assets.bulk.move');
+    Route::delete('assets/bulk/force-delete', [AssetController::class, 'bulkForceDelete'])->name('assets.bulk.force-delete');
 
     // Asset routes
     Route::resource('assets', AssetController::class);

@@ -229,6 +229,18 @@ Alle bijbehorende bestanden (miniatuur, formaatpresets S/M/L) worden automatisch
 
 ---
 
+## Bulksgewijs permanent verwijderen (alleen admin)
+
+> **Vereist onderhoudsmodus** — schakel deze in via Systeem → Instellingen voordat je begint.
+
+1. Ga naar de assetpagina en selecteer de bestanden die je permanent wilt verwijderen
+2. Klik op de rode **Verwijderen**-knop in de bulkactiebalk
+3. Bevestig de waarschuwing — deze actie **kan niet ongedaan worden gemaakt**
+4. Alle geselecteerde assets worden permanent verwijderd: S3-objecten (origineel, miniatuur, formaatpresets S/M/L) en databaserecords
+5. Schakel de onderhoudsmodus uit wanneer je klaar bent
+
+---
+
 ## Bestanden verplaatsen (de omweg)
 
 Als de onderhoudsmodus niet beschikbaar is, of je een enkel bestand zonder admin-toegang wilt verplaatsen, is hier de handmatige workaround:

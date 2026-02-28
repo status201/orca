@@ -81,7 +81,7 @@ php artisan queue:work --tries=3
 - `admin`: Full access + trash management, discovery, export, user management, system settings
 - `api`: API-only (view, create, update; no delete, no admin features)
 
-Admin-only: restore, force delete, discover, export CSV, bulk move (requires `maintenance_mode`), system page, API docs page
+Admin-only: restore, force delete, discover, export CSV, bulk move (requires `maintenance_mode`), bulk force delete (requires `maintenance_mode`), system page, API docs page
 
 ### Locale System
 
@@ -123,6 +123,7 @@ Middleware `SetLocale`: User preference -> Global setting (`settings.locale`) ->
 - `POST /assets/bulk/tags/remove` - Bulk remove tags from multiple assets
 - `POST /assets/bulk/tags/list` - Get tags for selected assets
 - `POST /assets/bulk/move` - Bulk move assets between folders (admin, maintenance mode)
+- `DELETE /assets/bulk/force-delete` - Bulk permanent delete (admin, maintenance mode)
 - `PATCH/DELETE /assets/{asset}` - Update/delete asset
 - `POST /assets/{asset}/ai-tag` - Trigger AI tagging
 - `GET /api/folders` | `POST /folders/scan` (admin) | `POST /folders` (admin)
@@ -194,7 +195,7 @@ PHP_CLI_PATH=/usr/bin/php
 **Factories** (`database/factories/`): AssetFactory (`image()`, `pdf()`, `withLicense()`, `withCopyright()`), TagFactory (`ai()`, `user()`, `reference()`), SettingFactory (`integer()`, `boolean()`)
 
 ```
-tests/Feature/  - AssetTest, TagTest, ExportTest, ImportTest, ApiTest, SystemTest, IntegrityTest, BulkMoveTest,
+tests/Feature/  - AssetTest, TagTest, ExportTest, ImportTest, ApiTest, SystemTest, IntegrityTest, BulkMoveTest, BulkForceDeleteTest,
                   JwtAuthTest, JwtSecretManagementTest, LocaleTest, ProfileTest, TwoFactorAuthTest,
                   Auth/ (Authentication, Registration, PasswordReset, PasswordUpdate, PasswordConfirmation, EmailVerification)
 tests/Unit/     - AssetTest, TagTest, SettingTest, UserPreferencesTest, TwoFactorServiceTest, JwtGuardTest,
@@ -214,6 +215,8 @@ Web-based test runner at `/system` -> Tests tab (admin only).
 **Trash** (admin): Soft delete keeps S3 files. Restore returns to active. Force delete removes S3 objects (original + thumbnail + resized variants) + DB permanently.
 
 **Bulk Move** (admin, maintenance mode): Select assets on index → pick destination folder → S3 objects moved (copy+delete) for original, thumbnail, and resize variants → DB keys updated. Destination must be within configured S3 folders. Shows copyable summary of old→new keys. Enable via `maintenance_mode` setting in System → Settings.
+
+**Bulk Permanent Delete** (admin, maintenance mode): Select assets on index → click red bulk delete button → confirm → S3 objects (original + thumbnail + resized variants) and DB records permanently removed. Enable via `maintenance_mode` setting in System → Settings.
 
 **S3 Integrity** (admin): `assets:verify-integrity` command dispatches `VerifyAssetIntegrity` jobs for all assets -> each job checks S3 object existence via `getObjectMetadata()` -> sets `s3_missing_at` timestamp if missing, clears if found. System page card shows live status with AJAX refresh. Assets index supports `?missing=1` filter.
 

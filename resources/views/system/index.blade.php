@@ -546,7 +546,7 @@
                         <label class="block text-sm font-medium text-gray-700">
                             {{ __('Maintenance mode') }}
                         </label>
-                        <p class="text-xs text-gray-500 mt-1">{{ __('Enables the bulk Move button on the assets page for admins') }}</p>
+                        <p class="text-xs text-gray-500 mt-1">{{ __('Enables the bulk Move and Permanent delete buttons on the assets page for admins') }}</p>
                     </div>
                     <label class="relative inline-flex items-center cursor-pointer">
                         <input type="checkbox"
@@ -558,7 +558,7 @@
                     </label>
                 </div>
                 <div class="mt-3 p-3 bg-amber-50 border border-amber-200 rounded-lg">
-                    <p class="attention text-xs text-amber-700"><i class="fas fa-exclamation-triangle mr-1"></i>{{ __('Moving assets changes their S3 keys. This will break any external links pointing to the old URLs. Only use this during initial setup or planned reorganization.') }}</p>
+                    <p class="attention text-xs text-amber-700"><i class="fas fa-exclamation-triangle mr-1"></i>{{ __('Moving assets changes their S3 keys and permanent deletion removes files from S3 entirely. Both will break external links. Only use these during initial setup or planned reorganization.') }}</p>
                 </div>
             </div>
         </div>

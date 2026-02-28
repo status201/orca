@@ -108,4 +108,12 @@ class AssetPolicy
     {
         return $user->isAdmin() && (bool) Setting::get('maintenance_mode', false);
     }
+
+    /**
+     * Determine whether the user can bulk permanently delete assets.
+     */
+    public function bulkForceDelete(User $user): bool
+    {
+        return $user->isAdmin() && (bool) Setting::get('maintenance_mode', false);
+    }
 }

@@ -280,7 +280,7 @@ Create an IAM user (e.g., `orca-dam-user`) with the following minimum permission
 
 ### 5. User Roles
 - **Editors**: Upload and manage all assets (view, edit filenames/metadata, soft delete), set personal preferences
-- **Admins**: Full access including trash management, restore/permanent delete, discover, export, bulk move (maintenance mode), user management, system settings, and API token/JWT secret management
+- **Admins**: Full access including trash management, restore/permanent delete, discover, export, bulk move (maintenance mode), bulk permanent delete (maintenance mode), user management, system settings, and API token/JWT secret management
 - **API Users**: API-only access for external integrations (view, create, update assets; no delete or admin features)
 
 ### 6. User Preferences
@@ -316,6 +316,7 @@ Create an IAM user (e.g., `orca-dam-user`) with the following minimum permission
 - ✅ Trash page shows all soft-deleted assets
 - ✅ Restore assets from trash back to active state
 - ✅ Permanent delete removes database record AND S3 objects
+- ✅ Bulk permanent delete from index page (admin, maintenance mode)
 - ✅ Discovery marks soft-deleted assets to prevent re-import
 
 ### 11. System Administration (Admin Only)
@@ -640,6 +641,11 @@ Select multiple unmapped objects in Discover to import in bulk.
    - Delete the S3 thumbnail
    - Permanently remove the database record
    - **This action cannot be undone!**
+
+**Bulk Permanent Delete:**
+1. Enable maintenance mode in System → Settings
+2. Select assets on the index page and click the red bulk delete button
+3. Confirm — removes S3 objects (original + thumbnail + resize variants) AND database records permanently
 
 **Discovery Integration:**
 - When scanning S3 bucket, soft-deleted assets appear with a red "Deleted" badge

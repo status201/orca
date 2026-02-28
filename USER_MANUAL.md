@@ -229,6 +229,18 @@ All associated files (thumbnail, resize variants S/M/L) are moved automatically.
 
 ---
 
+## Bulk Permanent Delete (Admin Only)
+
+> **Requires maintenance mode** — enable it in System → Settings before proceeding.
+
+1. Go to the assets page and select the files you want to permanently delete
+2. Click the red **Delete** button in the bulk action bar
+3. Confirm the warning — this action **cannot be undone**
+4. All selected assets are permanently removed: S3 objects (original, thumbnail, resize variants S/M/L) and database records
+5. Disable maintenance mode when done
+
+---
+
 ## Moving Files (The Long Way)
 
 If maintenance mode is not available, or you need to move a single file without admin access, here's the manual workaround:
