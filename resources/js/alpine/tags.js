@@ -21,19 +21,24 @@ export function tagManager() {
         total: 0,
         _searchDebounce: null,
 
+        _observer: null,
+
         init() {
             this.loadPage(1);
+        },
 
-            // Set up IntersectionObserver for infinite scroll
+        _setupObserver() {
+            if (this._observer) return;
+
             this.$nextTick(() => {
                 const sentinel = this.$refs.scrollSentinel;
                 if (sentinel) {
-                    const observer = new IntersectionObserver((entries) => {
+                    this._observer = new IntersectionObserver((entries) => {
                         if (entries[0].isIntersecting && this.hasMore && !this.loadingMore) {
                             this.loadPage(this.currentPage + 1);
                         }
                     }, { rootMargin: '200px' });
-                    observer.observe(sentinel);
+                    this._observer.observe(sentinel);
                 }
             });
         },
@@ -45,6 +50,10 @@ export function tagManager() {
         async loadPage(page) {
             if (page === 1) {
                 this.loading = true;
+                if (this._observer) {
+                    this._observer.disconnect();
+                    this._observer = null;
+                }
             } else {
                 this.loadingMore = true;
             }
@@ -79,6 +88,7 @@ export function tagManager() {
             } finally {
                 this.loading = false;
                 this.loadingMore = false;
+                this._setupObserver();
             }
         },
 
