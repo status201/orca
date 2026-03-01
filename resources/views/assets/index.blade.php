@@ -770,7 +770,7 @@
                          @click.away="bulkShowRemovePanel = false"
                          class="absolute bottom-full mb-2 left-0 w-72 bg-white border border-gray-300 rounded-lg shadow-xl p-3 invert-scrollbar-colors">
                         <p class="text-xs text-gray-500 mb-2">{{ __('Click a tag to remove it from all selected assets') }}</p>
-                        <div class="flex flex-wrap gap-1.5 max-h-48 overflow-y-auto">
+                        <div class="flex flex-wrap gap-1.5 max-h-60 overflow-y-auto">
                             <template x-if="bulkRemoveTags.length === 0">
                                 <p class="text-xs text-gray-400">{{ __('No tags found on selected assets') }}</p>
                             </template>

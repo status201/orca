@@ -2,19 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Default: force light color scheme to prevent Swagger auto-dark-mode */
-html {
-    color-scheme: light;
-}
-
-/* Explicit dark mode */
-html.dark-mode {
-    color-scheme: light;
-}
-
-/* Explicit light mode - same as default but explicit */
-html.light-mode {
-    color-scheme: light only;
+/* Default: force light color scheme, we set filter:invert(1) with custom styles in dark-mode */
+:root {
+    color-scheme: only light;
 }
 
 /* Smooth page transitions(?) */
@@ -377,6 +367,12 @@ nav.maintenance-mode {
     animation: caution-tape-scroll 1s linear infinite;
     border-bottom: 3px solid #d97706 !important;
     border-color: #d97706 !important;
+}
+html.dark-mode nav.maintenance-mode {
+    filter: invert(1);
+}
+html.dark-mode nav.maintenance-mode svg {
+    filter: invert(0);
 }
 
 @keyframes caution-tape-scroll {
