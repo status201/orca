@@ -698,7 +698,7 @@
          x-transition:leave-start="translate-y-0 opacity-100"
          x-transition:leave-end="translate-y-full opacity-0"
          class="fixed bottom-0 left-0 right-0 z-40 bg-gray-900 text-white shadow-2xl border-t border-gray-700">
-        <div class="max-w-7xl mx-auto px-4 py-3">
+        <div class="mx-auto px-6 py-3">
             <div class="flex flex-wrap items-center gap-3">
                 <!-- Selected count -->
                 <span class="text-sm font-medium whitespace-nowrap">
