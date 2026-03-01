@@ -22,6 +22,7 @@ Route::middleware('auth.multi')->group(function () {
     // Tags API
     Route::get('tags', [TagController::class, 'index']);
     Route::get('tags/search', [TagController::class, 'search']);
+    Route::get('tags/{ids}', [TagController::class, 'show']);
 
     // Folders API
     Route::get('folders', [FolderController::class, 'index'])->name('folders.index');

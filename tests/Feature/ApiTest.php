@@ -116,6 +116,112 @@ test('api tags index returns all tags', function () {
     $response->assertJsonPath('total', 3);
 });
 
+test('api tags show returns single tag by id', function () {
+    $user = User::factory()->create();
+    Sanctum::actingAs($user);
+
+    $tag = Tag::factory()->user()->create(['name' => 'landscape']);
+    Asset::factory()->count(2)->create()->each(fn ($a) => $a->tags()->attach($tag));
+
+    $response = $this->getJson("/api/tags/{$tag->id}");
+
+    $response->assertOk();
+    $response->assertJsonPath('id', $tag->id);
+    $response->assertJsonPath('name', 'landscape');
+    $response->assertJsonPath('assets_count', 2);
+});
+
+test('api tags show returns multiple tags by comma-separated ids', function () {
+    $user = User::factory()->create();
+    Sanctum::actingAs($user);
+
+    $tag1 = Tag::factory()->user()->create(['name' => 'alpha']);
+    $tag2 = Tag::factory()->ai()->create(['name' => 'beta']);
+    $tag3 = Tag::factory()->user()->create(['name' => 'gamma']);
+
+    $response = $this->getJson("/api/tags/{$tag1->id},{$tag2->id},{$tag3->id}");
+
+    $response->assertOk();
+    $response->assertJsonCount(3);
+    $names = collect($response->json())->pluck('name')->all();
+    expect($names)->toContain('alpha');
+    expect($names)->toContain('beta');
+    expect($names)->toContain('gamma');
+});
+
+test('api tags show returns 404 for nonexistent single id', function () {
+    $user = User::factory()->create();
+    Sanctum::actingAs($user);
+
+    $response = $this->getJson('/api/tags/99999');
+
+    $response->assertNotFound();
+});
+
+test('api tags show returns only found tags for multiple ids', function () {
+    $user = User::factory()->create();
+    Sanctum::actingAs($user);
+
+    $tag = Tag::factory()->create(['name' => 'exists']);
+
+    $response = $this->getJson("/api/tags/{$tag->id},99999");
+
+    $response->assertOk();
+    $response->assertJsonCount(1);
+    $response->assertJsonPath('0.name', 'exists');
+});
+
+test('api tags show requires authentication', function () {
+    $tag = Tag::factory()->create();
+
+    $response = $this->getJson("/api/tags/{$tag->id}");
+
+    $response->assertUnauthorized();
+});
+
+test('api tags index supports sorting', function () {
+    $user = User::factory()->create();
+    Sanctum::actingAs($user);
+
+    $tagA = Tag::factory()->create(['name' => 'alpha']);
+    $tagZ = Tag::factory()->create(['name' => 'zulu']);
+
+    $response = $this->getJson('/api/tags?sort=name_desc');
+
+    $response->assertOk();
+    $data = $response->json('data');
+    expect($data[0]['name'])->toBe('zulu');
+    expect($data[1]['name'])->toBe('alpha');
+});
+
+test('api tags index supports search', function () {
+    $user = User::factory()->create();
+    Sanctum::actingAs($user);
+
+    Tag::factory()->create(['name' => 'sunset']);
+    Tag::factory()->create(['name' => 'sunrise']);
+    Tag::factory()->create(['name' => 'mountain']);
+
+    $response = $this->getJson('/api/tags?search=sun');
+
+    $response->assertOk();
+    $response->assertJsonCount(2, 'data');
+});
+
+test('api tags index supports per_page', function () {
+    $user = User::factory()->create();
+    Sanctum::actingAs($user);
+
+    Tag::factory()->count(15)->create();
+
+    $response = $this->getJson('/api/tags?per_page=10');
+
+    $response->assertOk();
+    $response->assertJsonCount(10, 'data');
+    $response->assertJsonPath('per_page', 10);
+    $response->assertJsonPath('total', 15);
+});
+
 test('api tags index can filter by type', function () {
     $user = User::factory()->create();
     Sanctum::actingAs($user);

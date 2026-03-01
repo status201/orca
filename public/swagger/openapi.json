@@ -21,6 +21,10 @@
   ],
   "tags": [
     {
+      "name": "Health",
+      "description": "Application health check endpoint"
+    },
+    {
       "name": "Assets",
       "description": "Asset management endpoints"
     },
@@ -29,23 +33,70 @@
       "description": "Tag management endpoints"
     },
     {
+      "name": "Reference Tags",
+      "description": "Reference tag management for external system usage tracking"
+    },
+    {
       "name": "Folders",
       "description": "Folder management endpoints"
     },
     {
       "name": "Chunked Upload",
       "description": "Large file upload endpoints (files >= 10MB)"
-    },
-    {
-      "name": "Reference Tags",
-      "description": "Reference tag management for external system usage tracking"
-    },
-    {
-      "name": "Health",
-      "description": "Application health check endpoint"
     }
   ],
   "paths": {
+    "/api/health": {
+      "get": {
+        "tags": ["Health"],
+        "summary": "Health check",
+        "description": "Public endpoint to check application and database health. No authentication required.",
+        "operationId": "healthCheck",
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Application is healthy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "ok"
+                    },
+                    "database": {
+                      "type": "string",
+                      "example": "ok"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Application is degraded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "error"
+                    },
+                    "database": {
+                      "type": "string",
+                      "example": "error"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/assets": {
       "get": {
         "tags": ["Assets"],
@@ -545,7 +596,7 @@
       "get": {
         "tags": ["Tags"],
         "summary": "List tags",
-        "description": "Get all tags with optional type filtering",
+        "description": "Get a paginated list of tags with optional filtering, search, and sorting",
         "operationId": "listTags",
         "parameters": [
           {
@@ -557,24 +608,114 @@
               "type": "string",
               "enum": ["user", "ai", "reference"]
             }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "description": "Search tags by name",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "description": "Sort order",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": ["name_asc", "name_desc", "most_used", "least_used", "newest", "oldest"],
+              "default": "name_asc"
+            }
+          },
+          {
+            "name": "per_page",
+            "in": "query",
+            "description": "Number of tags per page (min 10, max 200)",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 60,
+              "minimum": 10,
+              "maximum": 200
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
           }
         ],
         "responses": {
           "200": {
-            "description": "List of tags",
+            "description": "Paginated list of tags",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Tag"
-                  }
+                  "$ref": "#/components/schemas/PaginatedTags"
                 }
               }
             }
           },
           "401": {
             "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+    "/api/tags/{ids}": {
+      "get": {
+        "tags": ["Tags"],
+        "summary": "Get tag(s) by ID",
+        "description": "Retrieve one or more tags by ID. Pass a single ID or comma-separated IDs (max 200). Single ID returns a tag object (or 404). Multiple IDs return an array of found tags.",
+        "operationId": "getTagsByIds",
+        "parameters": [
+          {
+            "name": "ids",
+            "in": "path",
+            "description": "Single tag ID or comma-separated tag IDs (e.g. `5` or `1,2,3`)",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "1,2,3"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Tag(s) found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/TagWithCount"
+                    },
+                    {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/TagWithCount"
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "description": "Tag not found (single ID only)"
+          },
+          "422": {
+            "description": "Invalid input (no valid IDs or more than 200)"
           }
         }
       }
@@ -622,6 +763,200 @@
           },
           "401": {
             "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+    "/api/reference-tags": {
+      "post": {
+        "tags": ["Reference Tags"],
+        "summary": "Add reference tags to asset(s)",
+        "description": "Create and assign reference tags to one or more assets. Supports batch operations via `asset_ids` and `s3_keys` arrays. At least one identifier (`asset_id`, `asset_ids`, `s3_key`, or `s3_keys`) is required. All forms can be combined in a single request.",
+        "operationId": "addReferenceTags",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "asset_id": {
+                    "type": "integer",
+                    "description": "Single asset ID"
+                  },
+                  "asset_ids": {
+                    "type": "array",
+                    "items": { "type": "integer" },
+                    "maxItems": 500,
+                    "description": "Array of asset IDs (batch)"
+                  },
+                  "s3_key": {
+                    "type": "string",
+                    "description": "Single S3 key"
+                  },
+                  "s3_keys": {
+                    "type": "array",
+                    "items": { "type": "string", "maxLength": 1024 },
+                    "maxItems": 500,
+                    "description": "Array of S3 keys (batch)"
+                  },
+                  "tags": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "maxLength": 100
+                    },
+                    "description": "Array of reference tag names (e.g., external IDs like '2F.4.6.2')"
+                  }
+                },
+                "required": ["tags"]
+              },
+              "examples": {
+                "single": {
+                  "summary": "Single asset",
+                  "value": {
+                    "s3_key": "assets/abc123-uuid.jpg",
+                    "tags": ["2F.4.6.2", "REF-001"]
+                  }
+                },
+                "batch": {
+                  "summary": "Batch (multiple assets)",
+                  "value": {
+                    "asset_ids": [1, 2, 3],
+                    "tags": ["slideshow-42"]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Reference tags added",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Reference tags added to 3 asset(s)"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/Asset" }
+                    },
+                    "not_found_s3_keys": {
+                      "type": "array",
+                      "items": { "type": "string" },
+                      "description": "S3 keys that did not match any asset (only present when s3_key/s3_keys had misses)"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
+          }
+        }
+      }
+    },
+    "/api/reference-tags/{tag}": {
+      "delete": {
+        "tags": ["Reference Tags"],
+        "summary": "Remove reference tag from asset(s)",
+        "description": "Detach a reference tag from one or more assets. Only tags of type `reference` can be removed via this endpoint. Supports batch operations via `asset_ids` and `s3_keys` arrays. At least one identifier is required.",
+        "operationId": "removeReferenceTag",
+        "parameters": [
+          {
+            "name": "tag",
+            "in": "path",
+            "description": "Tag ID",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "asset_id": {
+                    "type": "integer",
+                    "description": "Single asset ID"
+                  },
+                  "asset_ids": {
+                    "type": "array",
+                    "items": { "type": "integer" },
+                    "maxItems": 500,
+                    "description": "Array of asset IDs (batch)"
+                  },
+                  "s3_key": {
+                    "type": "string",
+                    "description": "Single S3 key"
+                  },
+                  "s3_keys": {
+                    "type": "array",
+                    "items": { "type": "string", "maxLength": 1024 },
+                    "maxItems": 500,
+                    "description": "Array of S3 keys (batch)"
+                  }
+                }
+              },
+              "examples": {
+                "single": {
+                  "summary": "Single asset",
+                  "value": { "asset_id": 1 }
+                },
+                "batch": {
+                  "summary": "Batch (multiple assets)",
+                  "value": { "asset_ids": [1, 2, 3] }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Reference tag removed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Reference tag removed from 3 asset(s)"
+                    },
+                    "not_found_s3_keys": {
+                      "type": "array",
+                      "items": { "type": "string" },
+                      "description": "S3 keys that did not match any asset (only present when s3_key/s3_keys had misses)"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationError"
           }
         }
       }
@@ -926,251 +1261,6 @@
           }
         }
       }
-    },
-    "/api/reference-tags": {
-      "post": {
-        "tags": ["Reference Tags"],
-        "summary": "Add reference tags to asset(s)",
-        "description": "Create and assign reference tags to one or more assets. Supports batch operations via `asset_ids` and `s3_keys` arrays. At least one identifier (`asset_id`, `asset_ids`, `s3_key`, or `s3_keys`) is required. All forms can be combined in a single request.",
-        "operationId": "addReferenceTags",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "asset_id": {
-                    "type": "integer",
-                    "description": "Single asset ID"
-                  },
-                  "asset_ids": {
-                    "type": "array",
-                    "items": { "type": "integer" },
-                    "maxItems": 500,
-                    "description": "Array of asset IDs (batch)"
-                  },
-                  "s3_key": {
-                    "type": "string",
-                    "description": "Single S3 key"
-                  },
-                  "s3_keys": {
-                    "type": "array",
-                    "items": { "type": "string", "maxLength": 1024 },
-                    "maxItems": 500,
-                    "description": "Array of S3 keys (batch)"
-                  },
-                  "tags": {
-                    "type": "array",
-                    "items": {
-                      "type": "string",
-                      "maxLength": 100
-                    },
-                    "description": "Array of reference tag names (e.g., external IDs like '2F.4.6.2')"
-                  }
-                },
-                "required": ["tags"]
-              },
-              "examples": {
-                "single": {
-                  "summary": "Single asset",
-                  "value": {
-                    "s3_key": "assets/abc123-uuid.jpg",
-                    "tags": ["2F.4.6.2", "REF-001"]
-                  }
-                },
-                "batch": {
-                  "summary": "Batch (multiple assets)",
-                  "value": {
-                    "asset_ids": [1, 2, 3],
-                    "tags": ["slideshow-42"]
-                  }
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Reference tags added",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "type": "string",
-                      "example": "Reference tags added to 3 asset(s)"
-                    },
-                    "data": {
-                      "type": "array",
-                      "items": { "$ref": "#/components/schemas/Asset" }
-                    },
-                    "not_found_s3_keys": {
-                      "type": "array",
-                      "items": { "type": "string" },
-                      "description": "S3 keys that did not match any asset (only present when s3_key/s3_keys had misses)"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "$ref": "#/components/responses/Unauthorized"
-          },
-          "404": {
-            "$ref": "#/components/responses/NotFound"
-          },
-          "422": {
-            "$ref": "#/components/responses/ValidationError"
-          }
-        }
-      }
-    },
-    "/api/reference-tags/{tag}": {
-      "delete": {
-        "tags": ["Reference Tags"],
-        "summary": "Remove reference tag from asset(s)",
-        "description": "Detach a reference tag from one or more assets. Only tags of type `reference` can be removed via this endpoint. Supports batch operations via `asset_ids` and `s3_keys` arrays. At least one identifier is required.",
-        "operationId": "removeReferenceTag",
-        "parameters": [
-          {
-            "name": "tag",
-            "in": "path",
-            "description": "Tag ID",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "asset_id": {
-                    "type": "integer",
-                    "description": "Single asset ID"
-                  },
-                  "asset_ids": {
-                    "type": "array",
-                    "items": { "type": "integer" },
-                    "maxItems": 500,
-                    "description": "Array of asset IDs (batch)"
-                  },
-                  "s3_key": {
-                    "type": "string",
-                    "description": "Single S3 key"
-                  },
-                  "s3_keys": {
-                    "type": "array",
-                    "items": { "type": "string", "maxLength": 1024 },
-                    "maxItems": 500,
-                    "description": "Array of S3 keys (batch)"
-                  }
-                }
-              },
-              "examples": {
-                "single": {
-                  "summary": "Single asset",
-                  "value": { "asset_id": 1 }
-                },
-                "batch": {
-                  "summary": "Batch (multiple assets)",
-                  "value": { "asset_ids": [1, 2, 3] }
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Reference tag removed",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "message": {
-                      "type": "string",
-                      "example": "Reference tag removed from 3 asset(s)"
-                    },
-                    "not_found_s3_keys": {
-                      "type": "array",
-                      "items": { "type": "string" },
-                      "description": "S3 keys that did not match any asset (only present when s3_key/s3_keys had misses)"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "$ref": "#/components/responses/Unauthorized"
-          },
-          "404": {
-            "$ref": "#/components/responses/NotFound"
-          },
-          "422": {
-            "$ref": "#/components/responses/ValidationError"
-          }
-        }
-      }
-    },
-    "/api/health": {
-      "get": {
-        "tags": ["Health"],
-        "summary": "Health check",
-        "description": "Public endpoint to check application and database health. No authentication required.",
-        "operationId": "healthCheck",
-        "security": [],
-        "responses": {
-          "200": {
-            "description": "Application is healthy",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "status": {
-                      "type": "string",
-                      "example": "ok"
-                    },
-                    "database": {
-                      "type": "string",
-                      "example": "ok"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "503": {
-            "description": "Application is degraded",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "status": {
-                      "type": "string",
-                      "example": "error"
-                    },
-                    "database": {
-                      "type": "string",
-                      "example": "error"
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
     }
   },
   "components": {
@@ -1374,6 +1464,11 @@
             "enum": ["user", "ai", "reference"],
             "example": "user"
           },
+          "assets_count": {
+            "type": "integer",
+            "description": "Number of assets using this tag",
+            "example": 12
+          },
           "created_at": {
             "type": "string",
             "format": "date-time"
@@ -1381,6 +1476,57 @@
           "updated_at": {
             "type": "string",
             "format": "date-time"
+          }
+        }
+      },
+      "TagWithCount": {
+        "allOf": [
+          { "$ref": "#/components/schemas/Tag" },
+          {
+            "type": "object",
+            "required": ["assets_count"],
+            "properties": {
+              "assets_count": {
+                "type": "integer",
+                "description": "Number of assets using this tag",
+                "example": 12
+              }
+            }
+          }
+        ]
+      },
+      "PaginatedTags": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TagWithCount"
+            }
+          },
+          "current_page": {
+            "type": "integer",
+            "example": 1
+          },
+          "last_page": {
+            "type": "integer",
+            "example": 3
+          },
+          "per_page": {
+            "type": "integer",
+            "example": 60
+          },
+          "total": {
+            "type": "integer",
+            "example": 150
+          },
+          "from": {
+            "type": "integer",
+            "example": 1
+          },
+          "to": {
+            "type": "integer",
+            "example": 60
           }
         }
       },

@@ -79,6 +79,31 @@ class TagController extends Controller
     }
 
     /**
+     * Get tag(s) by ID or comma-separated IDs
+     */
+    public function show(string $ids)
+    {
+        $idArray = array_filter(array_map('intval', explode(',', $ids)));
+
+        if (empty($idArray) || count($idArray) > 200) {
+            return response()->json(['message' => 'Provide between 1 and 200 valid tag IDs.'], 422);
+        }
+
+        $tags = Tag::withCount('assets')->whereIn('id', $idArray)->get();
+
+        // Single ID: return single object or 404
+        if (count($idArray) === 1) {
+            if ($tags->isEmpty()) {
+                return response()->json(['message' => 'Tag not found.'], 404);
+            }
+
+            return response()->json($tags->first());
+        }
+
+        return response()->json($tags);
+    }
+
+    /**
      * Resolve tags by IDs (for displaying selected tag names)
      */
     public function byIds(Request $request)
