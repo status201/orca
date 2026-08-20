@@ -148,7 +148,7 @@ Onthoud: je kunt bestanden later niet verplaatsen, dus **kies de juiste map vó�
 1. Klik op **Upload** in het navigatiemenu
 2. Selecteer de doelmap
 3. Sleep bestanden naar het uploadgebied, of klik om te bladeren
-4. Vink eventueel **Originele bestandsnaam behouden** aan om de oorspronkelijke naam te gebruiken in plaats van een gegenereerde UUID
+4. Vink eventueel **Bestandsnaam in de URL gebruiken** aan zodat de download de originele naam van het bestand op je computer krijgt
 5. Klap eventueel **Metadata toevoegen** open om gebruikers-tags, licentietype, copyright en copyrightbron toe te passen op elk bestand in deze batch
 6. Bekijk de voortgangsbalken — grotere bestanden kunnen even duren
 7. Klaar! Thumbnails en AI-tags worden op de achtergrond gegenereerd; ververs de pagina even
