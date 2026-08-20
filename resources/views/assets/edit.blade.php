@@ -305,7 +305,7 @@
                            value="{{ old('copyright', $asset->copyright) }}"
                            maxlength="{{ \App\Support\ColumnLimits::for('assets', 'copyright') }}"
                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orca-black focus:border-transparent"
-                           placeholder="{{ __('e.g., © 2024 Company Name, or copyright holder information') }}">
+                           placeholder="{{ __('e.g. Company Name, or copyright holder information') }}">
                     @error('copyright')
                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
@@ -324,7 +324,7 @@
                            value="{{ old('copyright_source', $asset->copyright_source) }}"
                            maxlength="{{ \App\Support\ColumnLimits::for('assets', 'copyright_source') }}"
                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orca-black focus:border-transparent"
-                           placeholder="{{ __('e.g., https://example.com/license or original source reference') }}">
+                           placeholder="{{ __('e.g. https://stock-photos.example.com/pic/2a37238/ or original source reference') }}">
                     @error('copyright_source')
                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
