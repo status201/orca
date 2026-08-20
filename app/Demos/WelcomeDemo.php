@@ -211,7 +211,7 @@ final class WelcomeDemo implements Demo
                 target: 'upload-keep-filename',
                 placement: 'bottom',
                 routeName: 'assets.create',
-                title: __('Keep original filename — read this one twice'),
+                title: __('Filename in the URL — read this one twice'),
                 body: __('Left off, every file is stored under a generated name and your filename is kept as a label. Switch it on and the real filename becomes part of the permanent URL, which is what you want for links people have to type or recognise. Two consequences: the URL cannot easily be changed afterwards, and uploading a file with a name that already exists in that folder overwrites it. ORCA asks you to confirm for exactly that reason.'),
             ),
             new DemoStep(

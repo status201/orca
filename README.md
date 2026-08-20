@@ -50,7 +50,7 @@ Prose docs describe *usage*; specs define *behaviour*. When they disagree, the s
 - 🔗 Easy URL copying for external integration
 - 🔎 Discover unmapped S3 objects
 - 🛡️ **Duplicate prevention** with actionable results panel — etag-based detection, per-row status pills, and an inline Duplicates panel showing thumbnails, "View existing", "Copy URL", multi-select bulk-copy, "Reveal in library", and one-click restore for trashed duplicates
-- 📎 **Keep original filename** option during upload
+- 📎 **Use filename in the URL** option during upload — the download keeps the file's original name
 - 🏷️ **Tag attribution** — shows who last assigned a tag (User or AI)
 - 🗑️ Trash & restore system with soft delete (keeps S3 objects)
 - ♻️ Restore for editors and admins; permanent delete for admins only

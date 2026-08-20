@@ -70,7 +70,7 @@
             <p class="mt-1 text-xs text-gray-500">{{ __('Files will be uploaded to:') }} <span class="font-mono" x-text="selectedFolder"></span></p>
         </div>
 
-        <!-- Keep original filename option -->
+        <!-- Use filename in the URL option -->
         <div class="mb-6" data-testid="upload-keep-filename">
             <label class="inline-flex items-center cursor-pointer">
                 <input type="checkbox"
@@ -79,9 +79,9 @@
                        @change="toggleKeepOriginalFilename($event)"
                        :disabled="uploading"
                        class="rounded border-gray-300 text-blue-600 shadow-sm focus:ring-blue-500">
-                <span class="ml-2 text-sm font-medium text-gray-700">{{ __('Keep original filename') }}</span>
+                <span class="ml-2 text-sm font-medium text-gray-700">{{ __('Use filename in the URL') }}</span>
             </label>
-            <p class="mt-1 text-xs text-gray-500">{{ __('Use the original filename in the URL instead of a generated name. Useful for download links.') }}</p>
+            <p class="mt-1 text-xs text-gray-500">{{ __('The download gets the original name of the file from your computer') }}</p>
         </div>
 
         @include('partials.upload-metadata')
