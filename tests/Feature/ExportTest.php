@@ -55,6 +55,7 @@ test('export includes all required columns', function () {
     expect($content)->toContain('filename');
     expect($content)->toContain('license_type');
     expect($content)->toContain('license_expiry_date');
+    expect($content)->toContain('date_obtained');
     expect($content)->toContain('copyright');
     expect($content)->toContain('copyright_source');
     expect($content)->toContain('user_tags');

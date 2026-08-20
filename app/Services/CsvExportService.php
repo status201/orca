@@ -42,6 +42,9 @@ class CsvExportService
             'resize_l_url',
             'created_at',
             'updated_at',
+            // Appended, not inserted next to license_expiry_date: the export is parsed
+            // positionally downstream, so a new column goes last.
+            'date_obtained',
         ];
     }
 
@@ -85,6 +88,7 @@ class CsvExportService
             $asset->resize_l_url,
             $asset->created_at?->toDateTimeString(),
             $asset->updated_at?->toDateTimeString(),
+            $asset->date_obtained?->toDateString(),
         ]);
     }
 

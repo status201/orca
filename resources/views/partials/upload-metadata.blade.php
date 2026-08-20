@@ -112,7 +112,7 @@
             <label for="batch-metadata-copyright" class="block text-sm font-medium text-gray-700 mb-2">{{ __('Copyright Information') }}</label>
             <input type="text" id="batch-metadata-copyright" x-model="metadataCopyright" maxlength="{{ \App\Support\ColumnLimits::for('assets', 'copyright') }}" data-testid="batch-metadata-copyright"
                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orca-black focus:border-transparent text-sm"
-                   placeholder="{{ __('e.g., © 2024 Company Name, or copyright holder information') }}">
+                   placeholder="{{ __('e.g. Company Name, or copyright holder information') }}">
             <x-char-counter for="batch-metadata-copyright" :max="\App\Support\ColumnLimits::for('assets', 'copyright')" />
         </div>
 
@@ -124,7 +124,7 @@
             </label>
             <input type="text" id="batch-metadata-copyright-source" x-model="metadataCopyrightSource" maxlength="{{ \App\Support\ColumnLimits::for('assets', 'copyright_source') }}" data-testid="batch-metadata-copyright-source"
                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orca-black focus:border-transparent text-sm"
-                   placeholder="{{ __('e.g., https://example.com/license or original source reference') }}">
+                   placeholder="{{ __('e.g. https://stock-photos.example.com/pic/2a37238/ or original source reference') }}">
             <x-char-counter for="batch-metadata-copyright-source" :max="\App\Support\ColumnLimits::for('assets', 'copyright_source')" />
         </div>
 

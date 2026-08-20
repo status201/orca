@@ -99,6 +99,15 @@ test('asset casts license_expiry_date to date', function () {
     expect($asset->license_expiry_date->format('Y-m-d'))->toBe('2025-12-31');
 });
 
+test('asset casts date_obtained to date', function () {
+    $asset = Asset::factory()->create([
+        'date_obtained' => '2026-05-01',
+    ]);
+
+    expect($asset->date_obtained)->toBeInstanceOf(Carbon::class);
+    expect($asset->date_obtained->format('Y-m-d'))->toBe('2026-05-01');
+});
+
 test('asset getFileIcon returns correct icon for different file types', function () {
     $pdfAsset = Asset::factory()->create(['mime_type' => 'application/pdf']);
     $wordAsset = Asset::factory()->create(['mime_type' => 'application/msword']);

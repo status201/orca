@@ -3,7 +3,7 @@
 ```yaml
 id: rest-api
 status: implemented
-version: 3
+version: 4
 owner: core
 related:
   - architecture
@@ -73,7 +73,8 @@ responses, and a role split on error verbosity.
 - **REQ-8** — `PATCH /api/assets/{asset}` persists **every** metadata field it
   validates and mirrors the web `AssetController::update`: the scalar columns
   `filename`, `alt_text`, `caption`, `license_type`, `license_expiry_date`,
-  `copyright`, `copyright_source`, plus `tags` (user tags) and `reference_tag_ids`
+  `date_obtained`, `copyright`, `copyright_source`, plus `tags` (user tags) and
+  `reference_tag_ids`
   when present. Tag syncing preserves AI pivots verbatim and preserves the
   untouched category (user or reference) when only the other is submitted. The API
   never rewrites `s3_key` (see [ADR-006](../decisions/adr-006-immutable-s3-key.md));
@@ -140,7 +141,9 @@ request:
 
 # PATCH /api/assets/{asset} (UpdateAssetRequest) — mirrors web AssetController::update
 request:
-  filename / alt_text / caption / license_type / license_expiry_date / copyright / copyright_source: string?  # all persisted
+  filename / alt_text / caption / license_type / copyright / copyright_source: string?  # all persisted
+  license_expiry_date / date_obtained: date?   # YYYY-MM-DD; license_expiry_date is retired from
+                                               # the web edit form but still accepted here
   tags: string[]?              # user tags — full sync, preserving AI + reference pivots
   reference_tag_ids: int[]?    # existing reference-tag ids — synced when present, else preserved
 response: { message: string, data: Asset }
@@ -229,8 +232,8 @@ Scenario: Any authenticated role can soft-delete their own asset
 
 Scenario: Updating an asset persists all documented metadata fields
   Given an authenticated user who owns an asset
-  When they PATCH /api/assets/{id} with filename, license_expiry_date, and copyright_source
-  Then the response is 200 and all three fields are persisted to the asset
+  When they PATCH /api/assets/{id} with filename, date_obtained, license_expiry_date, and copyright_source
+  Then the response is 200 and all four fields are persisted to the asset
 # pinned by: tests/Feature/ApiTest.php
 
 Scenario: reference_tag_ids syncs reference tags while preserving user and AI tags

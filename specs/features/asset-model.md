@@ -3,7 +3,7 @@
 ```yaml
 id: asset-model
 status: implemented
-version: 4
+version: 5
 owner: core
 related:
   - architecture
@@ -103,7 +103,10 @@ Asset:
   thumbnail_s3_key / resize_{s,m,l}_s3_key: string(1024)|null   # widened from 255 — REQ-10
   alt_text / caption: text|null    # TEXT, not varchar — rules cap characters, see input-validation.md
   license_type: enum      # see Asset::licenseTypes()
-  license_expiry_date: date|null   # cast 'date'
+  license_expiry_date: date|null   # cast 'date'. RETIRED from the edit form — column, API
+                                   # field and CSV column stay so stored values survive and
+                                   # integrations keep working; the detail page still shows it
+  date_obtained: date|null         # cast 'date' — when the asset was purchased/obtained
   copyright / copyright_source: string(500)|null   # widened from 255 — input-validation.md REQ-5
   user_id: int            # belongsTo User (uploader)
   last_modified_by: int|null   # belongsTo User (modifier())
@@ -218,6 +221,19 @@ Scenario: license fields round-trip through casts and labels
   Then license_expiry_date casts to a Carbon date
   And getLicenseLabel() returns the translated label for the type
 # pinned by: tests/Unit/AssetTest.php
+
+Scenario: date_obtained casts to a date and round-trips through the edit form
+  Given an asset edited with a date_obtained of 2026-05-01
+  Then date_obtained casts to a Carbon date holding 2026-05-01
+  And the detail page shows it under "Date Obtained"
+# pinned by: tests/Unit/AssetTest.php
+# pinned by: tests/Feature/AssetTest.php
+
+Scenario: the edit form no longer offers a license expiry input
+  Given the edit page for an asset carrying a license_expiry_date
+  Then no license expiry input is rendered
+  But the detail page still shows the stored expiry date
+# pinned by: tests/Feature/AssetTest.php
 
 # — browser-level (see e2e-testing.md for the harness) —
 

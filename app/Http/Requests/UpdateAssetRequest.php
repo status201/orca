@@ -29,6 +29,7 @@ class UpdateAssetRequest extends FormRequest
             'caption' => 'nullable|string|max:1000',
             'license_type' => 'nullable|string|max:'.ColumnLimits::for('assets', 'license_type'),
             'license_expiry_date' => 'nullable|date',
+            'date_obtained' => 'nullable|date',
             'copyright' => 'nullable|string|max:'.ColumnLimits::for('assets', 'copyright'),
             'copyright_source' => 'nullable|string|max:'.ColumnLimits::for('assets', 'copyright_source'),
             'tags' => 'nullable|array',

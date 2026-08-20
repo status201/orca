@@ -129,7 +129,7 @@ TikzCompilerService:     # TeX Live pipeline (LaTeX -> DVI -> SVG/PNG); paranoid
 ToolUploadService:       # persist tool-generated assets (parent_asset_id link)
 PasskeyService:          # passkey list/rename/delete/clear (max 10/user)
 TwoFactorService:        # TOTP setup / verification / recovery codes
-CsvExportService:        # 33-column export
+CsvExportService:        # 34-column export
 CsvImportService:        # parse -> diff -> validate -> apply
 QueueService:            # System dashboard queue backing
 TestRunnerService:       # System dashboard web test runner backing
@@ -208,7 +208,7 @@ Asset:                  # assets table — features/asset-model.md
   mime_type / size / width / height
   thumbnail_s3_key / resize_{s,m,l}_s3_key
   alt_text / caption
-  license_type / license_expiry_date / copyright / copyright_source
+  license_type / license_expiry_date / date_obtained / copyright / copyright_source
   user_id                # belongsTo User
   parent_id              # nullable self-FK (derived -> source, e.g. TikZ render -> .tex)
   deleted_at             # soft delete (REQ-4)
@@ -273,7 +273,7 @@ The *why* behind the choices above — and the alternatives each rejected — li
 
 ## Tests & verification
 
-- `php artisan config:clear && php artisan test` — the full Pest suite (1221 tests,
+- `php artisan config:clear && php artisan test` — the full Pest suite (1229 tests,
   96 files: `tests/Feature/` incl. `Auth/`,`Console/`,`Middleware/`; `tests/Unit/`
   incl. `Jobs/`,`Policies/`,`Services/`; `tests/Security/`). In-memory SQLite, sync queue.
 - `php artisan config:clear && php artisan test --testsuite=Security` — the security

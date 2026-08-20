@@ -121,6 +121,19 @@ test('calculateChanges formats Carbon license_expiry_date before comparison', fu
     expect($service->calculateChanges($asset, $row))->not->toHaveKey('license_expiry_date');
 });
 
+test('calculateChanges formats Carbon date_obtained before comparison', function () {
+    $service = new CsvImportService;
+    $asset = Asset::factory()->create(['date_obtained' => '2026-05-01']);
+
+    // Same date — should not appear in changes; a different one should
+    expect($service->calculateChanges($asset, ['date_obtained' => '2026-05-01']))
+        ->not->toHaveKey('date_obtained');
+
+    $changes = $service->calculateChanges($asset, ['date_obtained' => '2026-06-02']);
+    expect($changes['date_obtained']['from'])->toBe('2026-05-01');
+    expect($changes['date_obtained']['to'])->toBe('2026-06-02');
+});
+
 test('calculateChanges detects user_tags', function () {
     $service = new CsvImportService;
     $asset = Asset::factory()->create();
@@ -180,6 +193,24 @@ test('validateRow returns error for invalid date format dd-mm-yyyy', function ()
     $errors = $service->validateRow(['license_expiry_date' => '31-12-2025']);
 
     expect($errors)->toHaveCount(1);
+});
+
+test('validateRow applies the date format check to date_obtained too', function () {
+    $service = new CsvImportService;
+
+    expect($service->validateRow(['date_obtained' => '2026-05-01']))->toBe([]);
+    expect($service->validateRow(['date_obtained' => '01-05-2026']))->toHaveCount(1);
+});
+
+test('validateRow reports both date columns when both are malformed', function () {
+    $service = new CsvImportService;
+
+    $errors = $service->validateRow([
+        'license_expiry_date' => 'not-a-date',
+        'date_obtained' => 'also-not-a-date',
+    ]);
+
+    expect($errors)->toHaveCount(2);
 });
 
 test('validateRow returns no errors for empty license_type', function () {

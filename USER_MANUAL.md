@@ -225,7 +225,7 @@ Click any asset or hit Edit to modify:
 - **Caption** — Longer description or credit line displayed alongside the image
 - **License Info** — Track usage rights:
   - **License Type** — Public Domain, Creative Commons variants, Fair Use, All Rights Reserved
-  - **License Expiry Date** — When does the license run out? (leave empty if perpetual)
+  - **Date Obtained** — When you bought or otherwise obtained the asset (optional)
   - **Copyright Holder** — Who owns the rights?
   - **Copyright Source** — Link to where you found the licensing info
 

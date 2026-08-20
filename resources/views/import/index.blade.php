@@ -76,7 +76,7 @@
                           rows="12"
                           :class="dragActive ? 'border-blue-500 bg-blue-50' : ''"
                           class="w-full rounded-lg border-gray-300 focus:border-transparent focus:ring-orca-black font-mono text-sm"
-                          placeholder="s3_key,alt_text,caption,license_type,license_expiry_date,copyright,copyright_source,user_tags&#10;assets/photos/image1.jpg,A sunset over the ocean,Beautiful sunset,cc_by,2026-12-31,John Doe,https://example.com,nature, landscape, sunset&#10;assets/photos/image2.jpg,Mountain view,Mountain panorama,public_domain,,,,"
+                          placeholder="s3_key,alt_text,caption,license_type,date_obtained,copyright,copyright_source,user_tags&#10;assets/photos/image1.jpg,A sunset over the ocean,Beautiful sunset,cc_by,2026-12-31,John Doe,https://example.com,nature, landscape, sunset&#10;assets/photos/image2.jpg,Mountain view,Mountain panorama,public_domain,,,,"
                 ></textarea>
             </div>
 
@@ -142,6 +142,11 @@
                         </tr>
                         <tr class="border-b border-gray-200">
                             <td class="py-2 pr-4 font-mono text-xs">license_expiry_date</td>
+                            <td class="py-2 pr-4">YYYY-MM-DD</td>
+                            <td class="py-2">{{ __('Date format') }}</td>
+                        </tr>
+                        <tr class="border-b border-gray-200">
+                            <td class="py-2 pr-4 font-mono text-xs">date_obtained</td>
                             <td class="py-2 pr-4">YYYY-MM-DD</td>
                             <td class="py-2">{{ __('Date format') }}</td>
                         </tr>

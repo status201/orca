@@ -303,7 +303,7 @@ specs/
     folder-management.md   ·  s3_folders list: read / scan / create endpoints
     s3-integrity.md        ·  verify-integrity command + job, s3_missing_at
     discovery-import.md    ·  S3 discovery → import → ProcessDiscoveredAsset
-    csv-export-import.md   ·  33-column export; import diff → validate → apply
+    csv-export-import.md   ·  34-column export; import diff → validate → apply
     # — tags —
     tags.md                ·  Tag types, "last attacher wins" attribution
     tag-input.md           ·  TagInputParser + shared tag-input-core.js

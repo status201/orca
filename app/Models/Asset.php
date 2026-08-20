@@ -33,6 +33,7 @@ class Asset extends Model
         'caption',
         'license_type',
         'license_expiry_date',
+        'date_obtained',
         'copyright',
         'copyright_source',
         's3_missing_at',
@@ -58,6 +59,7 @@ class Asset extends Model
         'width' => 'integer',
         'height' => 'integer',
         'license_expiry_date' => 'date',
+        'date_obtained' => 'date',
         's3_missing_at' => 'datetime',
     ];
 
