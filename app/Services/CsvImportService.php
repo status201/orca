@@ -26,8 +26,19 @@ class CsvImportService
         'caption',
         'license_type',
         'license_expiry_date',
+        'date_obtained',
         'copyright',
         'copyright_source',
+    ];
+
+    /**
+     * The UPDATABLE_FIELDS that hold a date. Both the YYYY-MM-DD format check in
+     * validateRow() and the Y-m-d reformat in calculateChanges() iterate this list
+     * rather than naming one column, so adding a date field needs no new branch.
+     */
+    public const DATE_FIELDS = [
+        'license_expiry_date',
+        'date_obtained',
     ];
 
     public function parseCsv(string $csvData): array
@@ -67,8 +78,8 @@ class CsvImportService
                 $newValue = trim($row[$field]);
                 $currentValue = (string) ($asset->$field ?? '');
 
-                if ($field === 'license_expiry_date' && $asset->license_expiry_date) {
-                    $currentValue = $asset->license_expiry_date->format('Y-m-d');
+                if (in_array($field, self::DATE_FIELDS, true) && $asset->$field) {
+                    $currentValue = $asset->$field->format('Y-m-d');
                 }
 
                 if ($newValue !== $currentValue) {
@@ -105,8 +116,12 @@ class CsvImportService
             }
         }
 
-        if (isset($row['license_expiry_date']) && trim($row['license_expiry_date']) !== '') {
-            $date = trim($row['license_expiry_date']);
+        foreach (self::DATE_FIELDS as $field) {
+            if (! isset($row[$field]) || trim($row[$field]) === '') {
+                continue;
+            }
+
+            $date = trim($row[$field]);
             if (! preg_match('/^\d{4}-\d{2}-\d{2}$/', $date) || ! strtotime($date)) {
                 $errors[] = __('Invalid date format: ":value". Use YYYY-MM-DD.', ['value' => $date]);
             }

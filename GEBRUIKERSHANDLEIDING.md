@@ -225,7 +225,7 @@ Klik op een asset of druk op Bewerken om aan te passen:
 - **Bijschrift** — Langere beschrijving of creditregel die bij de afbeelding wordt weergegeven
 - **Licentie-info** — Gebruiksrechten bijhouden:
   - **Licentietype** — Public Domain, Creative Commons-varianten, Fair Use, All Rights Reserved
-  - **Licentie-vervaldatum** — Wanneer verloopt de licentie? (laat leeg als onbeperkt)
+  - **Datum verkregen** — Wanneer je de asset hebt gekocht of anderszins verkregen (optioneel)
   - **Auteursrechthebbende** — Wie bezit de rechten?
   - **Auteursrechtbron** — Link naar waar je de licentie-informatie hebt gevonden
 

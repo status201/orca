@@ -35,6 +35,9 @@ class AssetFactory extends Factory
             'caption' => fake()->optional()->paragraph(),
             'license_type' => fake()->optional()->randomElement(['public_domain', 'cc_by', 'cc_by_sa', 'all_rights_reserved']),
             'license_expiry_date' => fake()->optional()->dateTimeBetween('now', '+2 years'),
+            // Deliberately null rather than optional(): tests that care about the obtained
+            // date set it explicitly, so a random value never has to be overridden away.
+            'date_obtained' => null,
             'copyright' => fake()->optional()->company(),
             'copyright_source' => fake()->optional()->url(),
             'user_id' => User::factory(),

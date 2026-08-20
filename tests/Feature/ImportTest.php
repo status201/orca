@@ -440,6 +440,35 @@ test('import updates license type with valid value', function () {
     expect($asset->license_expiry_date->format('Y-m-d'))->toBe('2027-06-15');
 });
 
+test('import updates date_obtained and skips a row whose date is malformed', function () {
+    $admin = User::factory()->create(['role' => 'admin']);
+    $asset = Asset::factory()->create(['s3_key' => 'assets/img.jpg', 'date_obtained' => null]);
+
+    $csv = "s3_key,date_obtained\nassets/img.jpg,2026-05-01";
+
+    $this->actingAs($admin)->postJson(route('import.import'), [
+        'csv_data' => $csv,
+        'match_field' => 's3_key',
+    ])->assertOk()->assertJsonPath('updated', 1);
+
+    expect($asset->refresh()->date_obtained->format('Y-m-d'))->toBe('2026-05-01');
+
+    $bad = "s3_key,date_obtained\nassets/img.jpg,01-05-2026";
+
+    $response = $this->actingAs($admin)->postJson(route('import.import'), [
+        'csv_data' => $bad,
+        'match_field' => 's3_key',
+    ]);
+
+    $response->assertOk()
+        ->assertJsonPath('updated', 0)
+        ->assertJsonPath('skipped', 1);
+    expect($response->json('errors'))->toHaveCount(1);
+
+    // The rejected row left the stored value alone.
+    expect($asset->refresh()->date_obtained->format('Y-m-d'))->toBe('2026-05-01');
+});
+
 // --- Import skips unmatched ---
 
 test('import skips unmatched rows', function () {

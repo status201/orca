@@ -10,7 +10,7 @@ use App\Services\CsvExportService;
 test('generateHeaders returns exactly 34 items', function () {
     $service = new CsvExportService;
 
-    expect($service->generateHeaders())->toHaveCount(33);
+    expect($service->generateHeaders())->toHaveCount(34);
 });
 
 test('generateHeaders contains all expected column names', function () {
@@ -24,6 +24,7 @@ test('generateHeaders contains all expected column names', function () {
         'thumbnail_s3_key', 'resize_s_s3_key', 'resize_m_s3_key', 'resize_l_s3_key',
         'alt_text', 'caption', 'license_type', 'copyright', 'copyright_source',
         'user_id', 'user_name', 'user_email', 'created_at', 'updated_at',
+        'date_obtained',
     ] as $expected) {
         expect($headers)->toContain($expected);
     }
@@ -45,7 +46,7 @@ test('formatRow returns exactly 34 values', function () {
 
     $service = new CsvExportService;
 
-    expect($service->formatRow($asset))->toHaveCount(33);
+    expect($service->formatRow($asset))->toHaveCount(34);
 });
 
 test('formatRow separates user tags, ai tags, and reference tags', function () {
@@ -106,6 +107,20 @@ test('formatRow formats license_expiry_date as Y-m-d string', function () {
     $map = array_combine($headers, $row);
 
     expect($map['license_expiry_date'])->toBe('2027-01-15');
+});
+
+test('formatRow returns null for null date_obtained and Y-m-d when set', function () {
+    $user = User::factory()->create();
+    $service = new CsvExportService;
+    $headers = $service->generateHeaders();
+
+    $without = Asset::factory()->create(['user_id' => $user->id, 'date_obtained' => null]);
+    $without->load('tags', 'user');
+    expect(array_combine($headers, $service->formatRow($without))['date_obtained'])->toBeNull();
+
+    $with = Asset::factory()->create(['user_id' => $user->id, 'date_obtained' => '2026-05-01']);
+    $with->load('tags', 'user');
+    expect(array_combine($headers, $service->formatRow($with))['date_obtained'])->toBe('2026-05-01');
 });
 
 test('formatRow returns empty strings for user_name and user_email when user relation is null', function () {

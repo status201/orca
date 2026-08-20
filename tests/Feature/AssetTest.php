@@ -277,6 +277,7 @@ test('authenticated users can update asset metadata', function () {
         'caption' => 'New caption',
         'license_type' => 'cc_by',
         'license_expiry_date' => '2025-12-31',
+        'date_obtained' => '2026-05-01',
         'copyright' => 'Test Copyright',
         'copyright_source' => 'https://example.com',
     ]);
@@ -288,6 +289,7 @@ test('authenticated users can update asset metadata', function () {
     expect($asset->caption)->toBe('New caption');
     expect($asset->license_type)->toBe('cc_by');
     expect($asset->license_expiry_date->format('Y-m-d'))->toBe('2025-12-31');
+    expect($asset->date_obtained->format('Y-m-d'))->toBe('2026-05-01');
     expect($asset->copyright)->toBe('Test Copyright');
     expect($asset->copyright_source)->toBe('https://example.com');
 });
@@ -373,6 +375,30 @@ test('asset detail shows license expiry date', function () {
     $response->assertStatus(200);
     $response->assertSee('License Expiry Date');
     $response->assertSee('Jun 15, 2025');
+});
+
+test('asset detail shows date obtained', function () {
+    $user = User::factory()->create();
+    $asset = Asset::factory()->create(['date_obtained' => '2026-05-01']);
+
+    $response = $this->actingAs($user)->get(route('assets.show', $asset));
+
+    $response->assertStatus(200);
+    $response->assertSee('Date Obtained');
+    $response->assertSee('May 01, 2026');
+});
+
+test('the edit form offers date obtained and no license expiry input', function () {
+    $user = User::factory()->create();
+    $asset = Asset::factory()->create(['license_expiry_date' => '2025-06-15']);
+
+    $response = $this->actingAs($user)->get(route('assets.edit', $asset));
+
+    $response->assertStatus(200);
+    $response->assertSee('name="date_obtained"', false);
+    // Retired from the form; the column and its stored value stay untouched.
+    $response->assertDontSee('name="license_expiry_date"', false);
+    expect($asset->fresh()->license_expiry_date->format('Y-m-d'))->toBe('2025-06-15');
 });
 
 test('asset detail shows copyright source as link when url', function () {

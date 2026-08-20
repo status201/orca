@@ -1466,6 +1466,12 @@
             "format": "date",
             "nullable": true
           },
+          "date_obtained": {
+            "type": "string",
+            "format": "date",
+            "nullable": true,
+            "example": "2026-05-01"
+          },
           "copyright": {
             "type": "string",
             "nullable": true,

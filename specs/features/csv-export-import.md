@@ -3,7 +3,7 @@
 ```yaml
 id: csv-export-import
 status: implemented
-version: 2
+version: 3
 owner: core
 related:
   - architecture
@@ -42,8 +42,8 @@ mistakes before an `import` mutates anything.
   `reference_tags` columns are additive (`syncTagsWithAttribution`'s
   `syncWithoutDetaching` semantics), and only non-empty CSV cells overwrite a
   field (`UPDATABLE_FIELDS`) — an empty cell leaves the current value alone.
-- **REQ-5** — A row failing `validateRow()` (invalid `license_type`, malformed
-  `license_expiry_date`, or a cell longer than its target column) is skipped
+- **REQ-5** — A row failing `validateRow()` (invalid `license_type`, a malformed
+  date in any of `DATE_FIELDS`, or a cell longer than its target column) is skipped
   entirely during `import` (no partial field updates for that row), and reported
   in the response's `errors[]`. The length check compares `mb_strlen` against
   `ColumnLimits` for every bounded `UPDATABLE_FIELDS` cell — CSV is the one write
@@ -83,22 +83,28 @@ value (date fields compared as `Y-m-d` strings); also surfaces
 `user_tags`/`reference_tags` as additive `{add: "..."}` entries.
 `CsvImportService::validateRow(array $row): array` — returns human-readable
 error strings for an invalid `license_type` (must be one of
-`ALLOWED_LICENSE_TYPES`) or a malformed `license_expiry_date`.
+`ALLOWED_LICENSE_TYPES`) or a malformed value in any `DATE_FIELDS` cell.
 `CsvImportService::UPDATABLE_FIELDS` — the exhaustive whitelist of columns
 `import()` is allowed to write: `filename`, `alt_text`, `caption`,
-`license_type`, `license_expiry_date`, `copyright`, `copyright_source`.
+`license_type`, `license_expiry_date`, `date_obtained`, `copyright`,
+`copyright_source`. `CsvImportService::DATE_FIELDS` — the subset of those that
+hold a date (`license_expiry_date`, `date_obtained`); both the `YYYY-MM-DD`
+format check and the `Y-m-d` diff comparison are driven off this list rather than
+naming a single column, so a further date field needs no new branch.
 
 ### Data shapes
 
 ```yaml
-# CsvExportService::generateHeaders() — 34 columns, in order
+# CsvExportService::generateHeaders() — 34 columns, in order.
+# A new column is APPENDED, never inserted: the export is parsed positionally
+# downstream, so date_obtained sits last rather than beside license_expiry_date.
 id, s3_key, filename, mime_type, size, etag, width, height,
 thumbnail_s3_key, resize_s_s3_key, resize_m_s3_key, resize_l_s3_key,
 alt_text, caption, license_type, license_expiry_date, copyright, copyright_source,
 user_id, user_name, user_email, last_modified_by_id, last_modified_by_name,
 user_tags, ai_tags, reference_tags,
 url, thumbnail_url, resize_s_url, resize_m_url, resize_l_url,
-created_at, updated_at
+created_at, updated_at, date_obtained
 
 # ImportController::preview response
 matched / unmatched / skipped / total: int
@@ -199,8 +205,8 @@ Scenario: Preview reports unmatched rows without erroring
   Then it is reported with status "not_found", not treated as fatal
 # pinned by: tests/Feature/ImportTest.php
 
-Scenario: Preview flags an invalid license_type or license_expiry_date
-  Given a row with an unrecognized license_type or a malformed date
+Scenario: Preview flags an invalid license_type or a malformed date cell
+  Given a row with an unrecognized license_type or a malformed license_expiry_date/date_obtained
   Then validateRow() reports the corresponding error message
 # pinned by: tests/Feature/ImportTest.php, tests/Unit/CsvImportServiceTest.php
 

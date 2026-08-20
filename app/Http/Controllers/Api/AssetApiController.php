@@ -160,7 +160,7 @@ class AssetApiController extends Controller
         $asset->update(array_merge(
             $request->only([
                 'filename', 'alt_text', 'caption', 'license_type',
-                'license_expiry_date', 'copyright', 'copyright_source',
+                'license_expiry_date', 'date_obtained', 'copyright', 'copyright_source',
             ]),
             ['last_modified_by' => Auth::id()]
         ));

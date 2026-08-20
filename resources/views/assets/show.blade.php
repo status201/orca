@@ -401,6 +401,13 @@
                 </div>
                 @endif
 
+                @if($asset->date_obtained)
+                <div class="mt-4 pt-4 border-t">
+                    <h4 class="text-sm font-semibold text-gray-700 mb-1">{{ __('Date Obtained') }}</h4>
+                    <p class="text-sm text-gray-600">{{ $asset->date_obtained->format('M d, Y') }}</p>
+                </div>
+                @endif
+
                 @if($asset->copyright)
                 <div class="mt-4 pt-4 border-t">
                     <h4 class="text-sm font-semibold text-gray-700 mb-1">{{ __('Copyright Information') }}</h4>

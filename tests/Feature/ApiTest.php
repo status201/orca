@@ -87,7 +87,7 @@ test('api can update asset', function () {
     expect($asset->caption)->toBe('Updated caption');
 });
 
-test('api update persists filename, license expiry, and copyright source', function () {
+test('api update persists filename, dates, and copyright source', function () {
     $user = User::factory()->create();
     Sanctum::actingAs($user);
 
@@ -96,11 +96,13 @@ test('api update persists filename, license expiry, and copyright source', funct
         'filename' => 'old.jpg',
         'copyright_source' => null,
         'license_expiry_date' => null,
+        'date_obtained' => null,
     ]);
 
     $response = $this->patchJson("/api/assets/{$asset->id}", [
         'filename' => 'new-name.jpg',
         'license_expiry_date' => '2030-01-01',
+        'date_obtained' => '2026-05-01',
         'copyright_source' => 'https://example.com/source',
     ]);
 
@@ -110,6 +112,7 @@ test('api update persists filename, license expiry, and copyright source', funct
     expect($asset->filename)->toBe('new-name.jpg');
     expect($asset->copyright_source)->toBe('https://example.com/source');
     expect($asset->license_expiry_date->format('Y-m-d'))->toBe('2030-01-01');
+    expect($asset->date_obtained->format('Y-m-d'))->toBe('2026-05-01');
 });
 
 test('api update syncs reference_tag_ids while preserving user and AI tags', function () {
