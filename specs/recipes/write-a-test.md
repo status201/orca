@@ -28,7 +28,7 @@ per-file boilerplate needed.
 
 The mandatory `php artisan config:clear` before `php artisan test` exists
 because a stale `bootstrap/cache/config.php` can point `RefreshDatabase` at
-the **dev MariaDB database** instead of the in-memory SQLite configured for
+the **dev SQLite database** instead of the in-memory SQLite configured for
 testing — and `RefreshDatabase` truncates whatever it's pointed at. This one
 command is the difference between a fast hermetic test run and wiping a real
 database; a PreToolUse hook enforces it, but it's worth internalizing why.
