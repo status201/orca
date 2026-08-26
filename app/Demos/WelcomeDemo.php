@@ -212,7 +212,7 @@ final class WelcomeDemo implements Demo
                 placement: 'bottom',
                 routeName: 'assets.create',
                 title: __('Filename in the URL — read this one twice'),
-                body: __('Default off, so every file is stored under a generated name and your filename is kept as a label. Only switch it on when you want links people have to type or recognise, so the real filename becomes the URL. Two consequences: the URL cannot easily be changed afterwards, and uploading a file with a name that already exists in that folder overwrites it. ORCA asks you to confirm for exactly that reason.'),
+                body: __('Default off, so every file is stored under a generated name. Your filename is kept as a label (\'Filename\' in ORCA). Only switch it on when you want links people have to type or recognise; the real filename becomes the URL. Two consequences: the URL cannot easily be changed afterwards, and uploading a file with a name that already exists in that folder overwrites it. ORCA asks you to confirm for exactly that reason.'),
             ),
             new DemoStep(
                 target: 'batch-metadata-toggle',
