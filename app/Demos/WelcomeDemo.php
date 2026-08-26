@@ -54,7 +54,7 @@ final class WelcomeDemo implements Demo
                 placement: 'center',
                 routeName: 'dashboard',
                 title: __('Welcome to ORCA'),
-                body: __('ORCA keeps your images, video and documents in one searchable library. This walkthrough points at the handful of controls worth knowing — it takes about a minute.'),
+                body: __('ORCA keeps your images, video and documents in one searchable library. This walkthrough points at the handful of controls worth knowing — it takes a few minutes.'),
             ),
             new DemoStep(
                 target: 'stat-total-assets',
@@ -212,7 +212,7 @@ final class WelcomeDemo implements Demo
                 placement: 'bottom',
                 routeName: 'assets.create',
                 title: __('Filename in the URL — read this one twice'),
-                body: __('Left off, every file is stored under a generated name and your filename is kept as a label. Switch it on and the real filename becomes part of the permanent URL, which is what you want for links people have to type or recognise. Two consequences: the URL cannot easily be changed afterwards, and uploading a file with a name that already exists in that folder overwrites it. ORCA asks you to confirm for exactly that reason.'),
+                body: __('Default off, so every file is stored under a generated name and your filename is kept as a label. Only switch it on when you want links people have to type or recognise, so the real filename becomes the URL. Two consequences: the URL cannot easily be changed afterwards, and uploading a file with a name that already exists in that folder overwrites it. ORCA asks you to confirm for exactly that reason.'),
             ),
             new DemoStep(
                 target: 'batch-metadata-toggle',
