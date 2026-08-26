@@ -3,7 +3,7 @@
 ```yaml
 id: client-side-tools
 status: implemented
-version: 2
+version: 3
 owner: core
 related:
   - architecture
@@ -44,9 +44,12 @@ backend render step, only a backend *persist* step.
   max:1000) rules; each subclass adds only its `content` size cap and any
   tool-specific fields via `extraRules()`.
 - **REQ-3** — SVG/GIF/PNG uploads accept the shared batch-metadata fields
-  (`metadata_tags`, `metadata_license_type`, `metadata_copyright`,
-  `metadata_copyright_source`) via `HasUploadMetadataRules`, applied identically
-  to the main upload flow (see `CLAUDE.md` → Key Workflows → Upload). The MathML
+  (`metadata_tags`, `metadata_reference_tag_ids`, `metadata_license_type`,
+  `metadata_copyright`, `metadata_copyright_source`, `metadata_date_obtained`) via
+  `HasUploadMetadataRules`, applied identically to the main upload flow (see
+  `CLAUDE.md` → Key Workflows → Upload). The list is the trait's, never a copy of it —
+  the tool views include the same `partials/upload-metadata.blade.php` as the upload
+  page, so a field added there reaches these endpoints without a change here. The MathML
   and `.tex` template uploads do not accept batch metadata.
 - **REQ-4** — SVG/PNG/GIF uploads accept an optional `parent_asset_id` (must
   `exists:assets,id`) so a tool-generated asset can link back to a source `.tex`
@@ -99,7 +102,8 @@ POST tools/gif-maker/upload       -> ToolsController::uploadGif (StoreGifRequest
   content: required|string|max:15000000     # base64, up to ~15MB decoded
   width/height: nullable|integer|min:1
   parent_asset_id: nullable|integer|exists:assets,id
-  + HasUploadMetadataRules (metadata_tags, metadata_license_type, metadata_copyright, metadata_copyright_source)
+  + HasUploadMetadataRules (metadata_tags, metadata_reference_tag_ids, metadata_license_type,
+                            metadata_copyright, metadata_copyright_source, metadata_date_obtained)
 
 # LaTeX -> MathML (Temml, client-side; no image render — just markup transform)
 GET  tools/latex-mathml           -> tools.latex-mathml

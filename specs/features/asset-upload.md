@@ -3,7 +3,7 @@
 ```yaml
 id: asset-upload
 status: implemented
-version: 5
+version: 6
 owner: core
 related:
   - architecture
@@ -49,9 +49,10 @@ supplied alongside the files.
   `AssetProcessingService::processImageAsset()`, never done inline in the
   controller (REQ-1 of `architecture.md`).
 - **REQ-5** — Batch metadata (`metadata_tags`, `metadata_license_type`,
-  `metadata_copyright`, `metadata_copyright_source`, `metadata_reference_tag_ids`)
-  is applied to every uploaded file in the batch via
-  `AssetProcessingService::applyUploadMetadata()`.
+  `metadata_copyright`, `metadata_copyright_source`, `metadata_reference_tag_ids`,
+  `metadata_date_obtained`) is applied to every uploaded file in the batch via
+  `AssetProcessingService::applyUploadMetadata()`. A field left blank is skipped,
+  never written as an empty value.
 - **REQ-6** — A batch with some failures and some successes still returns 2xx
   with per-file outcomes; only a batch where *every* file failed returns an
   error status.
@@ -76,7 +77,9 @@ shared upload-metadata rules (`UploadMetadataRules::rules()`, reached through th
 `metadata_license_type` in `Asset::licenseTypes()` keys,
 `metadata_copyright`/`metadata_copyright_source` capped at
 `ColumnLimits::for('assets', 'copyright')` / `…'copyright_source'` rather than a
-literal — see [`input-validation.md`](input-validation.md) REQ-1).
+literal — see [`input-validation.md`](input-validation.md) REQ-1,
+`metadata_date_obtained` `nullable|date` — a DATE column has no character width, so
+it carries no `ColumnLimits` cap and no `<x-char-counter>`).
 
 `AssetProcessingService::processImageAsset(Asset $asset, bool $dispatchAiTagging = true): void`
 — no-ops for non-images; generates thumbnail via
@@ -86,8 +89,12 @@ when `$dispatchAiTagging` and `RekognitionService::isEnabled()`. Each step is
 independently try/caught and logged — a thumbnail failure doesn't block resize
 generation or AI dispatch.
 
-`AssetProcessingService::applyUploadMetadata(Asset $asset, ?array $tagNames, ?string $licenseType, ?string $copyright, ?string $copyrightSource, ?array $referenceTagIds = null): void`
-— applies non-null/non-empty license fields via one `update()`, parses
+`AssetProcessingService::applyUploadMetadata(Asset $asset, ?array $tagNames, ?string $licenseType, ?string $copyright, ?string $copyrightSource, ?array $referenceTagIds = null, ?string $dateObtained = null): void`
+— `$dateObtained` is **appended** rather than slotted in beside `$copyrightSource`, for
+the same reason `date_obtained` became CSV column 34 and not column 18
+([`csv-export-import.md`](csv-export-import.md)): existing positional callers must not
+shift. The `$updates` array it feeds is keyed, so column grouping is unaffected. Callers
+pass it by name. The method applies non-null/non-empty license fields via one `update()`, parses
 `$tagNames` through `TagInputParser::parse()` (comma-splitting — see
 [`tag-input.md`](tag-input.md)) then `Tag::resolveUserTagIds()` +
 `syncTagsWithAttribution(..., 'user')`; reference tag ids are synced with
@@ -127,6 +134,23 @@ Scenario: Batch metadata is applied to every uploaded file
   When the upload completes
   Then both created assets carry the same tags, license_type, copyright, and copyright_source
 # pinned by: tests/Feature/AssetTest.php
+
+Scenario: A batch Date Obtained is applied to every uploaded file
+  Given a POST /assets request with two files and metadata_date_obtained 2026-05-01
+  When the upload completes
+  Then both created assets carry date_obtained 2026-05-01
+# pinned by: tests/Feature/AssetTest.php
+
+Scenario: Upload rejects a metadata_date_obtained that is not a date
+  Given a POST /assets request with metadata_date_obtained "not-a-date"
+  Then the request is rejected with a validation error
+# pinned by: tests/Feature/AssetTest.php
+
+Scenario: A blank Date Obtained does not overwrite a stored one
+  Given an asset already carrying a date_obtained
+  When applyUploadMetadata runs with an empty-string dateObtained
+  Then the stored date_obtained is unchanged
+# pinned by: tests/Unit/AssetProcessingServiceTest.php
 
 Scenario: Upload rejects an invalid metadata_license_type
   Given a POST /assets request with metadata_license_type not in Asset::licenseTypes()
@@ -198,6 +222,14 @@ Scenario: A disallowed file type is rejected in the browser
 - E2E: `tests/e2e/asset-upload.spec.js` — a real browser upload that round-trips bytes to the MinIO bucket and back as a thumbnail.
 
 ## Open questions / future
+
+- `applyUploadMetadata()` now takes seven positional parameters, four of them nullable
+  strings, which makes a call like `applyUploadMetadata($asset, null, null, null, null)`
+  unreadable at the call site and easy to mis-order. Folding them into a single keyed
+  array (or a small DTO) is the obvious fix, but it would rewrite three production call
+  sites and ~10 test ones and force `## Technical design` edits — and therefore version
+  bumps — in four specs for reasons unrelated to any of them. Worth doing on its own,
+  not folded into a field addition.
 
 - ~~The `keep_original_filename` overwrite branch has no dedicated test.~~ **Resolved** — all four
   combinations of the flag are now pinned in `tests/Feature/DuplicatePreventionTest.php`

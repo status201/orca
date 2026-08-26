@@ -39,6 +39,10 @@ final class UploadMetadataRules
             // varchar(255) column, which is how an over-length copyright became a 500.
             'metadata_copyright' => 'nullable|string|max:'.ColumnLimits::for('assets', 'copyright'),
             'metadata_copyright_source' => 'nullable|string|max:'.ColumnLimits::for('assets', 'copyright_source'),
+            // Byte-identical to UpdateAssetRequest's rule for the same column, deliberately: the
+            // batch path and the per-asset path must not drift. A DATE column has no character
+            // width, so there is no ColumnLimits cap to read and no counter to render.
+            'metadata_date_obtained' => 'nullable|date',
         ];
     }
 }

@@ -7,7 +7,7 @@ use App\Support\UploadMetadataRules;
 /**
  * The batch upload-metadata rules + accessor for the FormRequests that carry them
  * (metadata_tags, metadata_reference_tag_ids, metadata_license_type, metadata_copyright,
- * metadata_copyright_source).
+ * metadata_copyright_source, metadata_date_obtained).
  *
  * The rules themselves live in App\Support\UploadMetadataRules, because
  * ChunkedUploadController::complete needs the same set but is not a FormRequest — it validates
@@ -31,6 +31,7 @@ trait HasUploadMetadataRules
             'copyright' => $this->input('metadata_copyright'),
             'copyright_source' => $this->input('metadata_copyright_source'),
             'reference_tag_ids' => $this->input('metadata_reference_tag_ids'),
+            'date_obtained' => $this->input('metadata_date_obtained'),
         ];
     }
 }

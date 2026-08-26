@@ -190,6 +190,7 @@ class ChunkedUploadController extends Controller
                 $request->input('metadata_copyright'),
                 $request->input('metadata_copyright_source'),
                 $request->input('metadata_reference_tag_ids'),
+                dateObtained: $request->input('metadata_date_obtained'),
             );
 
             return response()->json([

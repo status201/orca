@@ -229,7 +229,7 @@ final class WelcomeDemo implements Demo
                 reveal: ['click' => 'batch-metadata-toggle', 'until' => 'batch-metadata-panel'],
                 fallback: 'center',
                 title: __('What gets copied to every file'),
-                body: __('Tags, licence, copyright holder and source — each applied to every file you upload in this batch, so a shoot or an export arrives already organised. Anything left blank is simply not set, and all of it stays editable per asset afterwards.'),
+                body: __('Tags, licence, copyright holder and source, and the date you obtained the files — each applied to every file you upload in this batch, so a shoot or an export arrives already organised. Anything left blank is simply not set, and all of it stays editable per asset afterwards.'),
             ),
             new DemoStep(
                 target: 'upload-dropzone',

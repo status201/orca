@@ -64,6 +64,7 @@ class ToolUploadService
                     $metadata['copyright'] ?? null,
                     $metadata['copyright_source'] ?? null,
                     $metadata['reference_tag_ids'] ?? null,
+                    dateObtained: $metadata['date_obtained'] ?? null,
                 );
             }
 

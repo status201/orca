@@ -3,7 +3,7 @@
 ```yaml
 id: tikz-render
 status: implemented
-version: 1
+version: 2
 owner: core
 related:
   - architecture
@@ -153,9 +153,11 @@ PNG — all inside one temp dir cleaned up in a `finally`. A *separate* upload s
 `AssetProcessingService::processImageAsset()` (thumbnail/resize/AI dispatch,
 skipped for `.tex` templates via `process: false`) →
 `AssetProcessingService::applyUploadMetadata()` when batch metadata
-(`metadata_tags`, `metadata_license_type`, `metadata_copyright`,
-`metadata_copyright_source`) is present, using the shared
-`HasUploadMetadataRules` trait for validation.
+(`metadata_tags`, `metadata_reference_tag_ids`, `metadata_license_type`,
+`metadata_copyright`, `metadata_copyright_source`, `metadata_date_obtained`) is
+present, using the shared `HasUploadMetadataRules` trait for validation — the field
+list is the trait's, so it tracks [`asset-upload.md`](asset-upload.md) REQ-5 rather
+than being maintained here.
 
 ### Persistence
 

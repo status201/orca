@@ -53,6 +53,7 @@ test('chunked upload complete applies batch metadata to created asset', function
         'metadata_license_type' => 'cc_by_nc',
         'metadata_copyright' => '© 2026 Studio',
         'metadata_copyright_source' => 'https://example.com/src',
+        'metadata_date_obtained' => '2026-05-01',
     ]);
 
     $response->assertOk();
@@ -61,6 +62,7 @@ test('chunked upload complete applies batch metadata to created asset', function
     expect($asset->license_type)->toBe('cc_by_nc');
     expect($asset->copyright)->toBe('© 2026 Studio');
     expect($asset->copyright_source)->toBe('https://example.com/src');
+    expect($asset->date_obtained->format('Y-m-d'))->toBe('2026-05-01');
 
     $tagNames = $asset->tags->pluck('name')->all();
     expect($tagNames)->toContain('architecture');
@@ -129,6 +131,19 @@ test('chunked upload complete rejects a metadata_copyright over the column limit
 
     $response->assertStatus(422);
     $response->assertJsonValidationErrors('metadata_copyright');
+});
+
+test('chunked upload complete rejects a metadata_date_obtained that is not a date', function () {
+    $user = User::factory()->create();
+    $session = makeUploadSession($user);
+
+    $response = $this->actingAs($user)->postJson(route('chunked-upload.complete'), [
+        'session_token' => $session->session_token,
+        'metadata_date_obtained' => 'not-a-date',
+    ]);
+
+    $response->assertStatus(422);
+    $response->assertJsonValidationErrors('metadata_date_obtained');
 });
 
 test('chunked upload complete returns 409 on duplicate', function () {
