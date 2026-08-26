@@ -968,6 +968,7 @@ test('store applies batch metadata to every uploaded file', function () {
         'metadata_license_type' => 'cc_by',
         'metadata_copyright' => '© 2026 ACME',
         'metadata_copyright_source' => 'https://example.com/license',
+        'metadata_date_obtained' => '2026-05-01',
     ]);
 
     $response->assertStatus(200);
@@ -979,6 +980,7 @@ test('store applies batch metadata to every uploaded file', function () {
         expect($asset->license_type)->toBe('cc_by');
         expect($asset->copyright)->toBe('© 2026 ACME');
         expect($asset->copyright_source)->toBe('https://example.com/license');
+        expect($asset->date_obtained->format('Y-m-d'))->toBe('2026-05-01');
 
         $tagNames = $asset->tags->pluck('name')->all();
         expect($tagNames)->toContain('landscape');
@@ -1001,6 +1003,18 @@ test('store rejects invalid metadata_license_type', function () {
 
     $response->assertStatus(422);
     $response->assertJsonValidationErrors('metadata_license_type');
+});
+
+test('store rejects a metadata_date_obtained that is not a date', function () {
+    $user = User::factory()->create();
+
+    $response = $this->actingAs($user)->postJson(route('assets.store'), [
+        'files' => [UploadedFile::fake()->image('photo.jpg')],
+        'metadata_date_obtained' => 'not-a-date',
+    ]);
+
+    $response->assertStatus(422);
+    $response->assertJsonValidationErrors('metadata_date_obtained');
 });
 
 test('store rejects a filename longer than the column accepts', function () {

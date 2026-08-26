@@ -111,4 +111,17 @@ test.describe('batch metadata form', () => {
 
         await expect(page.locator(testid('batch-metadata-set'))).toBeVisible();
     });
+
+    test('the date obtained field alone marks the batch metadata as set', async ({ page }) => {
+        // The "Set" indicator is a hand-maintained || chain over every field in the panel. A field
+        // added without extending it renders fine and submits fine, and the collapsed header still
+        // says nothing is set — a silent wrong answer nothing else catches.
+        await openBatchMetadata(page);
+
+        await expect(page.locator(testid('batch-metadata-set'))).toBeHidden();
+
+        await page.fill(testid('batch-metadata-date-obtained'), '2026-05-01');
+
+        await expect(page.locator(testid('batch-metadata-set'))).toBeVisible();
+    });
 });

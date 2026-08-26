@@ -31,6 +31,7 @@ export function uploadMetadata() {
         metadataLicenseType: '',
         metadataCopyright: '',
         metadataCopyrightSource: '',
+        metadataDateObtained: '',
 
         metadataAddTag() {
             // Splits comma/newline lists and dedups via the shared tag-input core.
@@ -129,6 +130,7 @@ export function uploadMetadata() {
             if (this.metadataLicenseType) payload.metadata_license_type = this.metadataLicenseType;
             if (this.metadataCopyright) payload.metadata_copyright = this.metadataCopyright;
             if (this.metadataCopyrightSource) payload.metadata_copyright_source = this.metadataCopyrightSource;
+            if (this.metadataDateObtained) payload.metadata_date_obtained = this.metadataDateObtained;
             return payload;
         },
     };

@@ -114,7 +114,8 @@ function gifMaker() {
                 if (m.metadata_license_type) this.metadataLicenseType = m.metadata_license_type;
                 if (m.metadata_copyright) this.metadataCopyright = m.metadata_copyright;
                 if (m.metadata_copyright_source) this.metadataCopyrightSource = m.metadata_copyright_source;
-                if (this.metadataTags.length > 0 || this.metadataLicenseType || this.metadataCopyright || this.metadataCopyrightSource) {
+                if (m.metadata_date_obtained) this.metadataDateObtained = m.metadata_date_obtained;
+                if (this.metadataTags.length > 0 || this.metadataLicenseType || this.metadataCopyright || this.metadataCopyrightSource || this.metadataDateObtained) {
                     this.showMetadata = true;
                 }
             }

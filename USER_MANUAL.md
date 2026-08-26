@@ -149,7 +149,7 @@ Remember: you can't move files later, so **choose the correct folder before uplo
 2. Select your target folder
 3. Drag and drop files onto the upload area, or click to browse
 4. Optionally check **Use filename in the URL** so the download keeps the file's original name from your computer
-5. Optionally expand **Add Metadata** to apply user tags, license type, copyright, and copyright source to every file in this batch
+5. Optionally expand **Add Metadata** to apply user tags, license type, copyright, copyright source, and date obtained to every file in this batch
 6. Watch the progress bars — larger files may take a moment
 7. Done! Thumbnails and AI tags generate in the background; just refresh the page
 

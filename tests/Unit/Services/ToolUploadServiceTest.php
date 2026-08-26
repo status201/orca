@@ -72,7 +72,7 @@ test('store forwards the metadata payload to applyUploadMetadata', function () {
     $processing->shouldReceive('processImageAsset')->once();
     $processing->shouldReceive('applyUploadMetadata')
         ->once()
-        ->with(Mockery::type(Asset::class), ['a'], 'cc_by', '© x', 'src', [7]);
+        ->with(Mockery::type(Asset::class), ['a'], 'cc_by', '© x', 'src', [7], '2026-05-01');
 
     (new ToolUploadService($s3, $processing))->store(
         content: 'GIF',
@@ -86,6 +86,7 @@ test('store forwards the metadata payload to applyUploadMetadata', function () {
             'copyright' => '© x',
             'copyright_source' => 'src',
             'reference_tag_ids' => [7],
+            'date_obtained' => '2026-05-01',
         ],
     );
 });

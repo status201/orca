@@ -125,9 +125,9 @@ itself — see `CLAUDE.md`'s maintenance commands.
 
 ```gherkin
 Scenario: Completing a chunked upload applies batch metadata
-  Given a completed chunked-upload session with metadata_tags/license/copyright
+  Given a completed chunked-upload session with metadata_tags/license/copyright/date_obtained
   When POST .../complete is called
-  Then the created asset carries the same tags, license_type, copyright, and copyright_source as the direct-upload path
+  Then the created asset carries the same tags, license_type, copyright, copyright_source, and date_obtained as the direct-upload path
 # pinned by: tests/Feature/ChunkedUploadTest.php
 
 Scenario: Completing a chunked upload works without any metadata fields
@@ -142,6 +142,11 @@ Scenario: Complete rejects an invalid metadata_license_type
 
 Scenario: Complete rejects an over-length metadata_copyright
   Given metadata_copyright longer than 500 characters
+  Then the request is rejected with a validation error
+# pinned by: tests/Feature/ChunkedUploadTest.php
+
+Scenario: Complete rejects a metadata_date_obtained that is not a date
+  Given metadata_date_obtained "not-a-date"
   Then the request is rejected with a validation error
 # pinned by: tests/Feature/ChunkedUploadTest.php
 

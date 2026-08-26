@@ -60,7 +60,12 @@ class AssetProcessingService
     }
 
     /**
-     * Apply batch upload metadata (tags, license, copyright) to a newly created asset.
+     * Apply batch upload metadata (tags, license, copyright, date obtained) to a newly created asset.
+     *
+     * $dateObtained is appended rather than slotted in beside $copyrightSource, for the same reason
+     * date_obtained became CSV column 34 and not column 18: existing positional callers must not
+     * shift. The $updates array below is keyed, so the column still reads next to its neighbours.
+     * Callers pass it by name.
      */
     public function applyUploadMetadata(
         Asset $asset,
@@ -68,12 +73,16 @@ class AssetProcessingService
         ?string $licenseType,
         ?string $copyright,
         ?string $copyrightSource,
-        ?array $referenceTagIds = null
+        ?array $referenceTagIds = null,
+        ?string $dateObtained = null
     ): void {
+        // The '' arm is load-bearing, not defensive: a cleared <input type="date"> submits an empty
+        // string, and '' must not reach the 'date' cast or overwrite a stored value with nothing.
         $updates = array_filter([
             'license_type' => $licenseType,
             'copyright' => $copyright,
             'copyright_source' => $copyrightSource,
+            'date_obtained' => $dateObtained,
         ], fn ($v) => $v !== null && $v !== '');
 
         if (! empty($updates)) {

@@ -185,25 +185,47 @@ test('applyUploadMetadata writes license, copyright, and copyright source', func
     expect($asset->copyright_source)->toBe('https://example.com/license');
 });
 
+test('applyUploadMetadata writes date_obtained', function () {
+    $asset = Asset::factory()->create(['date_obtained' => null]);
+
+    makeProcessingService()->applyUploadMetadata(
+        $asset,
+        null,
+        null,
+        null,
+        null,
+        dateObtained: '2026-05-01',
+    );
+
+    $asset->refresh();
+    expect($asset->date_obtained)->not->toBeNull();
+    expect($asset->date_obtained->format('Y-m-d'))->toBe('2026-05-01');
+});
+
 test('applyUploadMetadata skips null and empty-string values without overwriting existing data', function () {
     $asset = Asset::factory()->create([
         'license_type' => 'cc_by_sa',
         'copyright' => 'existing copyright',
         'copyright_source' => 'existing source',
+        'date_obtained' => '2026-01-01',
     ]);
 
+    // '' is the value a cleared <input type="date"> submits — it must not reach the 'date' cast
+    // and must not blank a stored date.
     makeProcessingService()->applyUploadMetadata(
         $asset,
         null,
         null,
         '',
         null,
+        dateObtained: '',
     );
 
     $asset->refresh();
     expect($asset->license_type)->toBe('cc_by_sa');
     expect($asset->copyright)->toBe('existing copyright');
     expect($asset->copyright_source)->toBe('existing source');
+    expect($asset->date_obtained->format('Y-m-d'))->toBe('2026-01-01');
 });
 
 test('applyUploadMetadata attaches user tags with user attribution', function () {
@@ -233,15 +255,17 @@ test('applyUploadMetadata is a no-op when all inputs are null or empty', functio
         'license_type' => 'public_domain',
         'copyright' => 'original',
         'copyright_source' => 'original-src',
+        'date_obtained' => '2026-01-01',
     ]);
 
-    makeProcessingService()->applyUploadMetadata($asset, null, null, null, null);
-    makeProcessingService()->applyUploadMetadata($asset, [], '', '', '');
+    makeProcessingService()->applyUploadMetadata($asset, null, null, null, null, null, null);
+    makeProcessingService()->applyUploadMetadata($asset, [], '', '', '', [], '');
 
     $asset->refresh();
     expect($asset->license_type)->toBe('public_domain');
     expect($asset->copyright)->toBe('original');
     expect($asset->copyright_source)->toBe('original-src');
+    expect($asset->date_obtained->format('Y-m-d'))->toBe('2026-01-01');
     expect($asset->tags()->count())->toBe(0);
 });
 

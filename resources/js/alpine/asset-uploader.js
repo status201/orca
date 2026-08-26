@@ -496,6 +496,7 @@ export function assetUploader() {
             if (meta.metadata_license_type) formData.append('metadata_license_type', meta.metadata_license_type);
             if (meta.metadata_copyright) formData.append('metadata_copyright', meta.metadata_copyright);
             if (meta.metadata_copyright_source) formData.append('metadata_copyright_source', meta.metadata_copyright_source);
+            if (meta.metadata_date_obtained) formData.append('metadata_date_obtained', meta.metadata_date_obtained);
 
             return new Promise((resolve, reject) => {
                 const xhr = new XMLHttpRequest();

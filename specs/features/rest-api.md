@@ -3,7 +3,7 @@
 ```yaml
 id: rest-api
 status: implemented
-version: 4
+version: 5
 owner: core
 related:
   - architecture
@@ -128,7 +128,8 @@ request:
   files.*: file            # required, max 500MB, must pass AllowedUploadExtension
   folder: string?
   keep_original_filename: bool?
-  metadata_tags / metadata_license_type / metadata_copyright / metadata_copyright_source: # HasUploadMetadataRules
+  metadata_*: # HasUploadMetadataRules — tags, reference_tag_ids, license_type,
+  #             copyright, copyright_source, date_obtained (asset-upload.md REQ-5)
 
 # 201 response
 { message: string, data: [Asset], duplicates: [DuplicatePayload & { existing_asset_url }]|null }

@@ -343,6 +343,7 @@ test('svg upload applies batch metadata to created asset', function () {
         'metadata_license_type' => 'cc_by_sa',
         'metadata_copyright' => '© 2026 TikZ Lab',
         'metadata_copyright_source' => 'https://example.com/tikz',
+        'metadata_date_obtained' => '2026-05-01',
     ]);
 
     $response->assertOk();
@@ -351,6 +352,7 @@ test('svg upload applies batch metadata to created asset', function () {
     expect($asset->license_type)->toBe('cc_by_sa');
     expect($asset->copyright)->toBe('© 2026 TikZ Lab');
     expect($asset->copyright_source)->toBe('https://example.com/tikz');
+    expect($asset->date_obtained->format('Y-m-d'))->toBe('2026-05-01');
 
     $tagNames = $asset->tags->pluck('name')->all();
     expect($tagNames)->toContain('diagram');
